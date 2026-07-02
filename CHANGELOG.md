@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1 (2026-07-02) — buildPageMetadata OG default (patch)
+- `buildPageMetadata(page, { ogImage })` — optional site-default OG image, used when a page has
+  no `seo.og_image`, so every page deterministically emits `og:image` (the §2 visual gate).
+  Additive; no consumer change required (default `{}` = prior behaviour).
+
 ## v0.3.0 (2026-07-02) — shell v2 + visual-completion gates (minor)
 The shell-layer completion (the "+9 points" identified in the experience scorecard), for
 W-CARE-EXPERIENCE-CLOSURE. **Additive** — the v0.2 Header/Footer/MobileCta are unchanged and

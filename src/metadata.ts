@@ -3,9 +3,12 @@
 import type { Metadata } from 'next';
 import type { PageJson } from './types';
 
-export function buildPageMetadata(page: PageJson | null): Metadata {
+// opts.ogImage = a site DEFAULT Open Graph image used when a page has no seo.og_image
+// (so every page emits a deterministic og:image — the §2 visual-completion gate).
+export function buildPageMetadata(page: PageJson | null, opts: { ogImage?: string } = {}): Metadata {
   if (!page) return {};
   const canonical = page.seo.canonical.replace(/\/$/, '') || '/';
+  const og = page.seo.og_image ?? opts.ogImage;
   return {
     title: page.seo.title,
     description: page.seo.description,
@@ -18,7 +21,7 @@ export function buildPageMetadata(page: PageJson | null): Metadata {
       siteName: page.nap.trading_name,
       locale: 'en_GB',
       type: 'website',
-      images: page.seo.og_image ? [{ url: page.seo.og_image }] : [],
+      images: og ? [{ url: og }] : [],
     },
   };
 }
