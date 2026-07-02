@@ -19,7 +19,8 @@
 ## Compatibility matrix (updated every release)
 | Framework | page-JSON schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| v0.2.0 | 1 | 14.2.x | care (v0.2 additive-parity proven; archetype rebuild W-FRAMEWORK-V0.2) | ✅ current |
+| v0.3.0 | 1 | 14.2.x | care (shell v2 + visual-completion, W-CARE-EXPERIENCE-CLOSURE) | ✅ current |
+| v0.2.0 | 1 | 14.2.x | care (archetype rebuild W-FRAMEWORK-V0.2) | superseded (additive minor) |
 | v0.1.1 | 1 | 14.2.x | care (F1.3 parity-proven) | superseded (additive minor; identical output for unchanged content) |
 | v0.1.0 | 1 | 14.2.x | — | superseded (2 inert artifacts — see CHANGELOG v0.1.1) |
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.3.0 (2026-07-02) — shell v2 + visual-completion gates (minor)
+The shell-layer completion (the "+9 points" identified in the experience scorecard), for
+W-CARE-EXPERIENCE-CLOSURE. **Additive** — the v0.2 Header/Footer/MobileCta are unchanged and
+still exported, so pinned sites render identically until they adopt `<Shell>`.
+
+Added:
+- **`<Shell page nav>`** — one coordinated client shell resolving the completion requirements the
+  separate components could not: header LOGO (from `nav.logo`, a config/asset value — never a
+  literal; falls back to brand-name text) · accessible mobile nav (aria-label/expanded/controls,
+  visible close (×), ESC-to-close, focus return, body-scroll-lock, single in-menu enquiry action —
+  no CTA duplication) · complete registry-driven FOOTER (logo, NAP, columns, legal links, company
+  reg, CTA) · ONE governed sticky CTA that is OMITTED from the DOM while the nav is open, has
+  safe-area padding, and reserves a bottom spacer so it never obscures the footer/legal.
+- **SiteNav** gains optional `logo {src, alt, footerSrc}`, `legalLinks`, `social`, `phoneCtaLabel`
+  (additive) — the site config/asset contract the future dashboard edits.
+- **`scripts/visual-completion-check.mjs`** — deterministic hard visual-completion gates on built
+  output: header-logo · footer-logo · favicon · og-image · single-sticky-cta · footer-clearance ·
+  mobile-nav-a11y · responsive-typography (+ advisory footer-legal). Not visual opinion; pixel
+  screenshots remain the operator sign-off artifact.
+- Tests: +7 (Shell v2). Typecheck + src isolation (34 files) green.
+
+Consumer action: to adopt shell v2, replace `<Header>…<Footer>…<MobileCta>` with
+`<Shell page nav>{sections}</Shell>` and supply `nav.logo` (+ optional `legalLinks`/`social`).
+Rollback: revert to the individual v0.2 components (still exported) / pin `#v0.2.0`.
+
 ## v0.2.0 (2026-07-02) — production section library + tokens + provenance + funnel + SEO (minor)
 The experience layer the F1A spec defined, built for real. **Additive minor** — every
 new field/type is optional and the default paths of the nucleus components are unchanged,

@@ -13,6 +13,8 @@ export const nav: SiteNav = {
   ],
   companyReg: 'Company Reg. 00000000',
   enquiryCtaLabel: 'Request a widget',
+  logo: { src: '/logo-test.png', alt: 'Test Trading Co', footerSrc: '/logo-test-white.png' },
+  legalLinks: [{ label: 'Privacy', href: '/privacy' }, { label: 'Cookies', href: '/cookies' }],
 };
 
 export const page: PageJson = {

@@ -59,7 +59,10 @@ export { LocationsCoverage } from './sections/LocationsCoverage';
 export { ContactBlock } from './sections/ContactBlock';
 export { EnquiryFunnel } from './sections/EnquiryFunnel';
 
-// shell
+// shell (v0.2 individual components — retained for backward compat)
 export { Header } from './shell/Header';
 export { Footer } from './shell/Footer';
 export { MobileCta } from './shell/MobileCta';
+// shell v2 (v0.3 — coordinated complete shell: logo + accessible mobile nav +
+// complete footer + single governed sticky CTA)
+export { Shell } from './shell/Shell';

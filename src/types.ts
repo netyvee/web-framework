@@ -87,6 +87,14 @@ export type SiteNav = {
   // The enquiry CTA button label (shell Footer + MobileCta). Site-owned wording —
   // extracted from the shipped care/staffing shell where it was a literal.
   enquiryCtaLabel: string;
+  // v0.3 shell v2 (all optional → additive). Brand assets come from the site
+  // config/asset contract, NOT component code, so the dashboard can later edit them.
+  logo?: { src: string; alt: string; footerSrc?: string };
+  legalLinks?: NavLink[];
+  social?: { label: string; href: string }[];
+  // Secondary sticky/CTA action (e.g. phone) label; if absent the sticky CTA shows
+  // the enquiry action only (single governed CTA).
+  phoneCtaLabel?: string;
 };
 
 // ── Site configuration schema ────────────────────────────────────────────────
