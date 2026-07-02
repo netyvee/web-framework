@@ -23,6 +23,7 @@ const { chromium } = require(pwPath);
 fs.mkdirSync(out, { recursive: true });
 
 const VIEWPORTS = [
+  { name: 'mobile-320', w: 320, h: 720, mobile: true },
   { name: 'mobile-360', w: 360, h: 800, mobile: true },
   { name: 'mobile-390', w: 390, h: 844, mobile: true },
   { name: 'mobile-412', w: 412, h: 915, mobile: true },

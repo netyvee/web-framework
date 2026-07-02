@@ -1,0 +1,116 @@
+[
+  {
+    "viewport": "mobile-320",
+    "width": 320,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      },
+      "footer_not_obscured": {
+        "pass": true,
+        "detail": "legal.bottom=608 sticky.top=676"
+      },
+      "mobile_nav_opens_hides_sticky": {
+        "pass": true,
+        "detail": "dialog=true stickyHidden=true"
+      },
+      "mobile_nav_closes_restores_sticky": {
+        "pass": true,
+        "detail": "dialogGone=true stickyBack=true"
+      }
+    },
+    "failed": []
+  },
+  {
+    "viewport": "mobile-360",
+    "width": 360,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      },
+      "footer_not_obscured": {
+        "pass": true,
+        "detail": "legal.bottom=688 sticky.top=756"
+      },
+      "mobile_nav_opens_hides_sticky": {
+        "pass": true,
+        "detail": "dialog=true stickyHidden=true"
+      },
+      "mobile_nav_closes_restores_sticky": {
+        "pass": true,
+        "detail": "dialogGone=true stickyBack=true"
+      }
+    },
+    "failed": []
+  },
+  {
+    "viewport": "mobile-390",
+    "width": 390,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      },
+      "footer_not_obscured": {
+        "pass": true,
+        "detail": "legal.bottom=732 sticky.top=800"
+      },
+      "mobile_nav_opens_hides_sticky": {
+        "pass": true,
+        "detail": "dialog=true stickyHidden=true"
+      },
+      "mobile_nav_closes_restores_sticky": {
+        "pass": true,
+        "detail": "dialogGone=true stickyBack=true"
+      }
+    },
+    "failed": []
+  },
+  {
+    "viewport": "mobile-412",
+    "width": 412,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      },
+      "footer_not_obscured": {
+        "pass": true,
+        "detail": "legal.bottom=803 sticky.top=871"
+      },
+      "mobile_nav_opens_hides_sticky": {
+        "pass": true,
+        "detail": "dialog=true stickyHidden=true"
+      },
+      "mobile_nav_closes_restores_sticky": {
+        "pass": true,
+        "detail": "dialogGone=true stickyBack=true"
+      }
+    },
+    "failed": []
+  },
+  {
+    "viewport": "tablet-768",
+    "width": 768,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      }
+    },
+    "failed": []
+  },
+  {
+    "viewport": "desktop-1280",
+    "width": 1280,
+    "checks": {
+      "no_horizontal_overflow": {
+        "pass": true,
+        "detail": "scrollWidth-innerWidth=0px"
+      }
+    },
+    "failed": []
+  }
+]
