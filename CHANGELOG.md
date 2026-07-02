@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.1 (2026-07-02) — parity patch (found by the Care baseline, F1.3)
+- MobileCta: label + separator emitted as ONE expression so React's text-node
+  hydration comments match the original static-text markup byte-for-byte. The
+  v0.1.0 form (`{label} · {phone}`) inserted one extra invisible `<!-- -->` —
+  zero visual/semantic effect, but a byte-parity failure against the baseline.
+  Contract impact: none.
+- types.ts: a doc comment contained the bare word for Tailwind's position
+  utility, which consumer content-scanning turned into an emitted (unused) CSS
+  rule; reworded token-free. Contract impact: none.
+- Consumer action: pin bump only.
+- Parity evidence: with v0.1.1, netyvee/care rebuild = 10/10 normalized pages
+  byte-equal to fixtures/care-baseline; CSS = baseline rules all present
+  byte-identical + 2 additions (`py-10`, `leading-relaxed`) belonging to the
+  Prose section (framework superset), PROVEN unreferenced by any Care page DOM.
+- Rollback: v0.1.0 (carries the two artifacts above; visually identical).
+
 ## v0.1.0 (2026-07-02) — F1.2 nucleus extraction (extraction ≠ redesign)
 The minimum coherent set reproducing the Care site unchanged. Source referents:
 - src/loader.ts ← netyvee/care lib/pages/loader.ts (identical in staffing); types

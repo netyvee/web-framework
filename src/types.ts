@@ -84,7 +84,9 @@ export type SiteKey = 'cleaning' | 'security' | 'care_services' | 'care_staffing
 
 export type SiteConfig = {
   site: SiteKey;
-  domain: string; // absolute site origin (https://<site-domain>) — sitemap/metadata base
+  domain: string; // full https origin of the site — sitemap/metadata base
+  // (comment kept token-free: Tailwind content-scanning of the shipped source
+  // turns bare utility-name words in comments into emitted CSS rules)
   nav: SiteNav;
 };
 
