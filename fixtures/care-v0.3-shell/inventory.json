@@ -1,0 +1,92 @@
+{
+  "about-us.html": {
+    "title": "About Vigil Care Services | Home Support in London",
+    "description": "Vigil Care Services is a relationship-driven, non-clinical home support team across Greater London — companionship, home help and respite for adults aged 18+.",
+    "canonical": "https://care.vigilservices.co.uk/about-us",
+    "og_title": "About Vigil Care Services | Home Support in London",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "elderly-care.html": {
+    "title": "Elderly Care at Home in London | Vigil Care Services",
+    "description": "Respectful non-clinical elderly care at home across London — companionship, home help and welfare visits that keep older adults independent.",
+    "canonical": "https://care.vigilservices.co.uk/elderly-care",
+    "og_title": "Elderly Care at Home in London | Vigil Care Services",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "home-care-companionship.html": {
+    "title": "Companionship Care at Home in London | Vigil Care",
+    "description": "Friendly companionship and social support across London — regular visits, conversation, outings and activities to reduce isolation for adults 18+.",
+    "canonical": "https://care.vigilservices.co.uk/home-care-companionship",
+    "og_title": "Companionship Care at Home in London | Vigil Care",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "home-care-services.html": {
+    "title": "Home Care Services in London | Vigil Care Services",
+    "description": "Domestic help and home support in London — light cleaning, laundry, meal prep, shopping and errands. Flexible visits, DBS-checked staff.",
+    "canonical": "https://care.vigilservices.co.uk/home-care-services",
+    "og_title": "Home Care Services in London | Vigil Care Services",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "home-care-support-services-london.html": {
+    "title": "Home Care Support Across London | Vigil Care Services",
+    "description": "Non-medical home care support across Greater London for adults 18+ — companionship, home help, respite and welfare visits with DBS-checked staff.",
+    "canonical": "https://care.vigilservices.co.uk/home-care-support-services-london",
+    "og_title": "Home Care Support Across London | Vigil Care Services",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "home-help-westminster.html": {
+    "title": "Home Help in Westminster | Vigil Care Services",
+    "description": "Welfare checks and home help for older adults across Westminster (SW1/W1) — companionship, hydration and safety support from DBS-checked staff.",
+    "canonical": "https://care.vigilservices.co.uk/home-help-westminster",
+    "og_title": "Home Help in Westminster | Vigil Care Services",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "index.html": {
+    "title": "Home Care Across London | Vigil Care Services",
+    "description": "Compassionate non-clinical home care across London — companionship, home help, respite and welfare visits. Book a free discovery call today.",
+    "canonical": "https://care.vigilservices.co.uk",
+    "og_title": "Home Care Across London | Vigil Care Services",
+    "image_count": 8,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "respite-care.html": {
+    "title": "Respite Care for Family Carers in London | Vigil Care",
+    "description": "Trusted respite care across London so family carers can rest — short-term sitting visits with continuity, companionship and reassurance.",
+    "canonical": "https://care.vigilservices.co.uk/respite-care",
+    "og_title": "Respite Care for Family Carers in London | Vigil Care",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "services.html": {
+    "title": "Care Support Services in London | Vigil Care",
+    "description": "Tailored non-clinical home support across London for adults 18+ — companionship, home help, respite, welfare checks and lifestyle/admin support.",
+    "canonical": "https://care.vigilservices.co.uk/services",
+    "og_title": "Care Support Services in London | Vigil Care",
+    "image_count": 3,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "_not-found.html": {
+    "title": "404: This page could not be found.",
+    "description": "Compassionate non-clinical home care across London.",
+    "canonical": null,
+    "og_title": null,
+    "image_count": 0,
+    "images_missing_alt": 0,
+    "own_phone_present": false
+  }
+}
