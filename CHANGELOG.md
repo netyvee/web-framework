@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.3.2 (2026-07-02) — Shell skip-to-content link (WCAG 2.4.1 bypass block). Additive.
+
 ## v0.3.1 (2026-07-02) — buildPageMetadata OG default (patch)
 - `buildPageMetadata(page, { ogImage })` — optional site-default OG image, used when a page has
   no `seo.og_image`, so every page deterministically emits `og:image` (the §2 visual gate).

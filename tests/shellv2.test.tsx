@@ -43,6 +43,11 @@ describe('Shell v2 (v0.3 — visual-completion requirements)', () => {
     expect(html).toContain('aria-controls="vf-mobile-nav"');
   });
 
+  it('has a skip-to-content link targeting #main-content (WCAG 2.4.1)', () => {
+    expect(html).toContain('href="#main-content"');
+    expect(html).toContain('id="main-content"');
+  });
+
   it('renders the page children and leaks no real division value', () => {
     expect(html).toContain('PAGE CONTENT');
     for (const leak of ['vigilservices.co.uk', '020 3098', '020 3973']) expect(html).not.toContain(leak);

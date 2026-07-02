@@ -52,6 +52,14 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
+      {/* ── SKIP LINK (WCAG 2.4.1 bypass block) ────────────────── */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[60] focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
+        style={{ background: t.accent, color: t.onAccent }}
+      >
+        Skip to content
+      </a>
       {/* ── HEADER ─────────────────────────────────────────────── */}
       <header style={{ background: page.brand.bg, color: page.brand.text }} className="sticky top-0 z-40 border-b" >
         <div className="border-b" style={{ borderColor: t.line }}>
@@ -108,7 +116,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       )}
 
       {/* ── MAIN ───────────────────────────────────────────────── */}
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
 
       {/* ── FOOTER (complete, registry-driven) ─────────────────── */}
       <footer style={{ background: t.footer, color: page.brand.text }} className="border-t px-6 py-12" data-vf-footer>
