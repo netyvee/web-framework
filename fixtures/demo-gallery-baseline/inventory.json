@@ -1,0 +1,29 @@
+{
+  "archetype__homepage.html": {
+    "title": "Archetype — Division homepage (neutral demo)",
+    "description": "The visual contract for the section library, design tokens and page archetypes. Neutral placeholder identity — no division content.",
+    "canonical": null,
+    "og_title": null,
+    "image_count": 0,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "index.html": {
+    "title": "Vigil Web Framework — Demonstration Surface",
+    "description": "The visual contract for the section library, design tokens and page archetypes. Neutral placeholder identity — no division content.",
+    "canonical": null,
+    "og_title": null,
+    "image_count": 0,
+    "images_missing_alt": 0,
+    "own_phone_present": true
+  },
+  "_not-found.html": {
+    "title": "404: This page could not be found.",
+    "description": "The visual contract for the section library, design tokens and page archetypes. Neutral placeholder identity — no division content.",
+    "canonical": null,
+    "og_title": null,
+    "image_count": 0,
+    "images_missing_alt": 0,
+    "own_phone_present": false
+  }
+}

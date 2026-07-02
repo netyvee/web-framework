@@ -41,8 +41,19 @@ fs.mkdirSync(path.join(outDir, 'css'), { recursive: true });
 const hashes = { pages: {}, css: {} };
 const inventory = {};
 
-for (const f of fs.readdirSync(appDir).filter((f) => f.endsWith('.html'))) {
-  const raw = fs.readFileSync(path.join(appDir, f), 'utf8');
+// Recursive: nested routes (e.g. archetype/homepage.html) prerender into
+// subdirectories; flatten the relative path into the fixture filename.
+function htmlFiles(dir, prefix = '') {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) out.push(...htmlFiles(path.join(dir, entry.name), `${prefix}${entry.name}__`));
+    else if (entry.name.endsWith('.html')) out.push({ fp: path.join(dir, entry.name), name: `${prefix}${entry.name}` });
+  }
+  return out;
+}
+
+for (const { fp, name: f } of htmlFiles(appDir)) {
+  const raw = fs.readFileSync(fp, 'utf8');
   const norm = normalizeHtml(raw);
   fs.writeFileSync(path.join(outDir, 'pages', f), norm);
   hashes.pages[f] = sha(norm);

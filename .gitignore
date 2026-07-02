@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+demo/node_modules/
+demo/.next/
+demo/next-env.d.ts

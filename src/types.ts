@@ -8,7 +8,20 @@
 // via vigil:web-publish-site. The CRM owns validation (SectionSchema +
 // PageHealthService); the framework renders what the CRM approved.
 
-export type Section = { type: string; fields: Record<string, any> };
+// provenance: CONTENT-PROVENANCE-POLICY.md (netyvee/app FRAMEWORK/) — every section
+// declares how its content originated. Optional for backward compatibility: absent
+// ⇒ treated as migrated/corrected per the site's existing fidelity gate.
+export type SectionProvenance =
+  | 'migrated_source'
+  | 'compliance_corrected'
+  | 'framework_enhancement'
+  | 'editorial';
+
+export type Section = {
+  type: string;
+  fields: Record<string, any>;
+  provenance?: SectionProvenance;
+};
 
 export type PageJson = {
   schema_version: number;
