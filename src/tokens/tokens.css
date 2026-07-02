@@ -1,0 +1,92 @@
+/* @vigil/web-framework — DESIGN-TOKEN MODULE (base layer, v0.2).
+ * UNIVERSAL tokens only (DESIGN-SYSTEM-CONTRACT §4 "framework base"): the type
+ * SCALE, spacing, radii, a11y focus states. NO colour identity here — colour is
+ * per-site and resolved at render time from page.brand via resolveTheme()
+ * (src/tokens/theme.ts). Font FAMILIES are per-site vars (--vf-font-display /
+ * --vf-font-body) that a consumer sets (e.g. next/font); the scale is shared.
+ *
+ * Consumers import this once in the root layout:
+ *   import '@vigil/web-framework/src/tokens/tokens.css'
+ * Typography is OPT-IN and parity-safe: it only applies when <body class="vf-typography">.
+ * A consumer that does not opt in renders byte-identically to pre-token behaviour
+ * (this is why v0.2 is additive for existing pinned sites — nucleus component
+ * markup is unchanged; the scale is layered by CSS only where opted in).
+ */
+
+:root {
+  /* type families — per-site overridable; safe generic fallbacks */
+  --vf-font-display: ui-serif, Georgia, "Times New Roman", serif;
+  --vf-font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* canonical type SCALE (universal) */
+  --vf-h1: clamp(34px, 3.8vw, 50px);
+  --vf-h2: clamp(26px, 2.8vw, 36px);
+  --vf-h3: 17px;
+  --vf-body: 15px;
+  --vf-body-sm: 14px;
+  --vf-caption: 13px;
+  --vf-micro: 12px;
+  --vf-overline: 11px;
+
+  /* spacing rhythm + radii (universal) */
+  --vf-section-y: 4rem;      /* py-16 primary */
+  --vf-section-y-sm: 2.5rem; /* py-10 secondary */
+  --vf-strip-y: 1.25rem;     /* py-5 strips */
+  --vf-radius-btn: 8px;
+  --vf-radius-card: 12px;
+  --vf-radius-panel: 16px;
+}
+
+/* Opt-in typography layer. Descendant selectors (specificity 0,1,1) intentionally
+ * outrank single Tailwind utility classes (0,1,0) so headings adopt the scale +
+ * brand fonts across BOTH nucleus and v0.2 sections — coherent typography without
+ * editing any component's markup. */
+.vf-typography {
+  font-family: var(--vf-font-body);
+}
+.vf-typography h1 {
+  font-family: var(--vf-font-display);
+  font-weight: 500;
+  font-size: var(--vf-h1);
+  line-height: 1.2;
+}
+.vf-typography h2 {
+  font-family: var(--vf-font-display);
+  font-weight: 500;
+  font-size: var(--vf-h2);
+  line-height: 1.3;
+}
+.vf-typography h3 {
+  font-weight: 500;
+  font-size: var(--vf-h3);
+}
+.vf-typography h1 em,
+.vf-typography h2 em {
+  font-style: normal; /* accent emphasis colour is applied inline by the component */
+}
+
+/* Overline / section tag — colour comes from the element's own inline colour
+ * (currentColor), so this class carries no colour identity. */
+.vf-overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--vf-overline);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.vf-overline::before {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Universal accessibility state — every interactive element gets a visible focus
+ * ring in the current accent (set inline as --vf-focus by themed wrappers, else
+ * falls back to currentColor). */
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid var(--vf-focus, currentColor);
+  outline-offset: 2px;
+}

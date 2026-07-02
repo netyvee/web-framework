@@ -9,18 +9,19 @@
 // PageHealthService); the framework renders what the CRM approved.
 
 // provenance: CONTENT-PROVENANCE-POLICY.md (netyvee/app FRAMEWORK/) — every section
-// declares how its content originated. Optional for backward compatibility: absent
-// ⇒ treated as migrated/corrected per the site's existing fidelity gate.
-export type SectionProvenance =
-  | 'migrated_source'
-  | 'compliance_corrected'
-  | 'framework_enhancement'
-  | 'editorial';
+// declares how its content originated. Canonical values + validation live in
+// ./provenance (single source; W-FRAMEWORK-V0.2 §1 fixed the value set). Optional
+// at the RENDER layer (the framework renders regardless); REQUIRED + enforced at
+// the CRM gate (SectionSchema) and by validateProvenance() for exported content.
+export type { SectionProvenance } from './provenance';
+import type { SectionProvenance as _SectionProvenance } from './provenance';
 
 export type Section = {
   type: string;
   fields: Record<string, any>;
-  provenance?: SectionProvenance;
+  provenance?: _SectionProvenance;
+  // compliance_corrected sections cite their correction record (D-036 mechanism).
+  correction_ref?: string;
 };
 
 export type PageJson = {

@@ -7,9 +7,15 @@ const render = (sections: any[]) =>
   renderToStaticMarkup(<RenderSections page={withSections(sections)} />);
 
 describe('section registry', () => {
-  it('exposes the 9-type superset (care 8 + staffing prose)', () => {
+  it('exposes the v0.2 library: 9 nucleus types + 10 library types', () => {
     expect(SECTION_TYPES.sort()).toEqual(
-      ['borough_block', 'contact_form', 'cta', 'faq', 'hero', 'prose', 'service_grid', 'testimonial', 'text_image'].sort()
+      [
+        // nucleus (v0.1.x)
+        'borough_block', 'contact_form', 'cta', 'faq', 'hero', 'prose', 'service_grid', 'testimonial', 'text_image',
+        // library (v0.2)
+        'trust_badge_row', 'metrics_strip', 'proof_strip', 'compliance_strip', 'differentiation_panel',
+        'process_steps', 'quick_answer', 'locations_coverage', 'contact_block', 'enquiry_funnel',
+      ].sort()
     );
   });
 

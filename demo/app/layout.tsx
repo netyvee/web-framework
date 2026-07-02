@@ -26,7 +26,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={`${dmSans.variable} ${playfair.variable}`}>
-      <body>{children}</body>
+      {/* vf-typography = opt-in shared type scale (framework tokens.css) */}
+      <body className="vf-typography">{children}</body>
     </html>
   );
 }
