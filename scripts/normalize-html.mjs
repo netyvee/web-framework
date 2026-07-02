@@ -15,12 +15,7 @@
 // Usage: node normalize-html.mjs <in.html> [out.file]   (stdout if no out.file)
 
 import fs from 'fs';
-
-const [inFile, outFile] = process.argv.slice(2);
-if (!inFile) {
-  console.error('usage: normalize-html.mjs <in.html> [out.file]');
-  process.exit(1);
-}
+import { pathToFileURL } from 'url';
 
 export function normalizeHtml(html) {
   return html
@@ -29,6 +24,14 @@ export function normalizeHtml(html) {
     .replace(/\/_next\/static\/[^"'\s>]+/g, '/_next/static/__ASSET__');
 }
 
-const out = normalizeHtml(fs.readFileSync(inFile, 'utf8'));
-if (outFile) fs.writeFileSync(outFile, out);
-else process.stdout.write(out);
+// CLI only when executed directly — the function above is import-safe.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const [inFile, outFile] = process.argv.slice(2);
+  if (!inFile) {
+    console.error('usage: normalize-html.mjs <in.html> [out.file]');
+    process.exit(1);
+  }
+  const out = normalizeHtml(fs.readFileSync(inFile, 'utf8'));
+  if (outFile) fs.writeFileSync(outFile, out);
+  else process.stdout.write(out);
+}
