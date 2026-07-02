@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.1 (2026-07-02) — content-completeness gate (CI tool; no src change)
+- **`scripts/content-completeness-check.mjs`** — the SUBSTANCE gate for a render-from-JSON site.
+  Reads `content/pages/*.json` and hard-blocks: missing/mis-formed canonical (must == slug),
+  SEO title/description/focus-keyword bounds, exactly-one-hero (H1), duplicate title/canonical,
+  ORPHAN pages (indexable, non-legal, zero internal links), BROKEN internal links, page-type
+  contract gaps (commercial pages need structured content + a conversion action; the /blog index
+  and locations hub cards must be clickable), and any FOREIGN division phone. Complements
+  division-isolation (foreign leakage) + visual-completion (shell). No `src/` change — pinned
+  consumers are byte-unaffected; the tool ships in the package `scripts/` for CI.
+
 ## v0.4.0 (2026-07-02) — clickable ServiceGrid cards (minor, additive)
 For W-STAFFING-CONTENT-AND-ORGANIC-CLOSURE: the organic internal-link architecture needs
 clickable card grids (a location hub whose area cards link to their pages, and a blog index whose
