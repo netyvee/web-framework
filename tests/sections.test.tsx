@@ -51,6 +51,20 @@ describe('section registry', () => {
     for (const s of ['Svc A', 'Q1?', 'A1', 'Great', 'A. Person']) expect(html).toContain(s);
   });
 
+  it('service_grid: internal href makes a card a link; hrefless card stays a plain div (v0.4.0 parity)', () => {
+    const linked = render([
+      { type: 'service_grid', fields: { items: [{ title: 'Tower Hamlets', body: 'Cover here', href: '/care-staff-agency-tower-hamlets' }] } },
+    ]);
+    expect(linked).toContain('href="/care-staff-agency-tower-hamlets"');
+    expect(linked).toContain('Learn more');
+    // hrefless card: no anchor, no "Learn more" affordance → byte-parity with v0.3.x consumers (Care)
+    const plain = render([
+      { type: 'service_grid', fields: { items: [{ title: 'Svc A', body: 'Body A' }] } },
+    ]);
+    expect(plain).not.toContain('<a ');
+    expect(plain).not.toContain('Learn more');
+  });
+
   it('prose renders body, skips cleanly when empty (staffing provenance)', () => {
     expect(render([{ type: 'prose', fields: { heading: 'P', body: 'Prose body' } }])).toContain('Prose body');
     expect(render([{ type: 'prose', fields: {} }])).toBe('');

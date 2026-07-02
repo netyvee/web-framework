@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0 (2026-07-02) — clickable ServiceGrid cards (minor, additive)
+For W-STAFFING-CONTENT-AND-ORGANIC-CLOSURE: the organic internal-link architecture needs
+clickable card grids (a location hub whose area cards link to their pages, and a blog index whose
+article cards link to their posts).
+
+Added:
+- **`service_grid` items accept an optional internal `href`** — when present (and leading-slash /
+  internal, mirroring the LocationsCoverage CRM gate), the card renders as a `next/link` `Link` with
+  a "Learn more →" affordance; otherwise it renders exactly as before. Items **without** `href`
+  produce byte-identical markup to v0.3.x, so pinned consumers (Care) are unaffected.
+- Tests: +1 (service_grid href link + hrefless parity). Typecheck + 53 tests + src isolation green.
+
 ## v0.3.2 (2026-07-02) — Shell skip-to-content link (WCAG 2.4.1 bypass block). Additive.
 
 ## v0.3.1 (2026-07-02) — buildPageMetadata OG default (patch)
