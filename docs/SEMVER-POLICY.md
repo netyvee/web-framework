@@ -19,7 +19,7 @@
 ## Compatibility matrix (updated every release)
 | Framework | page-JSON schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| v0.1.0 (pending F1.2) | 1 | 14.2.x | care (F1.3) | in progress |
+| v0.1.0 | 1 | 14.2.x | care (F1.3 parity-proven) | ✅ current |
 
 ## Release notes format (every tag gets GitHub release notes)
 1. **Version + date + type** (major/minor/patch)

@@ -70,6 +70,9 @@ export type SiteNav = {
   primary: NavLink[];
   footer: FooterColumn[];
   companyReg: string;
+  // The enquiry CTA button label (shell Footer + MobileCta). Site-owned wording —
+  // extracted from the shipped care/staffing shell where it was a literal.
+  enquiryCtaLabel: string;
 };
 
 // ── Site configuration schema ────────────────────────────────────────────────
@@ -81,7 +84,7 @@ export type SiteKey = 'cleaning' | 'security' | 'care_services' | 'care_staffing
 
 export type SiteConfig = {
   site: SiteKey;
-  domain: string; // e.g. https://care.vigilservices.co.uk — sitemap/metadata base
+  domain: string; // absolute site origin (https://<site-domain>) — sitemap/metadata base
   nav: SiteNav;
 };
 
