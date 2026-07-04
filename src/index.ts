@@ -18,7 +18,7 @@ export {
 } from './provenance';
 
 // design tokens (runtime theme resolver + surface hierarchy)
-export { resolveTheme, surfaceBg, SURFACES, type Theme, type Surface } from './tokens/theme';
+export { resolveTheme, surfaceBg, isDarkSurface, SURFACES, type Theme, type Surface } from './tokens/theme';
 
 // conversion funnel contract
 export {
@@ -66,5 +66,6 @@ export { Header } from './shell/Header';
 export { Footer } from './shell/Footer';
 export { MobileCta } from './shell/MobileCta';
 // shell v2 (v0.3 — coordinated complete shell: logo + accessible mobile nav +
-// complete footer + single governed sticky CTA)
-export { Shell } from './shell/Shell';
+// complete footer + single governed sticky CTA). pickLogoSrc = surface-aware logo
+// pick (v0.4.9), exported for consumer reuse + unit testing.
+export { Shell, pickLogoSrc, type LogoSlot } from './shell/Shell';

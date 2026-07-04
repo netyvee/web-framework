@@ -96,7 +96,12 @@ export type SiteNav = {
   careersCtaLabel?: string;
   // v0.3 shell v2 (all optional → additive). Brand assets come from the site
   // config/asset contract, NOT component code, so the dashboard can later edit them.
-  logo?: { src: string; alt: string; footerSrc?: string };
+  // Surface-aware convention (v0.4.9): `src` is the default/light-surface logo;
+  // `darkSrc` (optional) is the variant tuned for a DARK surface (the navy header/
+  // footer) — on a dark surface it is preferred, else `src` is used. `footerSrc` is
+  // a footer-slot-specific override that wins in the footer regardless of surface.
+  // When `darkSrc` is absent the pick is byte-identical to the pre-v0.4.9 behaviour.
+  logo?: { src: string; alt: string; footerSrc?: string; darkSrc?: string };
   legalLinks?: NavLink[];
   social?: { label: string; href: string }[];
   // Secondary sticky/CTA action (e.g. phone) label; if absent the sticky CTA shows

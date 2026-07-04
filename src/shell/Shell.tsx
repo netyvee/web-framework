@@ -12,11 +12,30 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { PageJson, SiteNav } from '../types';
-import { resolveTheme } from '../tokens/theme';
+import { resolveTheme, isDarkSurface } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
 
-function Logo({ nav, src, height, theme }: { nav: SiteNav; src?: string; height: number; theme: { text: string } }) {
-  const logoSrc = src;
+export type LogoSlot = 'header' | 'footer';
+
+// Surface-aware logo pick (v0.4.9). `darkSrc` is the logo variant tuned for a dark
+// surface; on a dark surface it wins, else the default `src` is used. `footerSrc`
+// is a footer-slot-specific override that wins in the footer regardless of surface.
+// When `darkSrc` is absent the result is byte-identical to the pre-v0.4.9 behaviour
+// (header ⇒ src; footer ⇒ footerSrc ?? src). Pure — no side effects, unit-testable.
+export function pickLogoSrc(
+  logo: SiteNav['logo'],
+  surface: 'dark' | 'light',
+  slot: LogoSlot = 'header',
+): string | undefined {
+  if (!logo) return undefined;
+  const darkPick = surface === 'dark' ? logo.darkSrc : undefined;
+  if (slot === 'footer') return logo.footerSrc ?? darkPick ?? logo.src;
+  return darkPick ?? logo.src;
+}
+
+function Logo({ nav, surface, slot = 'header', height, theme }:
+  { nav: SiteNav; surface: 'dark' | 'light'; slot?: LogoSlot; height: number; theme: { text: string } }) {
+  const logoSrc = pickLogoSrc(nav.logo, surface, slot);
   if (logoSrc) {
     // plain <img> (not next/image) so the logo needs no per-site remotePatterns and
     // renders identically as a repo-static or CDN asset.
@@ -61,6 +80,12 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   const ctaHref = primaryCtaHref(page);
   const ctaLabel = isRecruitmentPage(page) ? (nav.careersCtaLabel ?? 'Careers & applications') : nav.enquiryCtaLabel;
 
+  // Surface-aware logo: the header/mobile-nav chrome sits on page.brand.bg and the
+  // footer on t.footer. Pick the dark-surface logo variant when that background is
+  // dark (every Vigil site is navy today), else the default light-surface src.
+  const headerSurface: 'dark' | 'light' = isDarkSurface(page.brand.bg) ? 'dark' : 'light';
+  const footerSurface: 'dark' | 'light' = isDarkSurface(t.footer) ? 'dark' : 'light';
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
       {/* ── SKIP LINK (WCAG 2.4.1 bypass block) ────────────────── */}
@@ -76,7 +101,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
         <div className="border-b" style={{ borderColor: t.line }}>
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" aria-label={nav.brandName} className="flex items-center">
-              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} />
+              <Logo nav={nav} surface={headerSurface} slot="header" height={30} theme={t} />
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
               {nav.primary.map((l) => (
@@ -109,7 +134,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           style={{ background: page.brand.bg, color: page.brand.text }}
         >
           <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
-            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} />
+            <Logo nav={nav} surface={headerSurface} slot="header" height={28} theme={t} />
             <button ref={closeRef} onClick={() => setOpen(false)} aria-label="Close menu" style={{ color: page.brand.text, fontSize: 26, lineHeight: 1 }}>×</button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
@@ -133,7 +158,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       <footer style={{ background: t.footer, color: page.brand.text }} className="border-t px-6 py-12" data-vf-footer>
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-4">
           <div>
-            <Logo nav={nav} src={nav.logo?.footerSrc ?? nav.logo?.src} height={34} theme={t} />
+            <Logo nav={nav} surface={footerSurface} slot="footer" height={34} theme={t} />
             <p className="mt-4 text-[12px]" style={{ color: t.text4 }}>{page.nap.address}</p>
             <p className="mt-3 text-sm"><a href={tel} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{phone}</a></p>
             {page.nap.email && <p className="text-sm"><a href={`mailto:${page.nap.email}`} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{page.nap.email}</a></p>}

@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.4.9 (2026-07-05) — surface-aware logo pick (nav.logo.darkSrc) — EOS Q1.P3 (part 2)
+- **`nav.logo.darkSrc` — an additive optional logo variant for dark surfaces.** The `Shell` chrome
+  (header, mobile-nav, footer) sits on a dark navy background on every Vigil site; when a site supplies
+  `logo.darkSrc` (a light logo tuned for that dark surface) the shell now picks it there instead of the
+  default `logo.src`. Purely additive: `SiteNav['logo']` gains one optional field, no existing field
+  changes shape.
+- **Surface-aware, not hardcoded.** `Shell` derives the header/footer surface from the actual background
+  colour via the new `isDarkSurface(hex)` (deterministic sRGB relative-luminance, no colour-lib
+  dependency, exported from `tokens/theme`). Navy today ⇒ dark ⇒ `darkSrc`; a future light-surface site
+  would fall back to the default `src`. An unparseable colour defaults to dark (the light-on-dark estate
+  assumption) so render never breaks.
+- **Precedence + backward-compat.** New pure helper `pickLogoSrc(logo, surface, slot)` (exported for
+  consumer reuse + unit testing): header ⇒ `darkSrc ?? src` on a dark surface, `src` on a light surface;
+  footer ⇒ the slot-specific `footerSrc` still wins, then `darkSrc` (dark surface), then `src`. When
+  `darkSrc` is ABSENT the pick is byte-identical to pre-v0.4.9 (header ⇒ `src`; footer ⇒ `footerSrc ?? src`),
+  so pinned consumers (Care) and staffing render unchanged.
+- **Server-side / CRM unaffected.** This is a render-layer asset pick only — no CRM PHP enters the
+  frontend package (Q1.P3 governance). Screenshot proof is deferred to the consumer; the deterministic
+  markup assertions here (correct src per surface) are the automatable evidence.
+- 13 new vitest tests (`tests/shell-logo.test.tsx`): `pickLogoSrc` precedence table + `isDarkSurface`
+  luminance + Shell render (darkSrc in header/footer, backward-compat without darkSrc). Gates GREEN:
+  typecheck clean · vitest **84/84** (was 71) · src isolation **35 files OK**. No new dependency.
+  This completes EOS Q1.P3; next unit is Q1.P4 (candidate/client routing QA gate).
+
 ## v0.4.8 (2026-07-05) — EnquiryFunnel audience-gate step type (route-out) — EOS Q1.P3 (part 1)
 - **`EnquiryFunnel` gains an opt-in `audience` step type** — a front-of-funnel gate that splits by
   visitor type so a candidate is never carried into the client-sales funnel. Options with a new

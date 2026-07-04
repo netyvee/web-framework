@@ -114,6 +114,20 @@ export function resolveTheme(brand: Brand): Theme {
   return t;
 }
 
+// Is a background colour a DARK surface? Used by the shell to pick a surface-aware
+// logo variant (light logo on dark chrome). Deterministic sRGB relative-luminance
+// (no colour-lib dependency, same parseHex as the token helpers). Every Vigil site
+// renders navy today ⇒ dark ⇒ the `darkSrc` logo is chosen; a future light-surface
+// site would fall back to the default `src`. An unparseable value defaults to dark
+// (the documented estate assumption — light-on-dark), so render never breaks.
+export function isDarkSurface(hex: string): boolean {
+  const rgb = parseHex(hex);
+  if (!rgb) return true;
+  const [r, g, b] = rgb.map((c) => c / 255);
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return lum < 0.5;
+}
+
 // Surface colour lookup for a section's declared surface (SECTION-LIBRARY: every
 // section may declare a surface; defaults chosen per component).
 export function surfaceBg(t: Theme, surface: Surface = 'default'): string {
