@@ -19,11 +19,11 @@ export function ContactBlock({ fields, page }: { fields: any; page: PageJson }) 
         {fields.heading_sub && <p className="mt-2" style={{ color: t.text3 }}>{fields.heading_sub}</p>}
         <p className="mt-3" style={{ color: t.text3 }}>
           Call{' '}
-          <a href={`tel:${phone.replace(/\s+/g, '')}`} style={{ color: t.secondary }}>{phone}</a>
+          <a href={`tel:${phone.replace(/\s+/g, '')}`} className="underline" style={{ color: t.secondary }}>{phone}</a>
           {email && (
             <>
               {' '}or email{' '}
-              <a href={`mailto:${email}`} style={{ color: t.secondary }}>{email}</a>
+              <a href={`mailto:${email}`} className="underline" style={{ color: t.secondary }}>{email}</a>
             </>
           )}
         </p>

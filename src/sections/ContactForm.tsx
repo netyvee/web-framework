@@ -14,7 +14,7 @@ export function ContactForm({ fields, page }: { fields: any; page: PageJson }) {
       <div className="mx-auto max-w-3xl">
         <h2 className="text-3xl font-medium">{fields.heading ?? 'Get in touch'}</h2>
         <p className="mt-3 opacity-80">
-          Call <a href={`tel:${page.nap.phone.replace(/\s+/g, '')}`} style={{ color: page.brand.secondary }}>{page.nap.phone}</a> {recruitment ? 'or apply to join.' : 'or send an enquiry.'}
+          Call <a href={`tel:${page.nap.phone.replace(/\s+/g, '')}`} className="underline" style={{ color: page.brand.secondary }}>{page.nap.phone}</a> {recruitment ? 'or apply to join.' : 'or send an enquiry.'}
         </p>
         <a href={primaryCtaHref(page)} style={{ background: page.brand.cta, color: page.brand.bg }}
            data-division={fields.division} className="mt-6 inline-block rounded-lg px-6 py-3 font-medium">

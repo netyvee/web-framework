@@ -28,12 +28,15 @@ export const SURFACES = {
 } as const;
 
 // White-on-dark text emphasis ladder (all Vigil sites use light text on a dark
-// surface; documented assumption).
+// surface; documented assumption). Opacities are set so EVERY step clears WCAG 2.1
+// AA (4.5:1) on the LIGHTEST dark surface (footer #0f1f3d, the worst case) — so all
+// darker surfaces pass too. text4 (was 0.45→4.33:1) and text5 (was 0.35→~3.0:1) failed
+// AA; lifted to 0.54/0.50. Ladder order preserved for visual hierarchy.
 const TEXT_LADDER = {
   text2: 'rgba(255,255,255,0.75)',
-  text3: 'rgba(255,255,255,0.55)',
-  text4: 'rgba(255,255,255,0.45)',
-  text5: 'rgba(255,255,255,0.35)',
+  text3: 'rgba(255,255,255,0.60)',
+  text4: 'rgba(255,255,255,0.54)',
+  text5: 'rgba(255,255,255,0.50)',
   line: 'rgba(255,255,255,0.08)',
 } as const;
 
