@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.6 (2026-07-04) — shared §14 a11y journey suite (test harness; no src change) — EOS Q1.P1
+- **`a11y/` — 10 shared WCAG 2.2 AA Playwright journeys** (skip-link/landmarks, keyboard nav,
+  mobile-menu focus, service-page focus, 320px reflow, 200% zoom, enquiry-funnel a11y, reduced
+  motion, interior-page Axe, target-size). Promoted from `staffing/tests/a11y/*` so Care + every
+  future framework site inherits ONE a11y harness instead of copying it — the a11y analog of the
+  `scripts/perf-budget.mjs` promotion. Ships in the package `files` (`a11y`).
+- **Division-agnostic by construction:** the specs assert only the framework's structural contract
+  (roles, `aria-*`, `main#main-content`, `aria-label="Enquiry progress"`, `vf-mobile-nav`) — ZERO
+  identity literals. Interior render paths are supplied by the consuming site via
+  `A11Y_SERVICE_PATH` / `A11Y_LOCATION_PATH` / `A11Y_ARTICLE_PATH` (see `a11y/_routes.ts` + README,
+  default `/`). The enquiry-funnel journey was genericised off staffing step-copy onto the
+  framework's emitted funnel structure and now drives to completion through any step count.
+- The framework carries no Playwright/Axe dependency — the specs import `@playwright/test` +
+  `@axe-core/playwright` from the CONSUMING repo (as the shipped `scripts/*.mjs` already do).
+  Outside `src/`, `tests/` and the isolation `--mode src` scan — so pinned consumers (Care) are
+  byte-unaffected. Typecheck + 54 tests + src isolation green.
+
 ## v0.4.5 (2026-07-04) — perf-budget harness (CI tool; no src change) — EOS Q1.P1
 - **`scripts/perf-budget.mjs`** — Core Web Vitals budget gate for any framework site. Promoted from
   `staffing/tests/perf/lcp-probe.mjs` so Care + every future site inherits ONE perf harness instead of
