@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.5 (2026-07-04) — perf-budget harness (CI tool; no src change) — EOS Q1.P1
+- **`scripts/perf-budget.mjs`** — Core Web Vitals budget gate for any framework site. Promoted from
+  `staffing/tests/perf/lcp-probe.mjs` so Care + every future site inherits ONE perf harness instead of
+  copying it. `BASE_URL`-parameterised: takes a base + route list (`--routes "/,/foo"` or a JSON file),
+  drives the consuming repo's already-installed Playwright chromium against a warmed production build,
+  reports median LCP/CLS/TTFB/FCP per route, and FAILS (exit 1) on a budget breach unless `--report-only`.
+  Budgets configurable (`--lcp 2500 --cls 0.1`); mobile viewport by default. INP flagged, not synthesised.
+  No `src/` change — pinned consumers (Care) are byte-unaffected; the tool ships in the package `scripts/`.
+  Typecheck + 54 tests + src isolation green.
+
 ## v0.4.1 (2026-07-02) — content-completeness gate (CI tool; no src change)
 - **`scripts/content-completeness-check.mjs`** — the SUBSTANCE gate for a render-from-JSON site.
   Reads `content/pages/*.json` and hard-blocks: missing/mis-formed canonical (must == slug),
