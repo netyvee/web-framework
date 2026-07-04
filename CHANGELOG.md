@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.7 (2026-07-04) — shared Next security-headers helper (config tool; no src change) — EOS Q1.P2
+- **`config/security.mjs` — `withVigilSecurity(nextConfig)` + `vigilSecurityHeaders()` + `vigilCsp()`.**
+  Promoted from `staffing/next.config.mjs` so Care + every future framework site inherits ONE
+  security-header set (CSP + HSTS + X-Frame-Options + nosniff + Referrer-Policy + Permissions-Policy +
+  X-DNS-Prefetch-Control) instead of copying it — the config analog of the `scripts/perf-budget.mjs`
+  and `a11y/*.mjs` promotions.
+- **Ships as `.mjs`, NOT `.ts`:** `next.config.mjs` is loaded by Node's own module loader, which does
+  not strip TS types under `node_modules` (same rule as `scripts/*.mjs` / `a11y/*.mjs`). Lives in the
+  new `config/` package dir (added to `files`), outside the `--mode src` isolation scan. The only
+  external hosts named are cross-division shared infra (the CRM enquiry origin + Cloudinary store) —
+  never a division identity.
+- **CSP is production-strict:** `'unsafe-eval'` is added ONLY when `NODE_ENV !== 'production'` (Next dev
+  HMR); `next build`/`next start` never evals. Host lists are tunable (`imgHosts`/`formActions`/
+  `connectHosts`, de-duplicated). `withVigilSecurity` preserves any `headers()` the consumer already
+  defined (merged after the `/:path*` security rule). No `src/` change — pinned consumers (Care) are
+  byte-unaffected. Typecheck + tests + src isolation green.
+
 ## v0.4.6 (2026-07-04) — shared §14 a11y journey suite (test harness; no src change) — EOS Q1.P1
 - **`a11y/` — 10 shared WCAG 2.2 AA Playwright journeys** (skip-link/landmarks, keyboard nav,
   mobile-menu focus, service-page focus, 320px reflow, 200% zoom, enquiry-funnel a11y, reduced
