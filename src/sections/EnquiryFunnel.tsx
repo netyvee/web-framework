@@ -40,7 +40,14 @@ export function EnquiryFunnel({ fields, page }: { fields: any; page: PageJson })
     requestAnimationFrame(() => headingRef.current?.focus());
   }
 
+  // Route-out branch of an audience gate: emit attribution, then let the anchor's href
+  // carry the visitor to the other journey (no preventDefault — governed link handoff).
+  function routeOut(stepId: string, value: string, dest: string) {
+    emit(FUNNEL_EVENTS.audience, { division: schema.division, source: schema.source, stepId, value, route_to: dest });
+  }
+
   const step = steps[stepIndex];
+  const isAudience = !done && step.type === 'audience';
 
   return (
     <section className="px-6 py-10 md:px-12" style={{ background: page.brand.bg, color: page.brand.text }}>
@@ -56,7 +63,37 @@ export function EnquiryFunnel({ fields, page }: { fields: any; page: PageJson })
           <div className="h-1 rounded" style={{ width: `${pct}%`, background: t.accent }} />
         </div>
 
-        {!done ? (
+        {isAudience ? (
+          // Audience gate: two distinct actions (route-out = navigate away; continue = advance),
+          // so a plain group of native links/buttons — NOT a radiogroup (nothing is "selected";
+          // one option leaves the funnel immediately).
+          <div role="group" aria-label={step.question} className="mt-5 grid grid-cols-2 gap-3">
+            {step.options.map((o) =>
+              o.route_to ? (
+                <a
+                  key={o.value}
+                  href={o.route_to}
+                  onClick={() => routeOut(step.id, o.value, o.route_to!)}
+                  className="rounded-[11px] p-4 text-left text-sm no-underline"
+                  style={{ background: page.brand.bg, border: `1px solid ${t.line}`, color: t.text }}
+                >
+                  {o.icon && <span aria-hidden className="mr-1">{o.icon}</span>}
+                  {o.label}
+                </a>
+              ) : (
+                <button
+                  key={o.value}
+                  onClick={() => choose(step.id, step.intent_key ?? step.id, o.value)}
+                  className="rounded-[11px] p-4 text-left text-sm"
+                  style={{ background: page.brand.bg, border: `1px solid ${t.line}`, color: t.text }}
+                >
+                  {o.icon && <span aria-hidden className="mr-1">{o.icon}</span>}
+                  {o.label}
+                </button>
+              ),
+            )}
+          </div>
+        ) : !done ? (
           <div role="radiogroup" aria-label={step.question} className="mt-5 grid grid-cols-2 gap-3">
             {step.options.map((o) => (
               <button
@@ -84,9 +121,13 @@ export function EnquiryFunnel({ fields, page }: { fields: any; page: PageJson })
               <span key={i} className="rounded-full px-3 py-1 text-xs font-medium" style={{ color: t.accent, background: t.lineAccent, border: `1px solid ${t.accent}40` }}>{r}</span>
             ))}
           </div>
-          <a href={enquiryUrl} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: t.accent, color: t.onAccent }}>
-            {done ? (schema.completion!.cta_label ?? 'Continue') : 'Continue'} →
-          </a>
+          {!isAudience && (
+            // Suppressed on the audience gate: the visitor MUST pick a card (client → continue,
+            // candidate → route out) so a candidate can never slip straight into the client CTA.
+            <a href={enquiryUrl} className="rounded-lg px-4 py-2 text-sm font-medium" style={{ background: t.accent, color: t.onAccent }}>
+              {done ? (schema.completion!.cta_label ?? 'Continue') : 'Continue'} →
+            </a>
+          )}
         </div>
       </div>
     </section>

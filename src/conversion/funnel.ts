@@ -14,12 +14,22 @@ export type FunnelOption = {
   value: string;        // machine value carried as intent metadata
   label: string;        // visible label
   icon?: string;        // optional decorative glyph
+  // Audience-gate route-out (opt-in, additive; only meaningful on an `audience` step).
+  // When set, choosing this option navigates the visitor OUT of this funnel to route_to
+  // (a governed link handoff — e.g. a jobseeker → the recruitment/careers destination)
+  // instead of advancing into the client enquiry funnel. Options WITHOUT route_to are the
+  // "continue" branch and proceed into the funnel as normal (e.g. a client → next step).
+  // The server-side audience guard stays in the CRM; this is the front-of-funnel split so a
+  // candidate is never carried into the client-sales pipeline in the first place.
+  route_to?: string;
 };
 
 export type FunnelStep = {
   id: string;                       // stable step key (analytics + dashboard)
   question: string;                 // legend / prompt
-  type: 'choice';                   // v0.2 supports single-select choice; extensible
+  // 'choice' = single-select that advances the funnel; 'audience' = a route-out gate whose
+  // options split by visitor type (>=1 route_to "route-out" option + >=1 continue option).
+  type: 'choice' | 'audience';
   options: FunnelOption[];
   intent_key?: string;              // query key for the selected value (default: id)
 };
@@ -44,6 +54,7 @@ export type FunnelSchema = {
 export const FUNNEL_EVENTS = {
   step: 'vigil:funnel_step',        // detail: { division, source, stepId, value }
   complete: 'vigil:funnel_complete',// detail: { division, source, intent }
+  audience: 'vigil:funnel_audience',// detail: { division, source, stepId, value, route_to } — route-out gate chosen
 } as const;
 
 // Build the CRM hand-off URL from the base enquiry_url + accumulated intent.
@@ -72,8 +83,15 @@ export function validateFunnel(schema: Partial<FunnelSchema>): string[] {
   if (!Array.isArray(schema.steps) || schema.steps.length < 1) errors.push('funnel requires >= 1 step');
   (schema.steps ?? []).forEach((s, i) => {
     if (!s.id) errors.push(`step[${i}].id required`);
-    if (s.type !== 'choice') errors.push(`step[${i}].type must be 'choice' (v0.2)`);
+    if (s.type !== 'choice' && s.type !== 'audience') errors.push(`step[${i}].type must be 'choice' or 'audience'`);
     if (!Array.isArray(s.options) || s.options.length < 2) errors.push(`step[${i}] needs >= 2 options`);
+    // An audience gate must actually split: at least one route-out branch AND at least one
+    // continue branch, else it either dead-ends every visitor or is just a plain choice step.
+    if (s.type === 'audience') {
+      const opts = Array.isArray(s.options) ? s.options : [];
+      if (!opts.some((o) => o.route_to)) errors.push(`step[${i}] (audience) needs >= 1 option with route_to (route-out branch)`);
+      if (!opts.some((o) => !o.route_to)) errors.push(`step[${i}] (audience) needs >= 1 option without route_to (continue branch)`);
+    }
   });
   if (!schema.completion?.headline) errors.push('funnel.completion.headline required');
   return errors;

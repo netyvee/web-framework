@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.4.8 (2026-07-05) — EnquiryFunnel audience-gate step type (route-out) — EOS Q1.P3 (part 1)
+- **`EnquiryFunnel` gains an opt-in `audience` step type** — a front-of-funnel gate that splits by
+  visitor type so a candidate is never carried into the client-sales funnel. Options with a new
+  additive `route_to` field are the "route-out" branch (rendered as a governed native `<a href>` —
+  e.g. jobseeker → recruitment/careers destination); options without `route_to` are the "continue"
+  branch (a `<button>` that advances the funnel as before, e.g. client → next step). Purely additive:
+  the existing `choice` step type and its `radiogroup`/bottom-CTA render are byte-unchanged, so pinned
+  consumers (Care) and staffing's current choice-only funnel are unaffected.
+- **a11y:** the audience step is a `role="group"` (labelled by the question), NOT a `radiogroup` —
+  nothing is "selected"; one option navigates away immediately. Route-out options are keyboard-native
+  anchors; the continue option is a keyboard-native button. The bottom client-enquiry CTA is suppressed
+  while the audience gate is shown, so there is no way to slip past the gate into the client CTA.
+- **Attribution/analytics:** choosing a route-out branch emits `FUNNEL_EVENTS.audience`
+  (`vigil:funnel_audience`, detail `{ division, source, stepId, value, route_to }`) before the anchor
+  hands off. Choosing the continue branch records intent (e.g. `audience=client`) and advances as normal.
+- **Contract + validation:** `FunnelOption.route_to?` and `FunnelStep.type: 'choice' | 'audience'` added
+  to `conversion/funnel.ts`; `validateFunnel()` now requires an audience step to genuinely split
+  (>=1 route-out option AND >=1 continue option). The **server-side audience guard STAYS in the CRM**
+  (no CRM PHP enters the frontend package) — this is only the client-side front-of-funnel split.
+- 11 new vitest tests (`tests/funnel.test.tsx`): validation accept/reject + backward-compat + static
+  render of the route-out anchor, the group semantics, and the suppressed bottom CTA. Gates GREEN:
+  typecheck clean · vitest **71/71** (was 60) · src isolation **35 files OK**. No new dependency.
+  Q1.P3 part 2 (the `nav.logo.darkSrc` surface-aware pick — screenshot-gated) remains a follow-up unit.
+
 ## v0.4.7 (2026-07-04) — shared Next security-headers helper (config tool; no src change) — EOS Q1.P2
 - **`config/security.mjs` — `withVigilSecurity(nextConfig)` + `vigilSecurityHeaders()` + `vigilCsp()`.**
   Promoted from `staffing/next.config.mjs` so Care + every future framework site inherits ONE
