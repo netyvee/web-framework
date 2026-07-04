@@ -50,6 +50,10 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   const phone = page.nap.phone;
   const tel = `tel:${phone.replace(/\s+/g, '')}`;
   const enquiry = page.nap.enquiry_url;
+  // WCAG 2.2 §2.5.8 Target Size (Minimum, AA): give small standalone text links a ≥24px
+  // interactive box so footer/nav contact links are not sub-24px tap targets. Applied via
+  // inline style so it never depends on a consumer's Tailwind purge. (v0.4.4)
+  const tapTarget = { display: 'inline-block', paddingTop: 4, paddingBottom: 4, minHeight: 24 } as const;
 
   // Page-type-aware primary CTA: recruitment/candidate pages must NOT route people into the
   // client-sales enquiry funnel. primaryCtaHref() gives the careers funnel for recruitment pages
@@ -88,7 +92,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
               aria-label="Open menu"
               aria-expanded={open}
               aria-controls="vf-mobile-nav"
-              style={{ color: page.brand.text, fontSize: 22, lineHeight: 1 }}
+              style={{ color: page.brand.text, fontSize: 22, lineHeight: 1, minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
             >☰</button>
           </div>
         </div>
@@ -131,11 +135,11 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           <div>
             <Logo nav={nav} src={nav.logo?.footerSrc ?? nav.logo?.src} height={34} theme={t} />
             <p className="mt-4 text-[12px]" style={{ color: t.text4 }}>{page.nap.address}</p>
-            <p className="mt-3 text-sm"><a href={tel} className="hover:underline" style={{ color: t.secondary }}>{phone}</a></p>
-            {page.nap.email && <p className="text-sm"><a href={`mailto:${page.nap.email}`} className="hover:underline" style={{ color: t.secondary }}>{page.nap.email}</a></p>}
+            <p className="mt-3 text-sm"><a href={tel} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{phone}</a></p>
+            {page.nap.email && <p className="text-sm"><a href={`mailto:${page.nap.email}`} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{page.nap.email}</a></p>}
             {nav.social && nav.social.length > 0 && (
-              <ul className="mt-3 flex list-none gap-3 p-0">
-                {nav.social.map((s) => <li key={s.href}><a href={s.href} className="text-[12px]" style={{ color: t.text4 }}>{s.label}</a></li>)}
+              <ul className="mt-3 flex list-none gap-4 p-0">
+                {nav.social.map((s) => <li key={s.href}><a href={s.href} className="text-[12px]" style={{ color: t.text4, ...tapTarget }}>{s.label}</a></li>)}
               </ul>
             )}
           </div>
@@ -143,7 +147,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             <div key={col.heading}>
               <p className="text-sm font-medium" style={{ color: t.secondary }}>{col.heading}</p>
               <ul className="mt-3 list-none space-y-2 p-0">
-                {col.links.map((l) => <li key={l.href}><Link href={l.href} className="text-sm opacity-75 hover:opacity-100">{l.label}</Link></li>)}
+                {col.links.map((l) => <li key={l.href}><Link href={l.href} className="text-sm opacity-75 hover:opacity-100" style={tapTarget}>{l.label}</Link></li>)}
               </ul>
             </div>
           ))}
@@ -151,7 +155,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{ctaLabel}</a>
             {nav.legalLinks && nav.legalLinks.length > 0 && (
               <ul className="mt-6 list-none space-y-2 p-0">
-                {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} className="text-[12px] hover:underline" style={{ color: t.text4 }}>{l.label}</Link></li>)}
+                {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} className="text-[12px] hover:underline" style={{ color: t.text4, ...tapTarget }}>{l.label}</Link></li>)}
               </ul>
             )}
             <p className="mt-6 text-[12px]" style={{ color: t.text5 }}>{nav.companyReg}</p>

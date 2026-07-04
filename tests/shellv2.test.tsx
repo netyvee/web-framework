@@ -27,6 +27,17 @@ describe('Shell v2 (v0.3 — visual-completion requirements)', () => {
     expect(footer).toContain(nav.enquiryCtaLabel);
   });
 
+  it('footer contact links + mobile toggle meet WCAG 2.2 2.5.8 target size (v0.4.4)', () => {
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)![0];
+    // footer tel/email/column/legal links carry the ≥24px tapTarget box
+    const telAnchor = footer.match(/<a\b[^>]*href="tel:[^"]*"[^>]*>/i)![0];
+    expect(telAnchor).toMatch(/min-height:\s*24px/);
+    // the md:hidden ☰ toggle is a ≥24px (here 44px) interactive box
+    const toggle = html.match(/<button\b[^>]*aria-label="Open menu"[^>]*>/i)![0];
+    expect(toggle).toMatch(/min-height:\s*44px/);
+    expect(toggle).toMatch(/min-width:\s*44px/);
+  });
+
   it('has exactly ONE governed sticky CTA (no duplicate/competing fixed CTAs)', () => {
     const sticky = html.match(/<a\b[^>]*class="[^"]*\bfixed\b[^"]*\bbottom-0\b[^"]*"[^>]*>/gi) ?? [];
     expect(sticky.length).toBe(1);
