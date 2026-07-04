@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { PageJson, SiteNav } from '../types';
 import { resolveTheme } from '../tokens/theme';
+import { primaryCtaHref, isRecruitmentPage } from '../cta';
 
 function Logo({ nav, src, height, theme }: { nav: SiteNav; src?: string; height: number; theme: { text: string } }) {
   const logoSrc = src;
@@ -50,6 +51,12 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   const tel = `tel:${phone.replace(/\s+/g, '')}`;
   const enquiry = page.nap.enquiry_url;
 
+  // Page-type-aware primary CTA: recruitment/candidate pages must NOT route people into the
+  // client-sales enquiry funnel. primaryCtaHref() gives the careers funnel for recruitment pages
+  // and nap.enquiry_url (byte-identical to before) for every other type. Label is candidate-aware.
+  const ctaHref = primaryCtaHref(page);
+  const ctaLabel = isRecruitmentPage(page) ? (nav.careersCtaLabel ?? 'Careers & applications') : nav.enquiryCtaLabel;
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
       {/* ── SKIP LINK (WCAG 2.4.1 bypass block) ────────────────── */}
@@ -72,7 +79,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
                 <Link key={l.href} href={l.href} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
               ))}
               <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>
-              <a href={enquiry} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{nav.enquiryCtaLabel}</a>
+              <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{ctaLabel}</a>
             </nav>
             <button
               ref={toggleRef}
@@ -110,7 +117,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           {/* single enquiry action inside the menu; the sticky CTA is hidden while
               the menu is open, so there is no competing/duplicate CTA */}
           <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-            <a href={enquiry} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{nav.enquiryCtaLabel}</a>
+            <a href={ctaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{ctaLabel}</a>
           </div>
         </div>
       )}
@@ -141,7 +148,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             </div>
           ))}
           <div>
-            <a href={enquiry} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{nav.enquiryCtaLabel}</a>
+            <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{ctaLabel}</a>
             {nav.legalLinks && nav.legalLinks.length > 0 && (
               <ul className="mt-6 list-none space-y-2 p-0">
                 {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} className="text-[12px] hover:underline" style={{ color: t.text4 }}>{l.label}</Link></li>)}
@@ -159,11 +166,11 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
         <>
           <div aria-hidden className="md:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} />
           <a
-            href={enquiry}
+            href={ctaHref}
             style={{ background: t.accent, color: t.onAccent, paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
             className="fixed inset-x-3 bottom-0 z-30 mb-0 rounded-t-lg px-5 pt-3 text-center text-sm font-medium shadow-lg md:hidden"
           >
-            {nav.enquiryCtaLabel}
+            {ctaLabel}
           </a>
         </>
       )}

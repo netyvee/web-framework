@@ -46,6 +46,10 @@ export type PageJson = {
     address?: string;
     trading_name: string;
     enquiry_url: string;
+    // Recruitment/candidate funnel (optional, additive). When absent, the shell derives it
+    // from enquiry_url (/enquire/{div} -> /careers/{div}) for recruitment page types so
+    // candidates are never routed into the client-sales funnel.
+    careers_url?: string;
   };
   sections: Section[];
 };
@@ -87,6 +91,9 @@ export type SiteNav = {
   // The enquiry CTA button label (shell Footer + MobileCta). Site-owned wording —
   // extracted from the shipped care/staffing shell where it was a literal.
   enquiryCtaLabel: string;
+  // Candidate/careers CTA label used on recruitment page types (optional; defaults to
+  // 'Careers & applications'). Keeps candidates out of the client-sales enquiry funnel.
+  careersCtaLabel?: string;
   // v0.3 shell v2 (all optional → additive). Brand assets come from the site
   // config/asset contract, NOT component code, so the dashboard can later edit them.
   logo?: { src: string; alt: string; footerSrc?: string };

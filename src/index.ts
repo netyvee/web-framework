@@ -4,6 +4,8 @@ export * from './types';
 // content loader + image contract
 export { getPageSlugs, getPage, paramsToFile, imgSrc, imgAlt } from './loader';
 export { buildPageMetadata } from './metadata';
+// page-type-aware conversion routing (candidate vs client funnel)
+export { primaryCtaHref, isRecruitmentPage } from './cta';
 
 // provenance (canonical values + validation)
 export {
