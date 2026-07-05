@@ -1,5 +1,18 @@
 # Changelog
 
+## (unreleased, branch orchestration/q1p4-routing-gate) — Q1.P4 audience-routing QA gate
+- **`scripts/candidate-routing-check.mjs` — the permanent audience-routing gate.** From a data-driven
+  site's `content/pages/*.json` it fails closed on cross-division routing (any page linking to ANOTHER
+  division's `/careers` or `/enquire`, or another division's site domain) and on candidate/client
+  mismatches (a `page_type:"recruitment"` page with no own-careers destination, or one that routes
+  candidates into the client enquiry). Division-agnostic (`--own <siteKey>` or `--division <slug>`),
+  needs no browser and no build (the static complement to the per-site Playwright routing specs), so it
+  can gate every site's CI cheaply and is reusable across Cleaning / Security / Care / Staffing / Main.
+  `--advisory` warns without failing (advisory-first rollout). Identity table lives in `scripts/`
+  (outside the src/ isolation scan). Proven: real staffing (39 pages) + care (12 pages) content PASS; a
+  deliberately-broken fixture (`tests/fixtures/routing-broken/`) FAILS closed with precise findings.
+  Release (version bump + tag + wire into staffing/care `qa.yml` on re-pin) is the follow-up.
+
 ## v0.4.9 (2026-07-05) — surface-aware logo pick (nav.logo.darkSrc) — EOS Q1.P3 (part 2)
 - **`nav.logo.darkSrc` — an additive optional logo variant for dark surfaces.** The `Shell` chrome
   (header, mobile-nav, footer) sits on a dark navy background on every Vigil site; when a site supplies

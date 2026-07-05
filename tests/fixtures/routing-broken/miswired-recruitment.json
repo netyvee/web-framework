@@ -1,0 +1,2 @@
+{ "schema_version":1, "site":"care_staffing", "slug":"/jobs", "page_type":"recruitment",
+  "sections":[{"type":"cta","fields":{"heading":"Enquire","cta_url":"https://app.vigilservices.co.uk/enquire/staffing"}}] }

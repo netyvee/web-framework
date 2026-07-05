@@ -1,0 +1,2 @@
+{ "schema_version":1, "site":"care_staffing", "slug":"/leaky", "page_type":"service",
+  "sections":[{"type":"cta","fields":{"heading":"Apply","cta_url":"https://app.vigilservices.co.uk/careers/care"}}] }
