@@ -38,6 +38,12 @@ export type PageJson = {
     schema_type?: string;
     og_image?: string;
     noindex?: boolean;
+    // SEO-04 item 3 (additive/optional; backported to v0.3.x). Consumed ONLY by
+    // buildJsonLd()'s Article branch (schema_type==='Article') when present;
+    // omitted from output otherwise. The CRM does not export these yet, so every
+    // current page leaves them undefined (no-op). ISO 8601 date/datetime strings.
+    date_published?: string;
+    date_modified?: string;
   };
   brand: { bg: string; text: string; cta: string; secondary: string };
   nap: {
@@ -46,6 +52,15 @@ export type PageJson = {
     address?: string;
     trading_name: string;
     enquiry_url: string;
+  };
+  // CRM-exported per-site settings block (WebExportPages::toArtifact →
+  // site_settings). Additive/optional: the framework consumes only what it renders.
+  // `social` (platform → profile URL) feeds Organization.sameAs (SEO-04 item 5).
+  // PHP serialises an empty map as `[]`, so social may be an object OR an empty array
+  // — buildJsonLd() reads only string URL values and omits sameAs when there are none.
+  site_settings?: {
+    social?: Record<string, string> | string[];
+    [key: string]: unknown;
   };
   sections: Section[];
 };

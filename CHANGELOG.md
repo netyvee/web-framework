@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.3 (2026-07-06) — SEO schema: Article + WebSite + Organization.sameAs (additive backport)
+Backport of the v0.4.10 `buildJsonLd()` structured-data additions onto the v0.3.x line. **Strictly
+additive** — existing nodes (Organization/LocalBusiness/Service/FAQPage/BreadcrumbList) are
+byte-identical for existing inputs; the new behaviour only ever *adds* graph nodes/fields.
+- **WebSite** node emitted on every page (`@id` `…/#website`, `publisher` → Organization; no
+  SearchAction, since PageJson carries no site-search endpoint).
+- **Article** node emitted ONLY when `seo.schema_type === 'Article'` (gated exactly like Service).
+  Populated from existing PageJson fields; `datePublished`/`dateModified`/`image` are omitted when
+  the page does not carry them. No current page sets this type, so it is a no-op for pinned sites.
+- **Organization.sameAs** added ONLY when `site_settings.social` supplies http(s) profile URLs;
+  omitted entirely otherwise (empty PHP map `[]` → no `sameAs`).
+- Types: `PageJson.seo.date_published?`/`date_modified?` and `PageJson.site_settings?` added as
+  additive-optional fields (no existing field semantics changed).
+
 ## v0.3.2 (2026-07-02) — Shell skip-to-content link (WCAG 2.4.1 bypass block). Additive.
 
 ## v0.3.1 (2026-07-02) — buildPageMetadata OG default (patch)
