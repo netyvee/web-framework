@@ -15,6 +15,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          # Actions economy (CI-ECON-01 §7.1): cache the npm DOWNLOAD cache (~/.npm),
+          # keyed automatically on runner OS + hashFiles('**/package-lock.json'). A
+          # lockfile change → new hash → new key → guaranteed cache miss + repopulate
+          # (no stale/incompatible deps). Caches the download cache, not node_modules.
+          cache: 'npm'
       - name: Install
         run: npm install
       - name: Typecheck
