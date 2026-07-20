@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.4.11 (2026-07-20) - parent-company shell support (MAIN-01 / D-092)
+
+**Consumers on v0.4.10 and earlier are unaffected. This release changes nothing for a site
+that has a phone and an enquiry funnel; care and staffing render byte-identically.**
+
+- **`Shell` no longer renders a dead phone link or a dead enquiry CTA.** Both anchors were
+  emitted unconditionally, because every consumer to date was a division site that always had
+  both. The corporate front door (`netyvee/main`, vigilservices.co.uk) has neither: no division
+  phone, and no agreed corporate enquiry target. The result was `<a href="tel:"></a>` with an
+  empty label, and `<a href="">` - an enquiry button whose href resolves to the current page.
+  Both are now guarded on a non-empty value, the same way the footer email link always has been.
+
+  Why this mattered enough to release for: **a dead CTA is worse than no CTA.** It still looks
+  like a working conversion path in a screenshot and still satisfies a visual-completion check,
+  while converting nobody. It fails silently, which is the failure mode this estate is
+  systematically removing.
+
+- **`SiteNav.enquiryCtaLabel` is now OPTIONAL.** Requiring it encoded the assumption that every
+  consumer is a division site with a sales funnel. Omitting it, together with an empty
+  `nap.enquiry_url`, is now the supported way to express "this site has no enquiry CTA yet".
+  This is a type-level widening: every existing consumer still compiles unchanged.
+
+- **Tests:** `tests/shell-parent-company.test.tsx` (7 new; 82 total, was 75). Half assert the new
+  corporate behaviour, half assert that division sites did NOT regress - including that the CTA
+  still appears in all three governed server-rendered positions.
+
+### Housekeeping, and an honest note about this file
+
+`package.json` was stuck at `0.4.8` while tags ran to `v0.4.10`, so an install pinned to
+`#v0.4.10` reported version `0.4.8` in the consumer lockfile. Corrected here: this release bumps
+the manifest to match its tag.
+
+**v0.4.9 and v0.4.10 have no entries below and none are invented here.** They shipped without
+release notes, along with every tag from v0.3.3 onward - 12 tags against 6 GitHub Releases, which
+contradicts `docs/SEMVER-POLICY.md`'s own rule that every tag gets notes. Backfilling them from
+memory would be guesswork; they are recorded as a known gap in the CRM under `WF-GOV-01`, to be
+reconstructed from their diffs. `docs/SEMVER-POLICY.md`'s compatibility matrix is also stale at
+v0.3.0 and does not list staffing, its heaviest consumer.
+
+
 ## v0.4.8 (2026-07-05) — EnquiryFunnel audience-gate step type (route-out) — EOS Q1.P3 (part 1)
 - **`EnquiryFunnel` gains an opt-in `audience` step type** — a front-of-funnel gate that splits by
   visitor type so a candidate is never carried into the client-sales funnel. Options with a new

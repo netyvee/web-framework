@@ -105,7 +105,18 @@ export type SiteNav = {
   companyReg: string;
   // The enquiry CTA button label (shell Footer + MobileCta). Site-owned wording —
   // extracted from the shipped care/staffing shell where it was a literal.
-  enquiryCtaLabel: string;
+  //
+  // OPTIONAL since v0.4.11. It was required, which encoded an assumption that every
+  // consumer is a division site with a sales funnel. The parent-company site
+  // (netyvee/main, vigilservices.co.uk) is the counter-example: it has no agreed
+  // corporate enquiry target, and pointing it at any one division's funnel is a
+  // governance breach the CRM already tracks as C-12. Omit this (and leave
+  // `nap.enquiry_url` empty) and the Shell renders NO enquiry CTA at all, rather
+  // than a button whose href resolves to the current page.
+  //
+  // Behaviour is unchanged for every existing consumer: care and staffing both set
+  // this and both have a non-empty enquiry_url, so their CTA renders exactly as before.
+  enquiryCtaLabel?: string;
   // Candidate/careers CTA label used on recruitment page types (optional; defaults to
   // 'Careers & applications'). Keeps candidates out of the client-sales enquiry funnel.
   careersCtaLabel?: string;

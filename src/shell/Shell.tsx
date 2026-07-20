@@ -61,6 +61,23 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   const ctaHref = primaryCtaHref(page);
   const ctaLabel = isRecruitmentPage(page) ? (nav.careersCtaLabel ?? 'Careers & applications') : nav.enquiryCtaLabel;
 
+  // v0.4.11 — PARENT-COMPANY SUPPORT. Both of these used to render unconditionally,
+  // because every consumer so far was a division site that always had a phone and an
+  // enquiry funnel. The corporate front door has neither yet, and rendering them
+  // anyway produced two dead elements: `<a href="tel:"></a>` (empty label, empty
+  // target) and `<a href="">` (an enquiry button that reloads the current page).
+  //
+  // A dead CTA is worse than no CTA: it looks like a working conversion path in a
+  // screenshot and in a visual-completion check, while converting nobody.
+  //
+  // NOT A BEHAVIOUR CHANGE FOR EXISTING CONSUMERS — care and staffing both supply a
+  // phone and a non-empty enquiry_url, so both flags are true and the rendered output
+  // is byte-identical. The email link at the footer has always been guarded this way
+  // (`{page.nap.email && ...}`); this simply applies the established pattern to the
+  // other two contact affordances.
+  const hasPhone = Boolean(phone && phone.trim());
+  const hasCta = Boolean(ctaHref && ctaHref.trim() && ctaLabel && ctaLabel.trim());
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
       {/* ── SKIP LINK (WCAG 2.4.1 bypass block) ────────────────── */}
@@ -82,8 +99,8 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
               {nav.primary.map((l) => (
                 <Link key={l.href} href={l.href} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
               ))}
-              <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>
-              <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{ctaLabel}</a>
+              {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
+              {hasCta && <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{ctaLabel}</a>}
             </nav>
             <button
               ref={toggleRef}
@@ -116,13 +133,15 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             {nav.primary.map((l) => (
               <Link key={l.href} href={l.href} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
             ))}
-            <a href={tel} className="py-3 text-base font-medium" style={{ color: t.secondary }}>{phone}</a>
+            {hasPhone && <a href={tel} className="py-3 text-base font-medium" style={{ color: t.secondary }}>{phone}</a>}
           </nav>
           {/* single enquiry action inside the menu; the sticky CTA is hidden while
               the menu is open, so there is no competing/duplicate CTA */}
-          <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-            <a href={ctaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{ctaLabel}</a>
-          </div>
+          {hasCta && (
+            <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+              <a href={ctaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{ctaLabel}</a>
+            </div>
+          )}
         </div>
       )}
 
@@ -135,7 +154,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           <div>
             <Logo nav={nav} src={nav.logo?.footerSrc ?? nav.logo?.src} height={34} theme={t} />
             <p className="mt-4 text-[12px]" style={{ color: t.text4 }}>{page.nap.address}</p>
-            <p className="mt-3 text-sm"><a href={tel} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{phone}</a></p>
+            {hasPhone && <p className="mt-3 text-sm"><a href={tel} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{phone}</a></p>}
             {page.nap.email && <p className="text-sm"><a href={`mailto:${page.nap.email}`} className="hover:underline" style={{ color: t.secondary, ...tapTarget }}>{page.nap.email}</a></p>}
             {nav.social && nav.social.length > 0 && (
               <ul className="mt-3 flex list-none gap-4 p-0">
@@ -152,7 +171,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             </div>
           ))}
           <div>
-            <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{ctaLabel}</a>
+            {hasCta && <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{ctaLabel}</a>}
             {nav.legalLinks && nav.legalLinks.length > 0 && (
               <ul className="mt-6 list-none space-y-2 p-0">
                 {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} className="text-[12px] hover:underline" style={{ color: t.text4, ...tapTarget }}>{l.label}</Link></li>)}
@@ -166,7 +185,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       {/* ── STICKY CTA (single, governed) ──────────────────────── */}
       {/* Reserve bottom space so the sticky never obscures the footer/legal, and
           HIDE it while the mobile nav is open (no competing/duplicate CTA). */}
-      {!open && (
+      {!open && hasCta && (
         <>
           <div aria-hidden className="md:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} />
           <a
