@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.5.5 (2026-07-20) - the diagnostic could fail the thing it was describing
+
+**A defect in v0.5.4, caught in production, and a lesson worth more than the fix.**
+
+v0.5.4's refusal check was documented as *"best-effort; never let the diagnosis mask the
+real failure"*. **It was not.** It wrapped `gh()` in a `try/catch` - but `gh()` calls
+`die()`, which is `process.exit()`, and **`process.exit()` cannot be caught**. So when the
+extra `/commits/{sha}/status` call hit a missing `statuses: read` scope, the diagnostic
+aborted the whole verification and turned a perfectly healthy repository red.
+
+Observed on `vigil-cleaning`, whose deployment was fine.
+
+The fix is a genuinely soft fetch (`ghSoft`) that returns `null` on any failure and never
+exits. **A diagnostic must never be able to fail the thing it is describing** - and a
+comment asserting a safety property is not the same as having it, which is the same
+category of error as the false success this tooling was built to prevent.
+
+Consumers should add `statuses: read` alongside `deployments: read`. Without it the
+refusal detail is simply omitted; nothing breaks.
+
 ## v0.5.4 (2026-07-20) - stop waiting out a refusal that is already conclusive
 
 v0.5.3 reads the provider's commit status when no deployment exists - but only AFTER the

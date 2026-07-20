@@ -111,14 +111,32 @@ console.log(`deploy-verify: ${repo}@${sha.slice(0, 7)} — polling for a termina
 // polling on regardless just burns the full timeout to reach a conclusion already
 // available. Checking each round turns 15 idle minutes into seconds — which matters,
 // because this runs on every push across every site.
-async function refusal() {
+// SOFT fetch. `gh()` calls die(), which is process.exit() and therefore CANNOT be
+// caught — so an earlier version of this helper wrapped gh() in try/catch, claimed to
+// be "best-effort", and was not: a missing `statuses: read` scope turned a perfectly
+// healthy repository red on a diagnostic that was only ever meant to add detail.
+// Caught in production on vigil-cleaning. A diagnostic must never be able to fail the
+// thing it is describing.
+async function ghSoft(path) {
   try {
-    const st = await gh(`/repos/${repo}/commits/${sha}/status`);
-    const bad = (st.statuses ?? []).filter((s) => s.state === 'failure' || s.state === 'error');
-    return bad.length ? bad : null;
+    const res = await fetch(`https://api.github.com${path}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        accept: 'application/vnd.github+json',
+        'user-agent': 'vigil-deploy-verify',
+      },
+    });
+    return res.ok ? await res.json() : null;
   } catch {
-    return null; // best-effort; never let the diagnosis mask the real failure
+    return null;
   }
+}
+
+async function refusal() {
+  const st = await ghSoft(`/repos/${repo}/commits/${sha}/status`);
+  if (!st) return null; // no permission, or the call failed — say nothing, break nothing
+  const bad = (st.statuses ?? []).filter((s) => s.state === 'failure' || s.state === 'error');
+  return bad.length ? bad : null;
 }
 
 const describeRefusal = (bad) =>

@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v0.5.4** | 1 | 14.2.x | **all five sites** — a refused deployment exits immediately instead of waiting out the poll timeout | ✅ **current** |
+| **v0.5.5** | 1 | 14.2.x | **all five sites** — the refusal diagnostic can no longer fail the verification it describes (`process.exit` is not catchable) | ✅ **current** |
+| v0.5.4 | 1 | 14.2.x | **all five sites** — a refused deployment exits immediately instead of waiting out the poll timeout | superseded (patch) |
 | v0.5.3 | 1 | 14.2.x | **all five sites** — `deploy-verify.mjs` reads the provider's commit status when no deployment exists, so a refusal is diagnosed instead of timing out silently | superseded (patch) |
 | v0.5.2 | 1 | 14.2.x | **main · care · staffing · cleaning · security** — `deploy-verify.mjs` names a 403 as a permissions problem rather than surfacing it as a failed deploy | superseded (patch) |
 | v0.5.1 | 1 | 14.2.x | **main** — fixes `lockfile-platform-check.mjs` false positives (`fsevents` is macOS-only; darwin-only families are now exempt). Verified against all five site lockfiles | superseded (patch) |
