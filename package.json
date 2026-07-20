@@ -18,7 +18,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "isolation": "node scripts/division-isolation-check.mjs --mode src"
+    "isolation": "node scripts/division-isolation-check.mjs --mode src",
+    "release:gate": "node scripts/release-gate.mjs"
   },
   "peerDependencies": {
     "next": "^14.2.0",

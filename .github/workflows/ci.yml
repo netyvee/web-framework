@@ -3,6 +3,9 @@ name: Framework CI
 on:
   push:
     branches: [main]
+    # Tag pushes run the release gate below. Without this the gate could never fire,
+    # because a tag push is not a branch push.
+    tags: ['v*']
   pull_request:
     branches: [main]
 
@@ -28,3 +31,9 @@ jobs:
         run: npm test
       - name: Division isolation (src must be identity-blank)
         run: npm run isolation
+      - name: Release gate (tag builds only)
+        # WF-GOV-01. docs/SEMVER-POLICY.md already required release notes on every tag
+        # and a compatibility matrix updated every release. Both rules were broken for
+        # 12 consecutive tags because nothing checked them. Skips silently on branch
+        # and PR builds; fails a tag build that would otherwise ship the same drift.
+        run: node scripts/release-gate.mjs
