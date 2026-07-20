@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v0.5.2** | 1 | 14.2.x | **main · care · staffing · cleaning · security** — `deploy-verify.mjs` names a 403 as a permissions problem rather than surfacing it as a failed deploy | ✅ **current** |
+| **v0.5.3** | 1 | 14.2.x | **all five sites** — `deploy-verify.mjs` reads the provider's commit status when no deployment exists, so a refusal is diagnosed instead of timing out silently | ✅ **current** |
+| v0.5.2 | 1 | 14.2.x | **main · care · staffing · cleaning · security** — `deploy-verify.mjs` names a 403 as a permissions problem rather than surfacing it as a failed deploy | superseded (patch) |
 | v0.5.1 | 1 | 14.2.x | **main** — fixes `lockfile-platform-check.mjs` false positives (`fsevents` is macOS-only; darwin-only families are now exempt). Verified against all five site lockfiles | superseded (patch) |
 | v0.5.0 | 1 | 14.2.x | **main** — deploy verification: `deploy-verify.mjs` + `lockfile-platform-check.mjs`. No runtime/render change; additive tooling only | superseded (patch) |
 | v0.4.11 | 1 | 14.2.x | **main** (`ee38baee`) — parent-company shell: no dead phone link, no dead enquiry CTA; `enquiryCtaLabel` optional | superseded (additive minor) |

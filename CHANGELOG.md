@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.5.3 (2026-07-20) - when no deployment exists, say WHY
+
+`deploy-verify.mjs` treats a missing deployment as failure (correctly). But it reported
+only *"no deployment was ever created"*, which is a symptom, not a diagnosis - and it
+took the full poll timeout to say even that.
+
+When a provider REFUSES to deploy - rate limit, disconnected project, suspended account -
+it creates no deployment record but **does** post a commit status saying why. The check
+now reads that status and prints it:
+
+```
+✖ DEPLOY NOT VERIFIED — no deployment was ever created for 20e64ba within 5s.
+  The provider posted a commit status explaining the refusal:
+    [Vercel] failure — Deployment rate limited — retry in 24 hours.
+```
+
+Found the hard way on `netyvee/main`: ten minutes of silent polling that ended in an
+unexplained timeout, while the reason had been sitting on the commit the whole time. The
+diagnosis is best-effort and wrapped - it can never mask the real failure.
+
 ## v0.5.2 (2026-07-20) - a 403 is a config problem, not a failed deploy
 
 `deploy-verify.mjs` now names the permissions failure instead of surfacing a bare

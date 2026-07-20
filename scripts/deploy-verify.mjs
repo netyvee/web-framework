@@ -115,11 +115,30 @@ while (Date.now() < deadline) {
 }
 
 // RULE 1. Not finding one is a failure, not a pass.
+//
+// But "no deployment" alone is a poor diagnosis, and this cost ten minutes of silent
+// polling to learn. When Vercel REFUSES to deploy — rate limit, disconnected project,
+// suspended account — it creates no deployment record but DOES post a commit status
+// saying why. Reading it turns an unexplained timeout into the actual reason.
 if (!deployments.length) {
+  let why = '';
+  try {
+    const st = await gh(`/repos/${repo}/commits/${sha}/status`);
+    const failed = (st.statuses ?? []).filter((s) => s.state === 'failure' || s.state === 'error');
+    if (failed.length) {
+      why =
+        `\n\n  The provider posted a commit status explaining the refusal:\n` +
+        failed.map((s) => `    [${s.context}] ${s.state} — ${s.description ?? '(no description)'}\n    ${s.target_url ?? ''}`).join('\n');
+    }
+  } catch {
+    /* diagnosis is best-effort; never let it mask the real failure */
+  }
+
   die(
     `no deployment was ever created for ${sha.slice(0, 7)} within ${timeoutSec}s.\n` +
-      `  This means the deploy did not start — a linked project, a build hook or a\n` +
-      `  push trigger is missing. It does NOT mean "nothing needed to deploy".`
+      `  The deploy did not start. Causes seen in practice: a deployment rate limit, a\n` +
+      `  disconnected project, a missing build hook, or no push trigger.\n` +
+      `  It does NOT mean "nothing needed to deploy".${why}`
   );
 }
 
