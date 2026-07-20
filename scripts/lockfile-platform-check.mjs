@@ -74,8 +74,24 @@ for (const [path, meta] of Object.entries(lock.packages)) {
   families.get(family).push({ name, os: meta.os ?? [], cpu: meta.cpu ?? [] });
 }
 
+// WHICH FAMILIES ACTUALLY OWE US A LINUX BUILD?
+//
+// The first version of this check demanded one from EVERY platform-specific family
+// and was wrong — it failed care, staffing, cleaning and security on `fsevents`,
+// which is macOS-only by nature. It publishes no Linux build, so its absence is
+// CORRECT, and flagging it is a false positive of exactly the kind this repository
+// exists to eliminate. (Found by running the check across every site before trusting
+// it. A gate that cries wolf gets switched off, which is worse than no gate.)
+//
+// The signal that separates the real defect from a macOS-only package is WIN32.
+// A package that ships a Windows binary essentially always ships a Linux one — so a
+// family with a win32 member and no linux member is a lockfile captured on Windows,
+// which is precisely the MAIN-01 failure. A darwin-only family is left alone.
 const missing = [];
 for (const [family, members] of families) {
+  const hasWin32 = members.some((m) => m.os.includes('win32'));
+  if (!hasWin32) continue; // darwin-only (fsevents) or otherwise genuinely not a Linux package
+
   const ok = members.some((m) => (m.os.length === 0 || m.os.includes(reqOs)) && (m.cpu.length === 0 || m.cpu.includes(reqCpu)));
   if (!ok) missing.push({ family, have: members.map((m) => m.name) });
 }

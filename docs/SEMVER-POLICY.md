@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v0.5.0** | 1 | 14.2.x | **main** — deploy verification: `deploy-verify.mjs` + `lockfile-platform-check.mjs`. No runtime/render change; additive tooling only | ✅ **current** |
+| **v0.5.1** | 1 | 14.2.x | **main** — fixes `lockfile-platform-check.mjs` false positives (`fsevents` is macOS-only; darwin-only families are now exempt). Verified against all five site lockfiles | ✅ **current** |
+| v0.5.0 | 1 | 14.2.x | **main** — deploy verification: `deploy-verify.mjs` + `lockfile-platform-check.mjs`. No runtime/render change; additive tooling only | superseded (patch) |
 | v0.4.11 | 1 | 14.2.x | **main** (`ee38baee`) — parent-company shell: no dead phone link, no dead enquiry CTA; `enquiryCtaLabel` optional | superseded (additive minor) |
 | v0.4.10 | 1 | 14.2.x | **staffing** (`e91184bb`) — Article/WebSite/sameAs schema | superseded (additive minor) |
 | v0.4.9 | 1 | 14.2.x | — | superseded — **no release notes exist** |

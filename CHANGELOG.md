@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.5.1 (2026-07-20) - lockfile-platform-check gave false positives on every other site
+
+**Fixes a defect in v0.5.0's own new check. No runtime change.**
+
+`lockfile-platform-check.mjs` demanded a `linux-x64` build from **every** platform-specific
+package family. Run across the estate before being trusted, it failed **care, staffing,
+cleaning and security** — all on `fsevents`, which is macOS-only by nature. It publishes no
+Linux build, so its absence is **correct**, and flagging it is a false positive of exactly the
+kind this tooling exists to eliminate. Cleaning and security were additionally mis-flagged on
+`@unrs/*` through a bad family grouping.
+
+**A gate that cries wolf gets switched off, which is worse than having no gate** — so this was
+fixed before the check was wired into any other repository.
+
+**The fix:** a family is only required to carry a Linux build if it carries a **win32** build. A
+package that ships a Windows binary essentially always ships a Linux one, so win32-without-linux
+is the fingerprint of a lockfile captured on Windows — the actual MAIN-01 failure. A darwin-only
+family is left alone.
+
+Re-verified in both directions: still fails `netyvee/main`'s real broken lockfile, and now passes
+all five site repositories. That result also confirms the lockfile defect was **unique to
+`netyvee/main`** and is not lurking elsewhere in the estate.
+
 ## v0.5.0 (2026-07-20) - deploy verification, because a false success shipped
 
 **No runtime change. Nothing renders differently. This release is entirely additive
