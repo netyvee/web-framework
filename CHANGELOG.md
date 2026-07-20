@@ -1,5 +1,66 @@
 # Changelog
 
+## v0.5.0 (2026-07-20) - deploy verification, because a false success shipped
+
+**No runtime change. Nothing renders differently. This release is entirely additive
+tooling, and every consumer can adopt it without touching a component.**
+
+### Why this exists
+
+The corporate main-site migration (MAIN-01) was reported to the founder as a successful
+deploy with "verified rendering". **All six Vercel deployments for `netyvee/main` had
+failed.** The report was wrong, and no check in the estate could have caught it.
+
+The failure was not a lie by any component. The CRM printed `NOT VERIFIED AS RENDERED`
+and recorded the run as `deployed_unverified` — exactly as designed. The false success
+was assembled at the reporting layer out of weaker evidence:
+
+| What was observed | What it actually proves |
+|---|---|
+| `git push` succeeded | the remote accepted bytes |
+| GitHub Contents API returned 201 | a blob exists |
+| a workflow was triggered | a run was queued |
+| `npm run build` passed **locally** | it builds on Windows, against the working tree |
+| no deployment record was noticed | **nothing** — the check was never run |
+
+None of those is a deploy. Two further defects made the gap invisible:
+
+1. **The local build was run against uncommitted code.** A fix to
+   `scripts/content-check.mjs` existed only in the working tree, so the artefact that
+   was verified was not the artefact that was published. CI on the pushed commit failed.
+2. **CI installed differently from the deploy platform.** The site workflow ran
+   `npm install`, which may repair a lockfile; Vercel runs `npm ci`, which may not. The
+   lockfile recorded one platform binary (`@next/swc-win32-x64-msvc`) instead of nine,
+   because it had been regenerated over an existing Windows `node_modules`. So the
+   Linux SWC binary was absent and `next build` died on Vercel — while both the local
+   build and a green CI run would have said everything was fine.
+
+### Added
+
+- **`scripts/deploy-verify.mjs`** — the only sanctioned proof that a deploy happened.
+  Polls the GitHub deployment status for a sha until it reaches a **terminal** state and
+  reads it. Four rules, each bought with a real failure:
+  - **absence is failure** — "I saw no deployment" is not "nothing was deployed";
+  - **non-terminal is not success** — `queued`/`in_progress` means the answer is not in;
+  - **timeout is failure**, never an assumed pass;
+  - **render is a separate claim** — `--url` + `--marker` assert the served document,
+    and a Vercel SSO login page is rejected rather than grepped (it answers `200`, so a
+    naive check passes on the wrong document).
+
+  Notably this needs **no Vercel credentials** — the deployment state is on the GitHub
+  API, reachable with the token the CRM already holds. Deploy verification had been
+  recorded as blocked on a founder gate; for the deploy-status half, that was wrong.
+
+- **`scripts/lockfile-platform-check.mjs`** — fails a build whose `package-lock.json`
+  cannot install on the deploy platform. Groups platform-specific packages into families
+  and requires a `linux-x64` member in each. Verified in both directions against the real
+  `netyvee/main` lockfiles: it fails the broken one and passes the fixed one.
+
+### Consumer guidance
+
+Install with **`npm ci`, never `npm install`**, in every site's CI. A workflow that lets
+npm repair the lockfile is testing a dependency tree the deploy will never receive.
+
 ## v0.4.11 (2026-07-20) - parent-company shell support (MAIN-01 / D-092)
 
 **Consumers on v0.4.10 and earlier are unaffected. This release changes nothing for a site
