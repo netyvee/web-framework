@@ -106,10 +106,38 @@ const left = () => Math.max(0, Math.round((deadline - Date.now()) / 1000));
 
 console.log(`deploy-verify: ${repo}@${sha.slice(0, 7)} — polling for a terminal deployment status (timeout ${timeoutSec}s)`);
 
+// While waiting for a deployment to appear, watch for the provider REFUSING outright.
+// A refusal creates no deployment record but does post a failure commit status, so
+// polling on regardless just burns the full timeout to reach a conclusion already
+// available. Checking each round turns 15 idle minutes into seconds — which matters,
+// because this runs on every push across every site.
+async function refusal() {
+  try {
+    const st = await gh(`/repos/${repo}/commits/${sha}/status`);
+    const bad = (st.statuses ?? []).filter((s) => s.state === 'failure' || s.state === 'error');
+    return bad.length ? bad : null;
+  } catch {
+    return null; // best-effort; never let the diagnosis mask the real failure
+  }
+}
+
+const describeRefusal = (bad) =>
+  `\n\n  The provider posted a commit status explaining the refusal:\n` +
+  bad.map((s) => `    [${s.context}] ${s.state} — ${s.description ?? '(no description)'}\n    ${s.target_url ?? ''}`).join('\n');
+
 let deployments = [];
 while (Date.now() < deadline) {
   deployments = await gh(`/repos/${repo}/deployments?sha=${sha}&per_page=100`);
   if (deployments.length) break;
+
+  const bad = await refusal();
+  if (bad) {
+    die(
+      `the provider REFUSED to deploy ${sha.slice(0, 7)} — no deployment was created.\n` +
+        `  Not waiting out the remaining ${left()}s: this is already conclusive.${describeRefusal(bad)}`
+    );
+  }
+
   console.log(`  no deployment record yet for this sha — ${left()}s left`);
   await sleep(intervalSec * 1000);
 }

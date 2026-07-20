@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.5.4 (2026-07-20) - stop waiting out a refusal that is already conclusive
+
+v0.5.3 reads the provider's commit status when no deployment exists - but only AFTER the
+poll timeout expires. So a refused deploy still burned the full 15 minutes before saying
+anything, on every push, across every site.
+
+The refusal check now runs on each poll round and exits immediately when the provider has
+posted a failure status with no deployment record. Fifteen idle minutes become seconds.
+
+This matters beyond tidiness: during a deployment rate limit, every push to every site
+repository would otherwise sit in a quarter-hour of pointless polling. A gate that is
+expensive to run is a gate someone eventually removes.
+
+The diagnosis remains best-effort and wrapped, so it can never mask the real failure.
+
 ## v0.5.3 (2026-07-20) - when no deployment exists, say WHY
 
 `deploy-verify.mjs` treats a missing deployment as failure (correctly). But it reported
