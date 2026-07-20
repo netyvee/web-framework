@@ -83,6 +83,20 @@ async function gh(path) {
       'user-agent': 'vigil-deploy-verify',
     },
   });
+  if (res.status === 403) {
+    // Seen on the first estate-wide rollout: vigil-cleaning's default workflow token
+    // had no `deployments` scope, so this failed with a bare "Resource not accessible
+    // by integration" that reads like a deploy failure. It is not — it is a config
+    // problem, and saying so is the difference between a two-minute fix and an hour
+    // spent hunting a deployment that was fine all along.
+    die(
+      `GitHub API 403 on ${path}.\n` +
+        `  ${(await res.text()).slice(0, 200)}\n\n` +
+        `  This is almost certainly a PERMISSIONS problem, not a failed deploy. The\n` +
+        `  workflow token needs the deployments scope — add to the job:\n\n` +
+        `      permissions:\n        contents: read\n        deployments: read\n`
+    );
+  }
   if (!res.ok) die(`GitHub API ${res.status} on ${path}: ${(await res.text()).slice(0, 300)}`);
   return res.json();
 }

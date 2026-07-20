@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.2 (2026-07-20) - a 403 is a config problem, not a failed deploy
+
+`deploy-verify.mjs` now names the permissions failure instead of surfacing a bare
+GitHub `403 Resource not accessible by integration`, which reads exactly like a failed
+deploy and is not one.
+
+Found on the first estate-wide rollout: `vigil-cleaning`'s default workflow token carries
+no `deployments` scope, so the job failed on a repository whose deploys were fine. The
+message now says what it is and prints the four lines that fix it:
+
+```yaml
+permissions:
+  contents: read
+  deployments: read
+```
+
+All five site workflows now declare that block explicitly rather than relying on a
+per-repo default nobody reads.
+
 ## v0.5.1 (2026-07-20) - lockfile-platform-check gave false positives on every other site
 
 **Fixes a defect in v0.5.0's own new check. No runtime change.**
