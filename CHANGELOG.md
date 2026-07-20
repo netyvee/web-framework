@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.6.0 (2026-07-20) - typed link metadata survives to the rendered anchor (SM-F2)
+
+`NavLink` gains an OPTIONAL `rel`, and the Shell renders it. Additive: no consumer
+declares `rel` today, so the rendered output of every existing site is byte-identical -
+proven by a test that renders the untouched fixture nav and asserts the attribute is
+absent entirely.
+
+**The chain was broken in three places, not one.** `loadSiteNav()` was known to strip
+`rel`, and that was recorded as the whole defect. It was a third of it: the `NavLink`
+type had no `rel` field to carry, and `Shell.tsx` had no `rel` in it anywhere. Fixing
+only the loader - the scope as originally written - would have produced no rendered
+attribute and a green package.
+
+### `rel` is a CLOSED ALLOW-LIST, not a string
+
+`NavLinkRel = 'corporate_parent'`, plus a runtime guard `isNavLinkRel()` for the
+untyped boundary. Loaders read JSON the CRM exported; at that boundary TypeScript
+guarantees nothing, so the allow-list must exist at runtime too or the type is
+decorative. Unrecognised values are DROPPED, never carried - an unknown relationship
+must degrade to an ordinary link, never assert a relationship the framework never
+defined. Widening the union is a governance change (a D-record), not a typing
+convenience.
+
+### Rendered as `data-vf-rel`, deliberately not `rel`
+
+`corporate_parent` is a governance classification of ours. The HTML `rel` attribute
+takes tokens from a registered set; inventing one there produces invalid markup whose
+crawler interpretation is undefined. `data-*` is the spec's own extension point: valid,
+inert to search engines, and machine-readable for Tier 3 verification - which is
+precisely what D-095 asks of this edge (state ownership; do not route authority).
+
+### The mock was eating the attribute
+
+`tests/mocks/next-link.tsx` destructured exactly five props and discarded the rest, so
+**no Shell test could ever observe an attribute passed through `Link`**. The correctly
+rendered `data-vf-rel` came out invisible, making working code look broken - and a real
+break look fine. The mock now forwards every prop. A mock narrower than the thing it
+stands in for is a check that cannot fail on what it is supposed to check, the same
+category as `FALSE-SUCCESS-DEPLOY-01`.
+
+### The mobile navigation had never been render-tested at all
+
+It sits behind `open` state, so `renderToStaticMarkup` never reaches it, and every
+existing shell test asserts against the closed shell only. A governed link could have
+been dropped there with the suite fully green. `jsdom` + `@testing-library/react` are
+added as devDependencies and `navrel.mobile.test.tsx` opens the menu and asserts the
+fourth placement. Lockfile re-verified against `lockfile-platform-check.mjs`: 5 platform
+families, 58 builds, all installable on linux-x64.
+
+**90 tests pass (was 82).** No runtime dependency added; devDependencies only.
+
+
 ## v0.5.5 (2026-07-20) - the diagnostic could fail the thing it was describing
 
 **A defect in v0.5.4, caught in production, and a lesson worth more than the fix.**

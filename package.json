@@ -1,6 +1,6 @@
 {
   "name": "@vigil/web-framework",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "private": false,
   "description": "Vigil website framework — versioned render-from-JSON engine, shell, sections and QA shared by the Vigil division sites.",
   "license": "UNLICENSED",
@@ -27,9 +27,11 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "jsdom": "^29.1.1",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",

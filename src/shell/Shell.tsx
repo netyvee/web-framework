@@ -11,7 +11,7 @@
 // literal. Colour from page.brand via resolveTheme.
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import type { PageJson, SiteNav } from '../types';
+import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
 
@@ -24,6 +24,22 @@ function Logo({ nav, src, height, theme }: { nav: SiteNav; src?: string; height:
     return <img src={logoSrc} alt={nav.logo?.alt ?? nav.brandName} height={height} style={{ height, width: 'auto' }} />;
   }
   return <span className="font-display text-lg font-medium" style={{ color: theme.text }}>{nav.brandName}</span>;
+}
+
+// SM-F2 — typed link metadata must survive all the way to the rendered anchor.
+// `rel` reached the Shell and was silently discarded here, so a governed
+// corporate_parent edge rendered as an anonymous link indistinguishable from any
+// other: nothing downstream (Tier 3, a crawler, an auditor) could tell that the
+// relationship had been declared at all.
+//
+// It is emitted as `data-vf-rel`, NOT as `rel`. `corporate_parent` is a governance
+// classification of our own; the HTML `rel` attribute takes tokens from a registered
+// set, and inventing one there would produce invalid markup whose interpretation by
+// crawlers is undefined. `data-*` is the spec's own extension point: valid, inert to
+// search engines, and machine-readable for verification — which is exactly the
+// contract D-095 asks for (state ownership; do not route authority).
+function relAttrs(l: NavLink): { 'data-vf-rel'?: NavLinkRel } {
+  return l.rel ? { 'data-vf-rel': l.rel } : {};
 }
 
 export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; children: React.ReactNode }) {
@@ -97,7 +113,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
               {nav.primary.map((l) => (
-                <Link key={l.href} href={l.href} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
+                <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
               ))}
               {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
               {hasCta && <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{ctaLabel}</a>}
@@ -131,7 +147,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
             {nav.primary.map((l) => (
-              <Link key={l.href} href={l.href} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
+              <Link key={l.href} href={l.href} {...relAttrs(l)} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
             ))}
             {hasPhone && <a href={tel} className="py-3 text-base font-medium" style={{ color: t.secondary }}>{phone}</a>}
           </nav>
@@ -166,7 +182,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             <div key={col.heading}>
               <p className="text-sm font-medium" style={{ color: t.secondary }}>{col.heading}</p>
               <ul className="mt-3 list-none space-y-2 p-0">
-                {col.links.map((l) => <li key={l.href}><Link href={l.href} className="text-sm opacity-75 hover:opacity-100" style={tapTarget}>{l.label}</Link></li>)}
+                {col.links.map((l) => <li key={l.href}><Link href={l.href} {...relAttrs(l)} className="text-sm opacity-75 hover:opacity-100" style={tapTarget}>{l.label}</Link></li>)}
               </ul>
             </div>
           ))}
@@ -174,7 +190,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             {hasCta && <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="inline-block rounded-lg px-5 py-3 text-sm font-medium">{ctaLabel}</a>}
             {nav.legalLinks && nav.legalLinks.length > 0 && (
               <ul className="mt-6 list-none space-y-2 p-0">
-                {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} className="text-[12px] hover:underline" style={{ color: t.text4, ...tapTarget }}>{l.label}</Link></li>)}
+                {nav.legalLinks.map((l) => <li key={l.href}><Link href={l.href} {...relAttrs(l)} className="text-[12px] hover:underline" style={{ color: t.text4, ...tapTarget }}>{l.label}</Link></li>)}
               </ul>
             )}
             <p className="mt-6 text-[12px]" style={{ color: t.text5 }}>{nav.companyReg}</p>

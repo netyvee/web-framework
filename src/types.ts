@@ -95,7 +95,30 @@ export type ImageRef =
 // cross-division value is impossible by construction. SiteNav carries structure
 // only. companyReg is the one shared-legal-entity string every footer shows.
 
-export type NavLink = { label: string; href: string };
+// ── Typed link relationship (SM-F2) ──────────────────────────────────────────
+// A CLOSED ALLOW-LIST, deliberately not `string`. `rel` exists to carry ONE
+// governed relationship — the division→corporate edge of D-095 / founder G-A —
+// and a free-form string would let any site declare any relationship it liked,
+// which is precisely the thing the governance model refuses. Widening this union
+// is a governance change (a D-record), never a typing convenience.
+//
+// The value is a GOVERNANCE classification, not an HTML link-relation token:
+// `corporate_parent` is not registered in the HTML spec, so the Shell renders it
+// as `data-vf-rel`, never as a bare `rel=` attribute. See Shell.tsx §nav.
+export type NavLinkRel = 'corporate_parent';
+export const NAV_LINK_RELS: readonly NavLinkRel[] = ['corporate_parent'] as const;
+
+/**
+ * Runtime allow-list guard for the untyped boundary (site-settings JSON exported
+ * by the CRM). TypeScript cannot police a parsed JSON value, and the loaders read
+ * exactly that — so the same allow-list must exist as a runtime check or the type
+ * is decorative. Loaders MUST filter through this rather than copying `rel` across.
+ */
+export function isNavLinkRel(value: unknown): value is NavLinkRel {
+  return typeof value === 'string' && (NAV_LINK_RELS as readonly string[]).includes(value);
+}
+
+export type NavLink = { label: string; href: string; rel?: NavLinkRel };
 export type FooterColumn = { heading: string; links: NavLink[] };
 
 export type SiteNav = {

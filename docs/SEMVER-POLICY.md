@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v0.5.5** | 1 | 14.2.x | **all five sites** — the refusal diagnostic can no longer fail the verification it describes (`process.exit` is not catchable) | ✅ **current** |
+| **v0.6.0** | 1 | 14.2.x | **main** - `NavLink.rel` (closed allow-list) rendered as `data-vf-rel`; additive, output byte-identical for consumers that declare no `rel`. care/staffing NOT repinned - see SM-F2 coupling note | ✅ **current** |
+| v0.5.5 | 1 | 14.2.x | **all five sites** — the refusal diagnostic can no longer fail the verification it describes (`process.exit` is not catchable) | superseded (patch) |
 | v0.5.4 | 1 | 14.2.x | **all five sites** — a refused deployment exits immediately instead of waiting out the poll timeout | superseded (patch) |
 | v0.5.3 | 1 | 14.2.x | **all five sites** — `deploy-verify.mjs` reads the provider's commit status when no deployment exists, so a refusal is diagnosed instead of timing out silently | superseded (patch) |
 | v0.5.2 | 1 | 14.2.x | **main · care · staffing · cleaning · security** — `deploy-verify.mjs` names a 403 as a permissions problem rather than surfacing it as a failed deploy | superseded (patch) |
