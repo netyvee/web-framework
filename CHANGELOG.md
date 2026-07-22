@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.2 (2026-07-22) - contact_block: guard dead phone/CTA (MAIN-HOMEPAGE-BUILD-01)
+
+`contact_block` no longer renders a dead `tel:` link on a **phone-less** site, nor a dead CTA button on a
+site with **no enquiry funnel** — the same "a dead affordance is worse than none" philosophy as the
+Shell's v0.4.11 guard. On the corporate site (empty `nap.phone` per M-14, empty `enquiry_url` per C-12) the
+block now shows a clean **email-only** contact ("Email info@…" as a `mailto:`) with no empty `tel:` and no
+dead button. **Byte-identical for consumers that have a phone + email + CTA** (care, staffing) — proven by
+an unaffected-consumer test. 4 new tests; suite 101 pass (was 97).
+
 ## v0.6.1 (2026-07-22) - governed corporate→division gateway section (MAIN-HOMEPAGE-BUILD-01 / D-101)
 
 Adds ONE new section type, `division_gateway`, for the corporate homepage's division gateway.
