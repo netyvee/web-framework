@@ -92,7 +92,16 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   // (`{page.nap.email && ...}`); this simply applies the established pattern to the
   // other two contact affordances.
   const hasPhone = Boolean(phone && phone.trim());
+  // FUNNEL CTA (footer + sticky) — unchanged: driven by the enquiry funnel only.
   const hasCta = Boolean(ctaHref && ctaHref.trim() && ctaLabel && ctaLabel.trim());
+  // v0.6.6 — HEADER CTA. A direct nav.cta (e.g. corporate "Get in touch" mailto) takes
+  // precedence for the header + mobile menu, so a funnel-less corporate site still gets a
+  // header action WITHOUT gaining a footer/sticky button. Division sites set no nav.cta,
+  // so the header CTA resolves to the funnel CTA exactly as before (byte-identical).
+  const directCta = nav.cta && nav.cta.label?.trim() && nav.cta.href?.trim() ? nav.cta : null;
+  const headerCtaHref = directCta ? directCta.href : ctaHref;
+  const headerCtaLabel = directCta ? directCta.label : ctaLabel;
+  const hasHeaderCta = Boolean(headerCtaHref && headerCtaHref.trim() && headerCtaLabel && headerCtaLabel.trim());
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
@@ -116,7 +125,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
                 <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
               ))}
               {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
-              {hasCta && <a href={ctaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{ctaLabel}</a>}
+              {hasHeaderCta && <a href={headerCtaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{headerCtaLabel}</a>}
             </nav>
             <button
               ref={toggleRef}
@@ -153,9 +162,9 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
           </nav>
           {/* single enquiry action inside the menu; the sticky CTA is hidden while
               the menu is open, so there is no competing/duplicate CTA */}
-          {hasCta && (
+          {hasHeaderCta && (
             <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-              <a href={ctaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{ctaLabel}</a>
+              <a href={headerCtaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{headerCtaLabel}</a>
             </div>
           )}
         </div>
@@ -165,7 +174,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       <main id="main-content" className="flex-1">{children}</main>
 
       {/* ── FOOTER (complete, registry-driven) ─────────────────── */}
-      <footer style={{ background: t.footer, color: page.brand.text }} className="border-t px-6 py-12" data-vf-footer>
+      <footer style={{ background: t.footer, color: t.onFooter }} className="border-t px-6 py-12" data-vf-footer>
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-4">
           <div>
             <Logo nav={nav} src={nav.logo?.footerSrc ?? nav.logo?.src} height={34} theme={t} />

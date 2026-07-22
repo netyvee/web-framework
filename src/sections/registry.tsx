@@ -27,6 +27,10 @@ import { EnquiryFunnel } from './EnquiryFunnel';
 import { DivisionGateway } from './DivisionGateway';
 // v0.6.5 — corporate visual hero: H1 + four fixed-order division image placeholders (MAIN-HOMEPAGE-VISUAL-01)
 import { DivisionVisualHero } from './DivisionVisualHero';
+// v0.6.6 — reference-faithful corporate homepage (MAIN-HOMEPAGE-VISUAL-02)
+import { CorporateHero } from './CorporateHero';
+import { DivisionImageGateway } from './DivisionImageGateway';
+import { ReassuranceStrip } from './ReassuranceStrip';
 
 type SectionProps = { fields: any; page: PageJson };
 
@@ -56,6 +60,10 @@ const MAP: Record<string, React.FC<SectionProps>> = {
   division_gateway: DivisionGateway,
   // v0.6.5 — corporate visual hero: four fixed-order division image placeholders, non-clickable
   division_visual_hero: DivisionVisualHero,
+  // v0.6.6 — reference-faithful corporate homepage (MAIN-HOMEPAGE-VISUAL-02)
+  corporate_hero: CorporateHero,
+  division_image_gateway: DivisionImageGateway,
+  reassurance_strip: ReassuranceStrip,
 };
 
 export const SECTION_TYPES = Object.keys(MAP);

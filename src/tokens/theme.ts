@@ -15,6 +15,14 @@ type Brand = PageJson['brand'] & {
   bg_card?: string;
   bg_deep?: string;
   bg_footer?: string;
+  // LIGHT-MODE support (v0.6.6, MAIN-HOMEPAGE-VISUAL-02). The estate base assumes a
+  // dark page with light text everywhere; the corporate front door is a LIGHT page
+  // (white ground, navy text) with a navy footer band. These two optional overrides
+  // let a light-ground site keep a correct dark footer + a visible hairline without
+  // changing any dark-ground consumer. Absent ⇒ the dark-everywhere defaults below,
+  // so care/staffing render byte-identically.
+  on_footer?: string; // text colour ON the footer surface (footer is dark ⇒ light text)
+  line?: string;      // hairline/border colour (a light ground needs a dark hairline)
 };
 
 // Estate BASE surface family (DESIGN-SYSTEM-CONTRACT §1). This is the shared
@@ -77,6 +85,7 @@ export type Theme = {
   accent: string;
   accentStrong: string;
   onAccent: string;
+  onFooter: string;
   secondary: string;
   line: string;
   lineAccent: string;
@@ -103,8 +112,13 @@ export function resolveTheme(brand: Brand): Theme {
     accent,
     accentStrong: darken(accent, 0.12),
     onAccent: brand.bg,
+    // Footer text: defaults to brand.text so dark-ground consumers (care/staffing,
+    // whose footer already uses brand.text) are byte-identical. A light-ground site
+    // sets on_footer to a light colour so its DARK footer band stays legible.
+    onFooter: brand.on_footer ?? brand.text,
     secondary: brand.secondary,
-    line: TEXT_LADDER.line,
+    // Hairline: defaults to the white-on-dark line; a light-ground site overrides it.
+    line: brand.line ?? TEXT_LADDER.line,
     lineAccent: rgba(accent, 0.15),
     cssVars: {
       '--vf-focus': accent,

@@ -151,6 +151,13 @@ export type SiteNav = {
   // Secondary sticky/CTA action (e.g. phone) label; if absent the sticky CTA shows
   // the enquiry action only (single governed CTA).
   phoneCtaLabel?: string;
+  // v0.6.6 — DIRECT header CTA (MAIN-HOMEPAGE-VISUAL-02). A site with no sales funnel
+  // (the corporate front door: empty enquiry_url, C-12/MAIN-G3) still needs a header
+  // "Get in touch" action. When present, the Shell renders THIS as the header CTA
+  // (e.g. a mailto), taking precedence over the enquiry-funnel CTA. Additive: division
+  // sites don't set it, so their enquiry-funnel CTA is unchanged. href is used as-is
+  // (mailto:/https:/anchor), so the value is a site-config decision, never user input.
+  cta?: { label: string; href: string };
 };
 
 // ── Site configuration schema ────────────────────────────────────────────────
