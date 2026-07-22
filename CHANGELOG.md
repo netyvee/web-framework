@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.6.1 (2026-07-22) - governed corporate→division gateway section (MAIN-HOMEPAGE-BUILD-01 / D-101)
+
+Adds ONE new section type, `division_gateway`, for the corporate homepage's division gateway.
+**Additive: no existing consumer uses it, so every existing site renders byte-identically.**
+
+It is deliberately **not** a generic external-card feature:
+- **Host allow-list.** Cards link only to the four approved division homepages
+  (`{cleaning,security,care,staffing}.vigilservices.co.uk`, https only, exact host). Any other
+  destination is **dropped, fail-closed** — it can never become an arbitrary outbound-link section.
+- **Corporate-only.** It renders **nothing** unless `page.site === 'main'`, so a division site cannot
+  use it to link to another division — **division→division stays impossible** (D-095 G-B).
+- **No ownership edge.** It emits **no** `rel="corporate_parent"` and **no** `data-vf-rel` — a
+  corporate→division gateway link is not the D-095 division→corporate ownership edge and must not be
+  labelled as one.
+- Semantic `ul`/`li`/`a` with an accessible section label + per-card `h3`; keyboard-focusable native
+  anchors; responsive 1→2→4 columns; brand-driven theme.
+
+7 focused tests (allow-list, fail-closed drop, look-alike/non-https/relative rejection, corporate-only
+gate, empty-render, semantics) + registry lockstep updated. Full suite: 97 tests pass (was 90).
+
 ## v0.6.0 (2026-07-20) - typed link metadata survives to the rendered anchor (SM-F2)
 
 `NavLink` gains an OPTIONAL `rel`, and the Shell renders it. Additive: no consumer

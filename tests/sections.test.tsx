@@ -7,7 +7,7 @@ const render = (sections: any[]) =>
   renderToStaticMarkup(<RenderSections page={withSections(sections)} />);
 
 describe('section registry', () => {
-  it('exposes the v0.2 library: 9 nucleus types + 10 library types', () => {
+  it('exposes the v0.2 library + v0.6.1 gateway: 9 nucleus + 10 library + 1 gateway type', () => {
     expect(SECTION_TYPES.sort()).toEqual(
       [
         // nucleus (v0.1.x)
@@ -15,6 +15,8 @@ describe('section registry', () => {
         // library (v0.2)
         'trust_badge_row', 'metrics_strip', 'proof_strip', 'compliance_strip', 'differentiation_panel',
         'process_steps', 'quick_answer', 'locations_coverage', 'contact_block', 'enquiry_funnel',
+        // governed corporate→division gateway (v0.6.1)
+        'division_gateway',
       ].sort()
     );
   });

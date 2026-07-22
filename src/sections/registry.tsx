@@ -23,6 +23,8 @@ import { QuickAnswer } from './QuickAnswer';
 import { LocationsCoverage } from './LocationsCoverage';
 import { ContactBlock } from './ContactBlock';
 import { EnquiryFunnel } from './EnquiryFunnel';
+// v0.6.1 — governed corporate→division gateway (MAIN-HOMEPAGE-BUILD-01 / D-101)
+import { DivisionGateway } from './DivisionGateway';
 
 type SectionProps = { fields: any; page: PageJson };
 
@@ -48,6 +50,8 @@ const MAP: Record<string, React.FC<SectionProps>> = {
   locations_coverage: LocationsCoverage,
   contact_block: ContactBlock,
   enquiry_funnel: EnquiryFunnel,
+  // v0.6.1 — corporate→division gateway (corporate-only; approved-host allow-list)
+  division_gateway: DivisionGateway,
 };
 
 export const SECTION_TYPES = Object.keys(MAP);
