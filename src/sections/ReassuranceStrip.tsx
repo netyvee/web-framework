@@ -35,7 +35,10 @@ export function ReassuranceStrip({ fields, page }: { fields: any; page: PageJson
               </span>
               <span className="text-left">
                 <span className="block text-sm font-medium" style={{ color: page.brand.text }}>{actionLabel}</span>
-                <span className="block text-base font-medium" style={{ color: t.accent }}>{email}</span>
+                {/* link_label ("Email us") shows in place of the raw address when set; the mailto still targets the address. */}
+                <span className="block text-base font-medium" style={{ color: t.accent }}>
+                  {typeof fields.link_label === 'string' && fields.link_label.trim() ? fields.link_label : email}
+                </span>
               </span>
               <span aria-hidden="true" style={{ color: t.accent }}>→</span>
             </a>

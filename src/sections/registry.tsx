@@ -28,6 +28,8 @@ import { DivisionGateway } from './DivisionGateway';
 // v0.6.5 — corporate visual hero: H1 + four fixed-order division image placeholders (MAIN-HOMEPAGE-VISUAL-01)
 import { DivisionVisualHero } from './DivisionVisualHero';
 // v0.6.6 — reference-faithful corporate homepage (MAIN-HOMEPAGE-VISUAL-02)
+// v0.6.8 — continuous-hero variant (team photo + integrated bottom gateway scrim)
+import { ContinuousDivisionHero } from './ContinuousDivisionHero';
 import { CorporateHero } from './CorporateHero';
 import { DivisionImageGateway } from './DivisionImageGateway';
 import { ReassuranceStrip } from './ReassuranceStrip';
@@ -64,6 +66,8 @@ const MAP: Record<string, React.FC<SectionProps>> = {
   corporate_hero: CorporateHero,
   division_image_gateway: DivisionImageGateway,
   reassurance_strip: ReassuranceStrip,
+  // v0.6.8 — continuous hero: one team photo, headline overlay + integrated bottom gateway scrim
+  continuous_division_hero: ContinuousDivisionHero,
 };
 
 export const SECTION_TYPES = Object.keys(MAP);

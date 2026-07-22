@@ -7,7 +7,7 @@ const render = (sections: any[]) =>
   renderToStaticMarkup(<RenderSections page={withSections(sections)} />);
 
 describe('section registry', () => {
-  it('exposes the v0.2 library + v0.6.x corporate sections: 9 nucleus + 10 library + 5 corporate types', () => {
+  it('exposes the v0.2 library + v0.6.x corporate sections: 9 nucleus + 10 library + 6 corporate types', () => {
     expect(SECTION_TYPES.sort()).toEqual(
       [
         // nucleus (v0.1.x)
@@ -17,8 +17,8 @@ describe('section registry', () => {
         'process_steps', 'quick_answer', 'locations_coverage', 'contact_block', 'enquiry_funnel',
         // governed corporate→division gateway (v0.6.1) + visual hero (v0.6.5)
         'division_gateway', 'division_visual_hero',
-        // reference-faithful corporate homepage (v0.6.6)
-        'corporate_hero', 'division_image_gateway', 'reassurance_strip',
+        // reference-faithful corporate homepage (v0.6.6) + continuous-hero variant (v0.6.8)
+        'corporate_hero', 'division_image_gateway', 'reassurance_strip', 'continuous_division_hero',
       ].sort()
     );
   });

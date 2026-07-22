@@ -52,7 +52,7 @@ export function Analytics({ measurementId, choice }: { measurementId?: string; c
  * CookieConsent — banner + persistent settings + gated Analytics. Client component; drop into the layout:
  *   <CookieConsent measurementId="G-XXXX" cookiePolicyHref="/cookies" />
  */
-export function CookieConsent({ measurementId, cookiePolicyHref = '/cookies' }: { measurementId?: string; cookiePolicyHref?: string }) {
+export function CookieConsent({ measurementId, cookiePolicyHref = '/cookies', floatingSettings = true }: { measurementId?: string; cookiePolicyHref?: string; floatingSettings?: boolean }) {
   const [choice, setChoice] = useState<ConsentChoice | null>(null);
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -62,6 +62,18 @@ export function CookieConsent({ measurementId, cookiePolicyHref = '/cookies' }: 
     setChoice(c);
     setOpen(c === null);   // show the banner only until a choice is made
     setReady(true);
+  }, []);
+
+  // v0.6.8 — let a "Cookie Settings" control anywhere on the page (e.g. a footer link) re-open the banner,
+  // so the settings affordance can live in the footer instead of (or as well as) the floating button. Any
+  // element with [data-vf-cookie-settings] or an anchor to #cookie-settings triggers it.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest?.('[data-vf-cookie-settings], a[href="#cookie-settings"], a[href$="#cookie-settings"]');
+      if (el) { e.preventDefault(); setOpen(true); }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
   }, []);
 
   const decide = useCallback((c: ConsentChoice) => {
@@ -97,11 +109,14 @@ export function CookieConsent({ measurementId, cookiePolicyHref = '/cookies' }: 
               </div>
             </div>
           )}
-          {/* Persistent control to change/withdraw the choice at any time. */}
-          <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"
-            style={{ position: 'fixed', left: 12, bottom: 12, zIndex: 40, fontSize: 12, background: 'transparent', color: '#7fb2d4', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}>
-            Cookie settings
-          </button>
+          {/* Persistent floating control to change/withdraw the choice at any time. Sites that host a
+              "Cookie Settings" link in the footer (via #cookie-settings) can hide this with floatingSettings={false}. */}
+          {floatingSettings && (
+            <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"
+              style={{ position: 'fixed', left: 12, bottom: 12, zIndex: 40, fontSize: 12, background: 'transparent', color: '#7fb2d4', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}>
+              Cookie settings
+            </button>
+          )}
         </>
       )}
     </>
