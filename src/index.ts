@@ -68,3 +68,5 @@ export { MobileCta } from './shell/MobileCta';
 // shell v2 (v0.3 — coordinated complete shell: logo + accessible mobile nav +
 // complete footer + single governed sticky CTA)
 export { Shell } from './shell/Shell';
+// consent (v0.6.3 — MAIN-COOKIE-CONSENT-01: cookie banner + consent-gated GA4 analytics)
+export { CookieConsent, Analytics, readConsent, consentCookieValue, analyticsAllowed, CONSENT_COOKIE, type ConsentChoice } from './consent/Consent';

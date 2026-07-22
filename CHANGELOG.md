@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.6.3 (2026-07-22) - cookie consent + consent-gated analytics (MAIN-COOKIE-CONSENT-01)
+
+Adds a reusable, conservative cookie-consent capability (`CookieConsent`, `Analytics`, `readConsent`,
+`analyticsAllowed`). **Additive: no existing consumer uses it.**
+- **GA4 loads ONLY after an active Accept** — the script (and therefore any request to Google) is not
+  emitted before a choice, and not at all on Reject. Stricter than Consent Mode alone.
+- Accept and Reject are **equally prominent** (same size/level, no dark pattern); a persistent
+  "Cookie settings" control re-opens the banner to change/withdraw.
+- The only pre-choice cookie is the **essential** consent record, storing **only the choice + date** — no
+  personal data (`SameSite=Lax; Secure`).
+- **Regression guard:** a test fails if GA4 ever renders unconditionally (no id, or any non-granted state
+  → nothing). 9 tests; suite 109 pass (was 101).
+- Plain conditional `<script>` (deterministic SSR/tests), not next/script.
+**Note:** live wiring requires a published cookie-notice page (the banner link) and a confirmed analytics
+property — consumers gate deployment on those.
+
 ## v0.6.2 (2026-07-22) - contact_block: guard dead phone/CTA (MAIN-HOMEPAGE-BUILD-01)
 
 `contact_block` no longer renders a dead `tel:` link on a **phone-less** site, nor a dead CTA button on a
