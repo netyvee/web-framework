@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
 import { resolveTheme } from '../tokens/theme';
@@ -19,6 +18,7 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
   if (page.site !== 'main') return null; // the division gateway is the corporate front door only
   const t = resolveTheme(page.brand);
   const src = imgSrc(fields.hero_image);
+  const mobileSrc = imgSrc(fields.hero_image_mobile); // art-directed narrow/2×2 source (optional)
   const alt = imgAlt(fields.hero_image, fields.hero_image_alt);
   const lines = String(fields.heading ?? '').split('\n').filter(Boolean);
   const sub = typeof fields.sub === 'string' ? fields.sub : '';
@@ -34,19 +34,27 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
 
   return (
     <section className="relative overflow-hidden" style={{ background: t.bgDeep, color: '#ffffff' }}>
-      {/* full-bleed team photograph (LCP → priority). Fallback gradient if no image is supplied. */}
+      {/* Full-bleed team composite (LCP → eager). Art-directed: a mobile source (e.g. a 2×2 composite)
+          swaps in ≤640px so all four divisions stay large; the desktop source is a balanced four-across
+          composite. A plain <picture> (not next/image) is used because next/image can't art-direct sources. */}
       {src ? (
-        <Image src={src} alt={alt} fill priority sizes="100vw" className="object-cover" style={{ objectPosition: 'center 22%' }} />
+        <picture>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {mobileSrc && <source media="(max-width: 640px)" srcSet={mobileSrc} />}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: '50% 26%' }} loading="eager" />
+        </picture>
       ) : (
         <div className="absolute inset-0" aria-hidden="true"
           style={{ background: `linear-gradient(115deg, ${t.bgDeep} 0%, ${t.bgAlt} 55%, #1c3454 100%)` }} />
       )}
-      {/* TOP-LEFT scrim — carries the headline; fades into the photo so the team stays visible. */}
-      <div className="absolute inset-0" aria-hidden="true"
-        style={{ background: 'linear-gradient(100deg, rgba(10,22,40,.94) 0%, rgba(10,22,40,.8) 30%, rgba(10,22,40,.3) 52%, rgba(10,22,40,0) 68%)' }} />
+      {/* TOP scrim — FULL-WIDTH vertical (equal darkening across all four columns, never left-biased), so
+          the headline reads without singling out or obscuring any one division's representative. */}
+      <div className="absolute inset-x-0 top-0" aria-hidden="true"
+        style={{ height: '54%', background: 'linear-gradient(180deg, rgba(10,22,40,.9) 0%, rgba(10,22,40,.5) 34%, rgba(10,22,40,0) 100%)' }} />
       {/* BOTTOM scrim — carries the gateway band on the same photo. */}
       <div className="absolute inset-x-0 bottom-0" aria-hidden="true"
-        style={{ height: '46%', background: 'linear-gradient(0deg, rgba(7,16,29,.96) 0%, rgba(7,16,29,.78) 55%, rgba(7,16,29,0) 100%)' }} />
+        style={{ height: '42%', background: 'linear-gradient(0deg, rgba(7,16,29,.95) 0%, rgba(7,16,29,.75) 48%, rgba(7,16,29,0) 100%)' }} />
 
       {/* thin vertical separators between the four columns (desktop only). */}
       <style>{`@media (min-width:1024px){.vf-hcol + .vf-hcol{border-left:1px solid rgba(255,255,255,.18);}}`}</style>

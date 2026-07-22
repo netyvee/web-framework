@@ -89,6 +89,14 @@ describe('continuous_division_hero', () => {
     expect((html.match(/<li\b/g) ?? []).length).toBe(4);
   });
 
+  it('art-directs a mobile source (<source media>) when hero_image_mobile is set — desktop <img> stays the default', () => {
+    const html = render({ ...base, hero_image_mobile: { url: 'https://res.cloudinary.com/x/team-2x2.jpg' } });
+    expect(html).toContain('<picture');
+    expect(html).toContain('media="(max-width: 640px)"');
+    expect(html).toContain('team-2x2.jpg');
+    expect((html.match(/<img\b/g) ?? []).length).toBe(1); // one <img>; the mobile variant is a <source>
+  });
+
   // ---- FALSIFIABILITY: the "single hero, gateway inside it" guarantee ----
   it('FALSIFIABLE: the bottom gateway list is INSIDE the single hero <section> (not a detached grid)', () => {
     const html = render(base);
