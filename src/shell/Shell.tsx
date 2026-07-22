@@ -203,6 +203,9 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
               </ul>
             )}
             <p className="mt-6 text-[12px]" style={{ color: t.text5 }}>{nav.companyReg}</p>
+            {nav.copyright && (
+              <p className="mt-2 text-[12px]" style={{ color: t.text5 }}>© {new Date().getFullYear()} {nav.brandName}. All rights reserved.</p>
+            )}
           </div>
         </div>
       </footer>

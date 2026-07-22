@@ -158,6 +158,9 @@ export type SiteNav = {
   // sites don't set it, so their enquiry-funnel CTA is unchanged. href is used as-is
   // (mailto:/https:/anchor), so the value is a site-config decision, never user input.
   cta?: { label: string; href: string };
+  // v0.6.7 — opt-in footer copyright line "© {year} {brandName}. All rights reserved." with the year
+  // generated at render (never a stale literal). Division sites omit it ⇒ footer unchanged.
+  copyright?: boolean;
 };
 
 // ── Site configuration schema ────────────────────────────────────────────────
