@@ -38,9 +38,12 @@ const IMAGE_STORE = 'https://res.cloudinary.com';     // canonical Cloudinary im
  */
 export function vigilCsp(o = {}) {
   const isProduction = o.isProduction ?? process.env.NODE_ENV === 'production';
-  const scriptSrc = isProduction
+  // v0.6.4 — o.scriptHosts lets a site allow an external script origin (e.g. GA4's
+  // https://www.googletagmanager.com) without every other site inheriting it.
+  const scriptBase = isProduction
     ? "script-src 'self' 'unsafe-inline'"
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+  const scriptSrc = o.scriptHosts?.length ? `${scriptBase} ${dedupe(o.scriptHosts).join(' ')}` : scriptBase;
 
   const imgHosts = ["'self'", IMAGE_STORE, 'data:', ...(o.imgHosts ?? [])];
   const formActions = ["'self'", CRM_ORIGIN, ...(o.formActions ?? [])];

@@ -40,6 +40,17 @@ describe('withVigilSecurity — shared Next security headers (EOS Q1.P2)', () =>
     expect(csp).toContain('https://cdn.example');
   });
 
+  it('scriptHosts adds external script origins to script-src only (v0.6.4)', () => {
+    const base = vigilCsp({ isProduction: true });
+    expect(base).toContain("script-src 'self' 'unsafe-inline'");
+    expect(base).not.toContain('googletagmanager');
+    const csp = vigilCsp({ isProduction: true, scriptHosts: ['https://www.googletagmanager.com'] });
+    expect(csp).toMatch(/script-src 'self' 'unsafe-inline' https:\/\/www\.googletagmanager\.com/);
+    // it must NOT leak into other directives
+    expect(csp).not.toMatch(/connect-src[^;]*googletagmanager/);
+    expect(csp).not.toMatch(/img-src[^;]*googletagmanager/);
+  });
+
   it('withVigilSecurity injects a /:path* headers rule and preserves passthrough config', async () => {
     const wrapped = withVigilSecurity({ trailingSlash: false, images: { formats: ['image/webp'] } }, { isProduction: true });
     expect(wrapped.trailingSlash).toBe(false);

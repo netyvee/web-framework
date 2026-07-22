@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.4 (2026-07-22) - vigilCsp scriptHosts option (consent-gated GA4 on main)
+
+`vigilCsp`/`vigilSecurityHeaders`/`withVigilSecurity` accept `scriptHosts` — extra external script origins
+merged into **script-src only** (e.g. `https://www.googletagmanager.com` so consent-gated GA4 can load).
+Additive: default output is byte-identical; other sites pass nothing and are unchanged. It does not leak into
+connect-src/img-src (those stay their own options). 1 test; suite 110 pass.
+
 ## v0.6.3 (2026-07-22) - cookie consent + consent-gated analytics (MAIN-COOKIE-CONSENT-01)
 
 Adds a reusable, conservative cookie-consent capability (`CookieConsent`, `Analytics`, `readConsent`,
