@@ -34,56 +34,71 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
       return true;
     });
 
-  return (
-    <section className="relative overflow-hidden" style={{ background: t.bgDeep, color: '#ffffff' }}>
-      {/* Full-bleed team composite (LCP → eager). Art-directed: a mobile source (e.g. a 2×2 composite)
-          swaps in ≤640px so all four divisions stay large; the desktop source is a balanced four-across
-          composite. A plain <picture> (not next/image) is used because next/image can't art-direct sources. */}
-      {src ? (
-        <picture>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {mobileSrc && <source media="(max-width: 640px)" srcSet={mobileSrc} />}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: '50% 26%' }} loading="eager" />
-        </picture>
-      ) : (
-        <div className="absolute inset-0" aria-hidden="true"
-          style={{ background: `linear-gradient(115deg, ${t.bgDeep} 0%, ${t.bgAlt} 55%, #1c3454 100%)` }} />
-      )}
-      {/* TOP scrim — FULL-WIDTH vertical (equal darkening across all four columns, never left-biased), so
-          the headline reads without singling out or obscuring any one division's representative. */}
-      <div className="absolute inset-x-0 top-0" aria-hidden="true"
-        style={{ height: '54%', background: 'linear-gradient(180deg, rgba(10,22,40,.9) 0%, rgba(10,22,40,.5) 34%, rgba(10,22,40,0) 100%)' }} />
-      {/* BOTTOM scrim — carries the gateway band on the same photo. */}
-      <div className="absolute inset-x-0 bottom-0" aria-hidden="true"
-        style={{ height: '42%', background: 'linear-gradient(0deg, rgba(7,16,29,.95) 0%, rgba(7,16,29,.75) 48%, rgba(7,16,29,0) 100%)' }} />
+  const topScrim = 'linear-gradient(180deg, rgba(10,22,40,.9) 0%, rgba(10,22,40,.5) 34%, rgba(10,22,40,0) 100%)';
+  const botScrim = 'linear-gradient(0deg, rgba(7,16,29,.95) 0%, rgba(7,16,29,.75) 48%, rgba(7,16,29,0) 100%)';
 
-      {/* thin vertical separators between the four columns (desktop only). */}
+  return (
+    // RESPONSIVE COMPOSITION.
+    //  • Mobile (<768px): a STACKED flow — compact navy headline band → team image (2×2) → navy gateway
+    //    band. Text never overlaps faces, so it reads cleanly on a small screen; the shared navy ground
+    //    keeps it one continuous composition.
+    //  • Desktop (≥768px): the same three parts OVERLAY one full-bleed image (headline top scrim, gateway
+    //    bottom scrim) — the approved continuous hero. Same markup + links, no duplication.
+    <section
+      className="relative flex flex-col overflow-hidden md:block md:min-h-[600px]"
+      style={{ background: t.bgDeep, color: '#ffffff' }}
+    >
       <style>{`@media (min-width:1024px){.vf-hcol + .vf-hcol{border-left:1px solid rgba(255,255,255,.18);}}`}</style>
 
-      <div className="relative z-[2] mx-auto flex min-h-[560px] max-w-6xl flex-col justify-between px-6 md:min-h-[600px]">
-        {/* headline block — CENTRED, using the full hero content width (not a narrow text column). The
-            heading stays on ONE line on desktop/tablet (whitespace-nowrap + fluid clamp) and only wraps —
-            balanced, two lines — below 768px (max-md override). The supporting line keeps a readable
-            measure and wraps naturally. */}
-        <div className="mx-auto w-full max-w-6xl pt-14 text-center md:pt-16">
+      {/* HEADLINE — mobile: compact top navy band; desktop: absolute top overlay. */}
+      <div className="relative z-[2] order-1 px-6 pb-6 pt-9 text-center md:absolute md:inset-x-0 md:top-0 md:pb-0 md:pt-16">
+        <div className="mx-auto w-full max-w-6xl">
           <h1
-            className="font-medium leading-[0.98] [text-wrap:balance] whitespace-nowrap text-[clamp(2rem,3.4vw,3.75rem)] max-md:whitespace-normal max-md:leading-[1.02] max-md:text-[clamp(2rem,9vw,2.75rem)]"
+            className="font-medium leading-[0.98] [text-wrap:balance] whitespace-nowrap text-[clamp(2rem,3.4vw,3.75rem)] max-md:whitespace-normal max-md:leading-[1.04] max-md:text-[clamp(1.6rem,7vw,2.2rem)]"
             style={{ fontFamily: 'var(--font-playfair)' }}
           >
             {headingText || fields.heading}
           </h1>
-          {sub && <p className="mx-auto mt-4 max-w-[52ch] text-base leading-relaxed md:text-lg" style={{ color: 'rgba(255,255,255,.82)' }}>{sub}</p>}
-          <div className="mx-auto mt-6 h-[3px] w-14 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
+          {sub && (
+            <p className="mx-auto mt-3 max-w-[34ch] text-sm leading-relaxed md:mt-4 md:max-w-[52ch] md:text-lg" style={{ color: 'rgba(255,255,255,.85)' }}>
+              {sub}
+            </p>
+          )}
+          <div className="mx-auto mt-5 h-[3px] w-12 rounded-full md:mt-6 md:w-14" style={{ background: t.accent }} aria-hidden="true" />
         </div>
+      </div>
 
-        {/* bottom gateway band on the same photo */}
-        <ul id="divisions" className="grid list-none grid-cols-2 gap-y-6 p-0 pb-10 pt-10 lg:grid-cols-4 lg:gap-y-0">
+      {/* IMAGE — mobile: in-flow, full-width (its own height); desktop: absolute full-bleed background. */}
+      {src ? (
+        <picture className="order-2 block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {mobileSrc && <source media="(max-width: 767px)" srcSet={mobileSrc} />}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            className="block h-auto w-full md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
+            style={{ objectPosition: '50% 26%' }}
+            loading="eager"
+          />
+        </picture>
+      ) : (
+        <div className="order-2 aspect-[4/3] w-full md:absolute md:inset-0 md:aspect-auto" aria-hidden="true"
+          style={{ background: `linear-gradient(115deg, ${t.bgDeep} 0%, ${t.bgAlt} 55%, #1c3454 100%)` }} />
+      )}
+
+      {/* DESKTOP-only scrims (hidden in the stacked mobile flow). */}
+      <div className="absolute inset-x-0 top-0 hidden md:block" aria-hidden="true" style={{ height: '54%', background: topScrim }} />
+      <div className="absolute inset-x-0 bottom-0 hidden md:block" aria-hidden="true" style={{ height: '42%', background: botScrim }} />
+
+      {/* GATEWAY — mobile: navy band below the image, 2×2 readable tiles; desktop: absolute bottom overlay. */}
+      <div className="relative z-[2] order-3 pb-9 pt-7 md:absolute md:inset-x-0 md:bottom-0 md:pb-10 md:pt-10">
+        <ul id="divisions" className="mx-auto grid max-w-6xl list-none grid-cols-2 gap-x-4 gap-y-7 p-0 px-6 md:gap-y-0 lg:grid-cols-4">
           {items.map(({ it, href }: { it: Item; href: string }) => {
             const label = typeof it.cta_label === 'string' && it.cta_label.trim() ? it.cta_label : 'Explore more';
             return (
-              <li key={href} className="vf-hcol px-4 lg:px-6">
-                <a href={href} className="group block">
+              <li key={href} className="vf-hcol lg:px-6">
+                <a href={href} className="group block py-1">
                   <h2 className="text-lg font-medium md:text-xl" style={{ fontFamily: 'var(--font-playfair)', color: '#ffffff' }}>{it.title}</h2>
                   <span className="mt-2 inline-flex items-center gap-2 text-sm font-medium" style={{ color: t.accent }}>
                     {label}<span aria-hidden="true">→</span>

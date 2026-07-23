@@ -89,20 +89,21 @@ export function CookieConsent({ measurementId, cookiePolicyHref = '/cookies', fl
         <>
           {open && (
             <div role="dialog" aria-modal="false" aria-label="Cookie choices"
-              style={{ position: 'fixed', insetInline: 0, bottom: 0, zIndex: 50, background: '#0a1628', color: '#fff', borderTop: '1px solid rgba(255,255,255,.15)', padding: '16px' }}>
-              <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-                <p style={{ margin: 0, fontSize: 14, opacity: .9 }}>
+              style={{ position: 'fixed', insetInline: 0, bottom: 0, zIndex: 50, background: '#0a1628', color: '#fff', borderTop: '1px solid rgba(255,255,255,.15)', padding: '10px 16px' }}>
+              {/* Compact single-row layout — never dominates the lower viewport; wraps only when truly needed. */}
+              <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '8px 14px', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.35, opacity: .9, flex: '1 1 220px', minWidth: 0 }}>
                   We use analytics cookies only if you accept. See our{' '}
                   <a href={cookiePolicyHref} style={{ color: '#4ecdc4', textDecoration: 'underline' }}>Cookie Notice</a>.
                 </p>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 8, flex: '0 0 auto' }}>
                   {/* Reject is as prominent/accessible as Accept — same size/level, no dark pattern. */}
                   <button type="button" onClick={() => decide('denied')}
-                    style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #4ecdc4', background: 'transparent', color: '#fff', fontWeight: 500, cursor: 'pointer' }}>
+                    style={{ padding: '7px 15px', borderRadius: 8, border: '1px solid #4ecdc4', background: 'transparent', color: '#fff', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
                     Reject
                   </button>
                   <button type="button" onClick={() => decide('granted')}
-                    style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #4ecdc4', background: '#4ecdc4', color: '#0a1628', fontWeight: 500, cursor: 'pointer' }}>
+                    style={{ padding: '7px 15px', borderRadius: 8, border: '1px solid #4ecdc4', background: '#4ecdc4', color: '#0a1628', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
                     Accept
                   </button>
                 </div>

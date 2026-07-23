@@ -1,6 +1,6 @@
 {
   "name": "@vigil/web-framework",
-  "version": "0.6.11",
+  "version": "0.6.12",
   "private": false,
   "description": "Vigil website framework — versioned render-from-JSON engine, shell, sections and QA shared by the Vigil division sites.",
   "license": "UNLICENSED",

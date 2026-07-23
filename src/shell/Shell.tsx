@@ -116,7 +116,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       {/* ── HEADER ─────────────────────────────────────────────── */}
       <header style={{ background: page.brand.bg, color: page.brand.text }} className="sticky top-0 z-40 border-b" >
         <div className="border-b" style={{ borderColor: t.line }}>
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
             <Link href="/" aria-label={nav.brandName} className="flex items-center">
               <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} />
             </Link>
