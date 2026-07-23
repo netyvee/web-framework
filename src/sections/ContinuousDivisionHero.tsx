@@ -20,7 +20,9 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
   const src = imgSrc(fields.hero_image);
   const mobileSrc = imgSrc(fields.hero_image_mobile); // art-directed narrow/2×2 source (optional)
   const alt = imgAlt(fields.hero_image, fields.hero_image_alt);
-  const lines = String(fields.heading ?? '').split('\n').filter(Boolean);
+  // ONE text run (newlines in the content are joined to a space), NOT forced <span> lines — so the
+  // heading stays on a single line wherever it fits (desktop/tablet) and only wraps on narrow screens.
+  const headingText = String(fields.heading ?? '').split('\n').map((s) => s.trim()).filter(Boolean).join(' ');
   const sub = typeof fields.sub === 'string' ? fields.sub : '';
 
   const seen = new Set<string>();
@@ -60,13 +62,18 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
       <style>{`@media (min-width:1024px){.vf-hcol + .vf-hcol{border-left:1px solid rgba(255,255,255,.18);}}`}</style>
 
       <div className="relative z-[2] mx-auto flex min-h-[560px] max-w-6xl flex-col justify-between px-6 md:min-h-[600px]">
-        {/* headline block — CENTRED in the upper hero (controlled max-width so the copy never becomes one
-            over-long line; the full-width top scrim above supports centred text without a left-only block). */}
-        <div className="mx-auto max-w-3xl pt-14 text-center md:pt-16">
-          <h1 className="font-medium leading-[1.12]" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem,4.4vw,3.15rem)' }}>
-            {lines.length ? lines.map((l, i) => <span key={i} className="block">{l}</span>) : fields.heading}
+        {/* headline block — CENTRED, using the full hero content width (not a narrow text column). The
+            heading stays on ONE line on desktop/tablet (whitespace-nowrap + fluid clamp) and only wraps —
+            balanced, two lines — below 768px (max-md override). The supporting line keeps a readable
+            measure and wraps naturally. */}
+        <div className="mx-auto w-full max-w-6xl pt-14 text-center md:pt-16">
+          <h1
+            className="font-medium leading-[0.98] [text-wrap:balance] whitespace-nowrap text-[clamp(2rem,3.4vw,3.75rem)] max-md:whitespace-normal max-md:leading-[1.02] max-md:text-[clamp(2rem,9vw,2.75rem)]"
+            style={{ fontFamily: 'var(--font-playfair)' }}
+          >
+            {headingText || fields.heading}
           </h1>
-          {sub && <p className="mx-auto mt-5 max-w-[46ch] text-base leading-relaxed md:text-lg" style={{ color: 'rgba(255,255,255,.82)' }}>{sub}</p>}
+          {sub && <p className="mx-auto mt-4 max-w-[52ch] text-base leading-relaxed md:text-lg" style={{ color: 'rgba(255,255,255,.82)' }}>{sub}</p>}
           <div className="mx-auto mt-6 h-[3px] w-14 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
         </div>
 

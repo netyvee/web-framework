@@ -33,11 +33,15 @@ describe('continuous_division_hero', () => {
     expect((html.match(/<img\b/g) ?? []).length).toBe(1);
   });
 
-  it('renders exactly one H1, as two overlaid lines', () => {
+  it('renders exactly one H1 as a SINGLE text run (no forced <br>/<span> break) so it stays one line where it fits', () => {
     const html = render(base);
     expect((html.match(/<h1\b/g) ?? []).length).toBe(1);
-    expect(html).toContain('Essential people.');
-    expect(html).toContain('Exceptional service.');
+    // newline in the content is joined to a space → one run, both sentences present, no forced line break
+    expect(html).toContain('Essential people. Exceptional service.');
+    expect(html).not.toContain('<br');
+    // one line by default; wraps (balanced) only below the md breakpoint
+    expect(html).toContain('whitespace-nowrap');
+    expect(html).toContain('max-md:whitespace-normal');
   });
 
   it('renders the supporting copy + a teal accent line', () => {
