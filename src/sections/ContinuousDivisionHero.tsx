@@ -60,13 +60,14 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
       <style>{`@media (min-width:1024px){.vf-hcol + .vf-hcol{border-left:1px solid rgba(255,255,255,.18);}}`}</style>
 
       <div className="relative z-[2] mx-auto flex min-h-[560px] max-w-6xl flex-col justify-between px-6 md:min-h-[600px]">
-        {/* top-left copy */}
-        <div className="max-w-xl pt-14 md:pt-16">
+        {/* headline block — CENTRED in the upper hero (controlled max-width so the copy never becomes one
+            over-long line; the full-width top scrim above supports centred text without a left-only block). */}
+        <div className="mx-auto max-w-3xl pt-14 text-center md:pt-16">
           <h1 className="font-medium leading-[1.12]" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem,4.4vw,3.15rem)' }}>
             {lines.length ? lines.map((l, i) => <span key={i} className="block">{l}</span>) : fields.heading}
           </h1>
-          {sub && <p className="mt-5 max-w-[38ch] text-base leading-relaxed md:text-lg" style={{ color: 'rgba(255,255,255,.82)' }}>{sub}</p>}
-          <div className="mt-6 h-[3px] w-14 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
+          {sub && <p className="mx-auto mt-5 max-w-[46ch] text-base leading-relaxed md:text-lg" style={{ color: 'rgba(255,255,255,.82)' }}>{sub}</p>}
+          <div className="mx-auto mt-6 h-[3px] w-14 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
         </div>
 
         {/* bottom gateway band on the same photo */}
