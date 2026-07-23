@@ -45,16 +45,20 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
     //  • Desktop (≥768px): the same three parts OVERLAY one full-bleed image (headline top scrim, gateway
     //    bottom scrim) — the approved continuous hero. Same markup + links, no duplication.
     <section
-      className="relative flex flex-col overflow-hidden md:block md:min-h-[600px]"
+      className="relative flex flex-col overflow-hidden lg:block lg:min-h-[600px]"
       style={{ background: t.bgDeep, color: '#ffffff' }}
     >
       <style>{`@media (min-width:1024px){.vf-hcol + .vf-hcol{border-left:1px solid rgba(255,255,255,.18);}}`}</style>
 
-      {/* HEADLINE — mobile: compact top navy band; desktop: absolute top overlay. */}
-      <div className="relative z-[2] order-1 px-6 pb-6 pt-9 text-center md:absolute md:inset-x-0 md:top-0 md:pb-0 md:pt-16">
+      {/* HEADLINE — mobile/tablet (<lg): compact top navy band (STACKED, so text never covers faces);
+          desktop (≥lg): absolute top overlay. */}
+      <div className="relative z-[2] order-1 px-6 pb-6 pt-9 text-center lg:absolute lg:inset-x-0 lg:top-0 lg:pb-0 lg:pt-16">
         <div className="mx-auto w-full max-w-6xl">
+          {/* Fluid size keeps the heading on ONE line at desktop/tablet widths (it fits the wide content
+              column) and lets it wrap — balanced, two lines — on mobile. No whitespace-nowrap: that forced
+              the element to min-content width and pushed the whole mobile page into horizontal overflow. */}
           <h1
-            className="font-medium leading-[0.98] [text-wrap:balance] whitespace-nowrap text-[clamp(2rem,3.4vw,3.75rem)] max-md:whitespace-normal max-md:leading-[1.04] max-md:text-[clamp(1.6rem,7vw,2.2rem)]"
+            className="font-medium leading-[1.04] [text-wrap:balance] text-[clamp(1.7rem,1rem+2.7vw,3.5rem)] md:leading-[1]"
             style={{ fontFamily: 'var(--font-playfair)' }}
           >
             {headingText || fields.heading}
@@ -68,7 +72,9 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
         </div>
       </div>
 
-      {/* IMAGE — mobile: in-flow, full-width (its own height); desktop: absolute full-bleed background. */}
+      {/* IMAGE — mobile/tablet (<lg): in-flow, full-width (its own height, so all four faces show without
+          side-cropping); desktop (≥lg): absolute full-bleed background. The mobile source (a 2×2) swaps in
+          ≤767px; tablet uses the four-across source at full width (all four visible, no crop). */}
       {src ? (
         <picture className="order-2 block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -77,23 +83,23 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
           <img
             src={src}
             alt={alt}
-            className="block h-auto w-full md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
+            className="block h-auto w-full lg:absolute lg:inset-0 lg:h-full lg:w-full lg:object-cover"
             style={{ objectPosition: '50% 26%' }}
             loading="eager"
           />
         </picture>
       ) : (
-        <div className="order-2 aspect-[4/3] w-full md:absolute md:inset-0 md:aspect-auto" aria-hidden="true"
+        <div className="order-2 aspect-[4/3] w-full lg:absolute lg:inset-0 lg:aspect-auto" aria-hidden="true"
           style={{ background: `linear-gradient(115deg, ${t.bgDeep} 0%, ${t.bgAlt} 55%, #1c3454 100%)` }} />
       )}
 
-      {/* DESKTOP-only scrims (hidden in the stacked mobile flow). */}
-      <div className="absolute inset-x-0 top-0 hidden md:block" aria-hidden="true" style={{ height: '54%', background: topScrim }} />
-      <div className="absolute inset-x-0 bottom-0 hidden md:block" aria-hidden="true" style={{ height: '42%', background: botScrim }} />
+      {/* DESKTOP-only scrims (hidden in the stacked mobile/tablet flow). */}
+      <div className="absolute inset-x-0 top-0 hidden lg:block" aria-hidden="true" style={{ height: '54%', background: topScrim }} />
+      <div className="absolute inset-x-0 bottom-0 hidden lg:block" aria-hidden="true" style={{ height: '42%', background: botScrim }} />
 
-      {/* GATEWAY — mobile: navy band below the image, 2×2 readable tiles; desktop: absolute bottom overlay. */}
-      <div className="relative z-[2] order-3 pb-9 pt-7 md:absolute md:inset-x-0 md:bottom-0 md:pb-10 md:pt-10">
-        <ul id="divisions" className="mx-auto grid max-w-6xl list-none grid-cols-2 gap-x-4 gap-y-7 p-0 px-6 md:gap-y-0 lg:grid-cols-4">
+      {/* GATEWAY — mobile/tablet: navy band below the image (2×2 readable tiles); desktop: absolute bottom overlay. */}
+      <div className="relative z-[2] order-3 pb-9 pt-7 lg:absolute lg:inset-x-0 lg:bottom-0 lg:pb-10 lg:pt-10">
+        <ul id="divisions" className="mx-auto grid max-w-6xl list-none grid-cols-2 gap-x-4 gap-y-7 p-0 px-6 lg:gap-y-0 lg:grid-cols-4">
           {items.map(({ it, href }: { it: Item; href: string }) => {
             const label = typeof it.cta_label === 'string' && it.cta_label.trim() ? it.cta_label : 'Explore more';
             return (

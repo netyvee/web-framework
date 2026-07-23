@@ -130,11 +130,13 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             <button
               ref={toggleRef}
               onClick={() => setOpen(true)}
-              className="md:hidden"
+              className="inline-flex items-center justify-center md:hidden"
               aria-label="Open menu"
               aria-expanded={open}
               aria-controls="vf-mobile-nav"
-              style={{ color: page.brand.text, fontSize: 22, lineHeight: 1, minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+              /* display is a CLASS (not inline) so md:hidden can actually hide it — an inline
+                 display:inline-flex would override the utility and leak the toggle onto desktop. */
+              style={{ color: page.brand.text, fontSize: 22, lineHeight: 1, minWidth: 44, minHeight: 44 }}
             >☰</button>
           </div>
         </div>

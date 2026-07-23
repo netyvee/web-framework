@@ -39,9 +39,10 @@ describe('continuous_division_hero', () => {
     // newline in the content is joined to a space → one run, both sentences present, no forced line break
     expect(html).toContain('Essential people. Exceptional service.');
     expect(html).not.toContain('<br');
-    // one line by default; wraps (balanced) only below the md breakpoint
-    expect(html).toContain('whitespace-nowrap');
-    expect(html).toContain('max-md:whitespace-normal');
+    // fluid size keeps it one line where it fits and wraps balanced on narrow screens (no nowrap → no
+    // min-content width that would push the page into horizontal overflow)
+    expect(html).toContain('[text-wrap:balance]');
+    expect(html).not.toContain('whitespace-nowrap');
   });
 
   it('renders the supporting copy + a teal accent line', () => {
