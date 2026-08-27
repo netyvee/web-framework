@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.4.0 (2026-08-27) - optional visual-parity theming props (F2-B4, netyvee/app#344)
+
+Assessing swapping Cleaning's live, bespoke `Nav.tsx` for `NavBar` (F2 "step 4") found that
+F2-B2's proven content parity did not extend to visual parity: `NavBar` is a generic,
+theme-token-driven component, while Cleaning's live nav has a bespoke visual treatment
+(fixed + backdrop-blurred header, an animated underline on hover/active links, a
+color-inverted logo, and custom SVG/character glyphs). Swapping without closing this gap
+would have been a live, unreviewed visual regression on a revenue-critical public page — so
+the swap itself is deferred, and this release closes the gap first.
+
+Five new, optional `NavBar` props, all defaulting to F2-B1's existing behaviour — **every
+current consumer (Shell, Care, Staffing) that doesn't pass them renders byte-identically to
+before**:
+
+- `fixed?: boolean` — `fixed inset-x-0 top-0` header instead of `sticky top-0`.
+- `blur?: boolean` — `backdrop-filter: blur(12px)` (+ `-webkit-` prefix) on the header.
+- `underline?: boolean` — an animated bottom underline (in the resolved theme accent) on
+  desktop flat links (hover + `aria-current`) and dropdown triggers (hover + open).
+- `logoInvert?: boolean` — forwarded to `Logo`'s new `invert` prop
+  (`brightness(0) invert(1)`).
+- `icons?: { chevron?, menu?, close? }` — override the default `▾`/`☰`/`×` glyphs; any
+  subset, an omitted key keeps its default glyph.
+
+5 new tests (`tests/nav-parity.test.tsx`) cover each prop's on/off behaviour. Full suite:
+181 pass (was 176).
+
 ## v1.3.0 (2026-08-27) - mobileFooterLink (F2-B3, netyvee/app#344)
 
 A Codex review of `vigil-cleaning`'s F2-B2 adapter PR found that `footerLink`
