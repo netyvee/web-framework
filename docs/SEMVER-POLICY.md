@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v1.3.0** | 1 | 14.2.x | none yet — additive capability (`netyvee/app#344` F2-B3, `mobileFooterLink`), no consumer repinned in this package; byte-identical for every current consumer | ✅ **current** |
+| **v1.4.0** | 1 | 14.2.x | none yet — additive capability (`netyvee/app#344` F2-B4, `NavBar` visual-parity theming props: `fixed`/`blur`/`underline`/`logoInvert`/`icons`), no consumer repinned in this package; byte-identical for every current consumer | ✅ **current** |
+| v1.3.0 | 1 | 14.2.x | none — additive capability (`netyvee/app#344` F2-B3, `mobileFooterLink`), no consumer repinned in this package; byte-identical for every current consumer | superseded (additive minor) |
 | v1.2.0 | 1 | 14.2.x | none — additive capability, no consumer repinned in this package (`netyvee/app#344` F2-B1); `Shell`'s output is byte-identical for every current consumer (full pre-existing suite green unmodified) | superseded (additive minor) |
 | v1.1.0 | 1 | 14.2.x | none — additive capability, no consumer repinned in this package (`netyvee/app#344` F2-B0); `NavLink.children` is unset everywhere live, so output is byte-identical for every current consumer | superseded (additive minor) |
 | v1.0.0 | 1 | 14.2.x | none — no consumer repinned in this package (`netyvee/app#344` F2-B0A). **MAJOR / consumer action required**: `netyvee/main` (the only consumer of `division_gateway`/`division_image_gateway`/`continuous_division_hero`) must set `site_settings.approved_division_hosts` on its exported page JSON before upgrading, or those sections' division links render empty (fail-closed, not broken — see `CHANGELOG.md`). care/staffing/cleaning/security don't use these sections — unaffected either way | superseded (major, superseded same-day by the additive v1.1.0) |

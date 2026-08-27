@@ -21,13 +21,36 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 
-export function Logo({ nav, src, height, theme }: { nav: SiteNav; src?: string; height: number; theme: { text: string } }) {
+export function Logo({
+  nav,
+  src,
+  height,
+  theme,
+  invert,
+}: {
+  nav: SiteNav;
+  src?: string;
+  height: number;
+  theme: { text: string };
+  // F2-B4 (netyvee/app#344) — some consumers ship a single dark-mark logo asset
+  // and rely on CSS to render it light-on-dark (Cleaning's live Nav.tsx does this
+  // today). Optional/default-false: every existing caller (Shell, Care, Staffing)
+  // omits it and gets the exact same <img>, no filter, as before.
+  invert?: boolean;
+}) {
   const logoSrc = src;
   if (logoSrc) {
     // plain <img> (not next/image) so the logo needs no per-site remotePatterns and
     // renders identically as a repo-static or CDN asset.
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logoSrc} alt={nav.logo?.alt ?? nav.brandName} height={height} style={{ height, width: 'auto' }} />;
+    return (
+      <img
+        src={logoSrc}
+        alt={nav.logo?.alt ?? nav.brandName}
+        height={height}
+        style={{ height, width: 'auto', ...(invert ? { filter: 'brightness(0) invert(1)' } : {}) }}
+      />
+    );
   }
   return <span className="font-display text-lg font-medium" style={{ color: theme.text }}>{nav.brandName}</span>;
 }
@@ -66,22 +89,30 @@ function DesktopNavDropdown({
   link,
   bg,
   line,
+  accent,
   slug,
   isOpen,
   onOpen,
   onClose,
   onToggle,
   triggerRef,
+  underline,
+  chevronIcon,
 }: {
   link: NavLink;
   bg: string;
   line: string;
+  accent: string;
   slug: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
   onToggle: () => void;
   triggerRef: (el: HTMLButtonElement | null) => void;
+  // F2-B4 (netyvee/app#344) — see NavBar's own doc comment on `underline`/`icons`.
+  // Both optional/default-off: every existing consumer keeps the exact F2-B1 markup.
+  underline?: boolean;
+  chevronIcon?: React.ReactNode;
 }) {
   const menuId = `vf-dropdown-${slugify(link.label)}`;
   const gridColsClass = link.columns === 2 ? 'grid grid-cols-2 gap-x-4' : 'flex flex-col';
@@ -101,10 +132,20 @@ function DesktopNavDropdown({
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-controls={menuId}
-        className="flex items-center gap-1 text-sm opacity-85 hover:opacity-100"
+        className={`group relative flex items-center gap-1 pb-1 text-sm opacity-85 hover:opacity-100 ${underline ? '' : ''}`}
       >
         {link.label}
-        <span aria-hidden className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+        <span aria-hidden className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>{chevronIcon ?? '▾'}</span>
+        {underline && (
+          // F2-B4 — Cleaning's live Nav.tsx grows an underline under the trigger on
+          // hover AND while the dropdown is open; a pure-CSS scale transform (no
+          // extra JS state) covers hover, and `isOpen` covers the open case via style.
+          <span
+            aria-hidden
+            className="absolute bottom-0 left-0 h-[1.5px] w-full origin-left scale-x-0 rounded-[1px] transition-transform duration-200 group-hover:scale-x-100"
+            style={{ background: accent, transform: isOpen ? 'scaleX(1)' : undefined }}
+          />
+        )}
       </button>
       {isOpen && (
         <div
@@ -170,6 +211,7 @@ function MobileNavAccordion({
   isOpen,
   onToggle,
   onNavigate,
+  chevronIcon,
 }: {
   link: NavLink;
   slug: string;
@@ -177,6 +219,7 @@ function MobileNavAccordion({
   isOpen: boolean;
   onToggle: () => void;
   onNavigate: () => void;
+  chevronIcon?: React.ReactNode;
 }) {
   const panelId = `vf-mobile-accordion-${slugify(link.label)}`;
   return (
@@ -189,7 +232,7 @@ function MobileNavAccordion({
         className="flex w-full items-center justify-between py-2 text-base"
       >
         {link.label}
-        <span aria-hidden className={`text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+        <span aria-hidden className={`text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>{chevronIcon ?? '▾'}</span>
       </button>
       {isOpen && (
         <div id={panelId} className="py-1 pl-3">
@@ -242,6 +285,11 @@ export function NavBar({
   headerCtaLabel,
   open,
   onOpenChange,
+  fixed,
+  blur,
+  underline,
+  logoInvert,
+  icons,
 }: {
   nav: SiteNav;
   slug: string;
@@ -257,6 +305,31 @@ export function NavBar({
   // purely a NavBar/rendering concern) remains internal, below.
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // F2-B4 (netyvee/app#344) — closes the visual-parity gap found while assessing
+  // Cleaning's live Nav.tsx -> NavBar swap: the F2-B1 NavBar reproduced content
+  // faithfully but not the bespoke visual treatment Cleaning's design already has
+  // live and accepted (fixed+blur header, animated underline, inverted logo,
+  // custom glyphs). All five are optional and default to F2-B1's existing
+  // behaviour (sticky header, no underline, no invert, ▾/☰/× glyphs) — every
+  // current consumer (Shell, Care, Staffing) that doesn't pass them renders
+  // byte-identically to before.
+  //
+  //   • fixed      — `fixed inset-x-0 top-0` instead of `sticky top-0`. Pair with
+  //                  a translucent `brand.bg` (e.g. "rgba(10,22,40,0.92)") and
+  //                  `blur` for Cleaning's floating-over-content header.
+  //   • blur       — backdrop-filter: blur(12px) (+ -webkit- prefix) on the header.
+  //   • underline  — an animated bottom underline (in `brand.cta`, i.e. resolved
+  //                  theme accent) on desktop flat links (hover + aria-current)
+  //                  and dropdown triggers (hover + open).
+  //   • logoInvert — forwarded to `Logo`'s own `invert` (brightness(0) invert(1)).
+  //   • icons      — override the default ▾ (dropdown/accordion chevron), ☰ (open
+  //                  menu) and × (close menu) glyphs with custom nodes. Any subset;
+  //                  an omitted key keeps its default glyph.
+  fixed?: boolean;
+  blur?: boolean;
+  underline?: boolean;
+  logoInvert?: boolean;
+  icons?: { chevron?: React.ReactNode; menu?: React.ReactNode; close?: React.ReactNode };
 }) {
   const t = resolveTheme(brand);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -322,11 +395,18 @@ export function NavBar({
     // color. Applying it here means NavBar's focus rings are always correct,
     // wherever it's mounted.
     <div style={t.cssVars as React.CSSProperties}>
-      <header style={{ background: brand.bg, color: brand.text }} className="sticky top-0 z-40 border-b">
+      <header
+        style={{
+          background: brand.bg,
+          color: brand.text,
+          ...(blur ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
+        }}
+        className={`${fixed ? 'fixed inset-x-0 top-0' : 'sticky top-0'} z-40 border-b`}
+      >
         <div className="border-b" style={{ borderColor: t.line }}>
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
             <Link href="/" aria-label={nav.brandName} className="flex items-center">
-              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} />
+              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} invert={logoInvert} />
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
               {nav.primary.map((l) =>
@@ -336,12 +416,15 @@ export function NavBar({
                     link={l}
                     bg={brand.bg}
                     line={t.line}
+                    accent={t.accent}
                     slug={slug}
                     isOpen={openDropdown === l.label}
                     onOpen={() => setOpenDropdown(l.label)}
                     onClose={() => setOpenDropdown((prev) => (prev === l.label ? null : prev))}
                     onToggle={() => setOpenDropdown((prev) => (prev === l.label ? null : l.label))}
                     triggerRef={(el) => { dropdownTriggerRefs.current[l.label] = el; }}
+                    underline={underline}
+                    chevronIcon={icons?.chevron}
                   />
                 ) : (
                   <Link
@@ -349,9 +432,16 @@ export function NavBar({
                     href={l.href}
                     {...relAttrs(l)}
                     aria-current={l.href === slug ? 'page' : undefined}
-                    className="text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium"
+                    className={`relative pb-1 text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium ${underline ? 'group' : ''}`}
                   >
                     {l.label}
+                    {underline && (
+                      <span
+                        aria-hidden
+                        className="absolute bottom-0 left-0 h-[1.5px] w-full origin-left scale-x-0 rounded-[1px] transition-transform duration-200 group-hover:scale-x-100 group-aria-[current=page]:scale-x-100"
+                        style={{ background: t.accent }}
+                      />
+                    )}
                   </Link>
                 )
               )}
@@ -368,7 +458,7 @@ export function NavBar({
               /* display is a CLASS (not inline) so md:hidden can actually hide it — an inline
                  display:inline-flex would override the utility and leak the toggle onto desktop. */
               style={{ color: brand.text, fontSize: 22, lineHeight: 1, minWidth: 44, minHeight: 44 }}
-            >☰</button>
+            >{icons?.menu ?? '☰'}</button>
           </div>
         </div>
       </header>
@@ -384,8 +474,8 @@ export function NavBar({
           style={{ background: brand.bg, color: brand.text }}
         >
           <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
-            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} />
-            <button ref={closeRef} onClick={() => onOpenChange(false)} aria-label="Close menu" style={{ color: brand.text, fontSize: 26, lineHeight: 1 }}>×</button>
+            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} invert={logoInvert} />
+            <button ref={closeRef} onClick={() => onOpenChange(false)} aria-label="Close menu" style={{ color: brand.text, fontSize: 26, lineHeight: 1 }}>{icons?.close ?? '×'}</button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
             {nav.primary.map((l) =>
@@ -404,6 +494,7 @@ export function NavBar({
                     })
                   }
                   onNavigate={() => onOpenChange(false)}
+                  chevronIcon={icons?.chevron}
                 />
               ) : (
                 <Link
