@@ -34,6 +34,7 @@ const IMAGE_STORE = 'https://res.cloudinary.com';     // canonical Cloudinary im
  * @param {string[]}[o.imgHosts]      extra img-src hosts (merged with self/data:/Cloudinary)
  * @param {string[]}[o.formActions]   extra form-action origins (merged with self + CRM)
  * @param {string[]}[o.connectHosts]  extra connect-src hosts (merged with self)
+ * @param {string[]}[o.scriptHosts]   extra script-src hosts only (e.g. consent-gated GA4)
  * @returns {string} the assembled CSP header value
  */
 export function vigilCsp(o = {}) {

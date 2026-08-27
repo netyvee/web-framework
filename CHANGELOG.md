@@ -1,5 +1,44 @@
 # Changelog
 
+## v1.0.0 (2026-08-27) - MAJOR: division-gateway allow-list is now consumer-supplied (F2-B0A, netyvee/app#344)
+
+**Breaking — consumer action required.** `division-isolation --mode src` correctly failed on four
+Vigil division-domain literals hardcoded in `src/sections/DivisionGateway.tsx` (the corporate→division
+gateway's host allow-list) — the framework's own source must be identity-blank, and these predated that
+rule. Removing the literals outright would have left the gateway either open (no allow-list at all,
+defeating its fail-closed governance purpose) or permanently empty, so the allow-list is now read from
+`page.site_settings.approved_division_hosts` (new optional `string[]` field, `src/types.ts`), supplied by
+the CONSUMER's own site config — never compiled into this package.
+
+- `approvedDivisionHref(href, approvedHosts)` (`DivisionGateway.tsx`) now takes the allow-list as an
+  explicit parameter instead of reading a module-level constant. The `APPROVED_DIVISION_HOSTS` export is
+  removed; a new `approvedDivisionHosts(page)` helper reads and validates the consumer-supplied list.
+- `DivisionGateway`, `DivisionImageGateway`, and `ContinuousDivisionHero` (the three corporate-gateway
+  sections) all source hosts this way now.
+- **Fail-closed by default**: a consumer that hasn't set `site_settings.approved_division_hosts` gets
+  an empty gateway (all three sections render nothing for their division-link content), never an
+  unvetted or implied link. This is the same governance posture as before — dropping any non-approved
+  host — extended to cover "no configuration" as one more not-approved case.
+- **Consumer action required**: `netyvee/main` (the only current consumer of these three sections) must
+  add `site_settings.approved_division_hosts` (the four division subdomains) to its exported page JSON
+  before or when it upgrades its framework pin, or its corporate homepage division-gateway sections will
+  render empty. No other consumer (care/staffing/cleaning/security) uses these sections — unaffected.
+- `division-isolation --mode src`: now **passes** (was failing on 4 identity literals; confirmed
+  pre-existing on unmodified `main` via `git stash`, not introduced by this or any concurrent change).
+- 4 new tests proving the fail-closed-when-unconfigured behaviour (one per gateway section, plus direct
+  coverage of `approvedDivisionHosts()`'s parsing/defaulting); all three gateway test suites' fixture
+  data switched from real Vigil domains to neutral `*.example.invalid` test hosts, per `tests/fixtures.ts`'s
+  own stated rule that the test suite must never normalise a real identity literal into the framework —
+  this also proves the allow-list mechanism works for any consumer-supplied list, not just Vigil's.
+  Full suite: 152 pass (was 148).
+- **Also ported**: `config/security.d.mts`'s `VigilCspOptions` was missing `scriptHosts`, even though it's
+  a real, shipped, tested, changelogged (v0.6.4) runtime feature in `config/security.mjs` — a pure
+  type-declaration gap, confirmed pre-existing on unmodified `main` via `git stash` and unrelated to
+  division-isolation. Included here (rather than left for a second PR) because `npm run typecheck` runs
+  before `npm run isolation` in this repo's single combined CI job, so this PR's own CI could not reach
+  green — or even exercise the isolation fix above — without it. No behaviour change (the `.mjs`
+  implementation already worked; only its `.d.mts` type was wrong).
+
 ## v0.6.4 (2026-07-22) - vigilCsp scriptHosts option (consent-gated GA4 on main)
 
 `vigilCsp`/`vigilSecurityHeaders`/`withVigilSecurity` accept `scriptHosts` — extra external script origins

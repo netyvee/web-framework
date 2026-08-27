@@ -64,6 +64,12 @@ export type PageJson = {
   // — buildJsonLd() reads only string URL values and omits sameAs when there are none.
   site_settings?: {
     social?: Record<string, string> | string[];
+    // F2-B0A (netyvee/app#344) — consumer-supplied allow-list for the corporate→division gateway
+    // sections (division_gateway / division_image_gateway / continuous_division_hero). The
+    // framework's own source must stay identity-blank (division-isolation --mode src), so the
+    // approved division hostnames live here, exported by the CONSUMER's own site config, never
+    // compiled into this package. Omit ⇒ those sections render nothing (fail-closed).
+    approved_division_hosts?: string[];
     [key: string]: unknown;
   };
   sections: Section[];
