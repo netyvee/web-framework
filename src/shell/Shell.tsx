@@ -42,11 +42,146 @@ function relAttrs(l: NavLink): { 'data-vf-rel'?: NavLinkRel } {
   return l.rel ? { 'data-vf-rel': l.rel } : {};
 }
 
+// F2-B0 — nested dropdown navigation (netyvee/app FRAMEWORK/IMPLEMENTATION-SEQUENCE.md
+// Step 5(b) precondition). A NavLink with `children` renders as a disclosure trigger,
+// not a navigating link — see the type's own doc comment in types.ts for why the
+// parent `href` is unused here. Desktop: hover opens, click toggles (keyboard/touch
+// parity), Escape and click-outside close. Mobile: an accordion under the item,
+// independent of other accordions and of the dropdown-open state above it.
+
+function DesktopNavDropdown({
+  link,
+  page,
+  isOpen,
+  onOpen,
+  onClose,
+  onToggle,
+}: {
+  link: NavLink;
+  page: PageJson;
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onToggle: () => void;
+}) {
+  const menuId = `vf-dropdown-${slugify(link.label)}`;
+  return (
+    <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        className="flex items-center gap-1 text-sm opacity-85 hover:opacity-100"
+      >
+        {link.label}
+        <span aria-hidden className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {isOpen && (
+        <ul
+          id={menuId}
+          role="menu"
+          aria-label={link.label}
+          className="absolute left-0 top-full z-20 mt-2 min-w-[200px] list-none rounded-lg border border-white/10 p-2 shadow-lg"
+          style={{ background: page.brand.bg }}
+        >
+          {(link.children ?? []).map((c) => (
+            <li key={c.href} role="none">
+              <Link
+                href={c.href}
+                role="menuitem"
+                {...relAttrs(c)}
+                aria-current={c.href === page.slug ? 'page' : undefined}
+                className="block rounded px-3 py-2 text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium"
+              >
+                {c.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function MobileNavAccordion({
+  link,
+  page,
+  isOpen,
+  onToggle,
+  onNavigate,
+}: {
+  link: NavLink;
+  page: PageJson;
+  isOpen: boolean;
+  onToggle: () => void;
+  onNavigate: () => void;
+}) {
+  const panelId = `vf-mobile-accordion-${slugify(link.label)}`;
+  return (
+    <div className="border-b py-1">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="flex w-full items-center justify-between py-2 text-base"
+      >
+        {link.label}
+        <span aria-hidden className={`text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {isOpen && (
+        <ul id={panelId} className="list-none space-y-1 py-1 pl-3">
+          {(link.children ?? []).map((c) => (
+            <li key={c.href}>
+              <Link
+                href={c.href}
+                {...relAttrs(c)}
+                aria-current={c.href === page.slug ? 'page' : undefined}
+                className="block py-2 text-sm opacity-85 aria-[current=page]:opacity-100 aria-[current=page]:font-medium"
+                onClick={onNavigate}
+              >
+                {c.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function slugify(label: string): string {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; children: React.ReactNode }) {
   const t = resolveTheme(page.brand);
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  // F2-B0 — desktop dropdown: only one open at a time (keyed by label). Mobile
+  // accordions are independent of each other and of the desktop state (a Set,
+  // since Cleaning's live nav allows Services and Locations open simultaneously).
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileAccordions, setOpenMobileAccordions] = useState<Set<string>>(new Set());
+
+  // Escape closes whichever dropdown is open — the keyboard-accessibility floor
+  // (WAI-ARIA menu-button pattern). Click-outside-to-close is deliberately not
+  // implemented: it is notoriously fiddly to combine correctly with the
+  // hover-open/click-toggle behaviour below without a state-ordering bug between
+  // a capture-phase document listener and the trigger's own bubble-phase onClick,
+  // and is not required by the keyboard/ARIA correctness this slice targets —
+  // a mouse user closes by hovering elsewhere, and every child is itself a link
+  // (activating one navigates away regardless of open state).
+  useEffect(() => {
+    if (!openDropdown) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenDropdown(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [openDropdown]);
 
   // §4 body-scroll-lock + focus management + ESC-to-close
   useEffect(() => {
@@ -121,9 +256,21 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
               <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} />
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
-              {nav.primary.map((l) => (
-                <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
-              ))}
+              {nav.primary.map((l) =>
+                l.children && l.children.length > 0 ? (
+                  <DesktopNavDropdown
+                    key={l.label}
+                    link={l}
+                    page={page}
+                    isOpen={openDropdown === l.label}
+                    onOpen={() => setOpenDropdown(l.label)}
+                    onClose={() => setOpenDropdown((prev) => (prev === l.label ? null : prev))}
+                    onToggle={() => setOpenDropdown((prev) => (prev === l.label ? null : l.label))}
+                  />
+                ) : (
+                  <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
+                )
+              )}
               {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
               {hasHeaderCta && <a href={headerCtaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{headerCtaLabel}</a>}
             </nav>
@@ -157,9 +304,26 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             <button ref={closeRef} onClick={() => setOpen(false)} aria-label="Close menu" style={{ color: page.brand.text, fontSize: 26, lineHeight: 1 }}>×</button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
-            {nav.primary.map((l) => (
-              <Link key={l.href} href={l.href} {...relAttrs(l)} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
-            ))}
+            {nav.primary.map((l) =>
+              l.children && l.children.length > 0 ? (
+                <MobileNavAccordion
+                  key={l.label}
+                  link={l}
+                  page={page}
+                  isOpen={openMobileAccordions.has(l.label)}
+                  onToggle={() =>
+                    setOpenMobileAccordions((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(l.label)) next.delete(l.label); else next.add(l.label);
+                      return next;
+                    })
+                  }
+                  onNavigate={() => setOpen(false)}
+                />
+              ) : (
+                <Link key={l.href} href={l.href} {...relAttrs(l)} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
+              )
+            )}
             {hasPhone && <a href={tel} className="py-3 text-base font-medium" style={{ color: t.secondary }}>{phone}</a>}
           </nav>
           {/* single enquiry action inside the menu; the sticky CTA is hidden while

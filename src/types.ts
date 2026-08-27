@@ -124,7 +124,19 @@ export function isNavLinkRel(value: unknown): value is NavLinkRel {
   return typeof value === 'string' && (NAV_LINK_RELS as readonly string[]).includes(value);
 }
 
-export type NavLink = { label: string; href: string; rel?: NavLinkRel };
+// v0.7 — F2-B0: optional nested dropdown children. Purely additive: a NavLink
+// without `children` renders exactly as before (a plain link) in both Shell and
+// the legacy v0.2 Header — existing flat-nav consumers (Care/Staffing) are
+// byte-identical. When `children` is present, the Shell renders the item as a
+// disclosure trigger (button, not a navigating link — matches vigil-cleaning's
+// live "Services"/"Locations" pattern) that opens a menu of its children on
+// hover, click, or keyboard activation. The parent's own `href` is NOT rendered
+// as a navigation target when `children` is present; a consumer that wants a
+// "view all" destination includes it as an explicit entry inside `children`
+// (a plain NavLink like any other) rather than the framework inventing copy or
+// special-casing the parent href. Nesting is one level deep by design — a
+// child's own `children` (if a consumer sets one) is not rendered.
+export type NavLink = { label: string; href: string; rel?: NavLinkRel; children?: NavLink[] };
 export type FooterColumn = { heading: string; links: NavLink[] };
 
 export type SiteNav = {

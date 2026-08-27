@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.1.0 (2026-08-27) - nested dropdown navigation (F2-B0, netyvee/app#344)
+
+`NavLink` gains an optional `children?: NavLink[]` (`src/types.ts`). **Additive: a
+NavLink without `children` renders exactly as before** — proven by the full existing
+suite (152 tests, post-v1.0.0 baseline) staying green unchanged. When `children` is
+present, `Shell` renders the item as a disclosure trigger instead of a navigating link:
+- **Desktop**: a `<button aria-haspopup="true" aria-expanded>` that opens a
+  `role="menu"` of the children on hover, click, or keyboard activation (native button
+  semantics give Enter/Space for free); Escape closes it and restores focus to the
+  trigger. The parent's own `href` is never rendered as a nav target — a consumer that
+  wants a "view all" destination adds it as an explicit child link, so the framework
+  invents no copy or special-casing. Hover uses pointer events gated on
+  `pointerType === 'mouse'` so a touch tap's synthetic pre-click pointerenter can't
+  arm-then-immediately-undo the open state, and the menu sits flush (no margin gap)
+  against the trigger so a pointer moving toward a child can't cross an unhoverable gap.
+- **Mobile**: an accordion (`aria-expanded` button + chevron) under the item, expanding
+  to the same children; independent of other accordions and of the desktop dropdown
+  state.
+- Active-child marking: a child whose `href` equals `page.slug` gets `aria-current="page"`.
+- This closes the capability gap `netyvee/app#344`'s F2 Step 5(b) re-grounding found:
+  `netyvee/vigil-cleaning`'s live Nav has real "Services"/"Locations" hover-dropdowns
+  the framework's flat-links-only nav couldn't represent, blocking the shell-swap
+  convergence step. Motivated by, and modelled directly on, that live component's
+  hover/accordion/active-state behaviour — this slice does not itself swap Cleaning
+  onto the framework.
+- 13 new tests (`tests/nested-nav.test.tsx`); full suite 165 pass (was 152 on v1.0.0).
+
 ## v1.0.0 (2026-08-27) - MAJOR: division-gateway allow-list is now consumer-supplied (F2-B0A, netyvee/app#344)
 
 **Breaking — consumer action required.** `division-isolation --mode src` correctly failed on four
