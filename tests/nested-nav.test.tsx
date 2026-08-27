@@ -53,27 +53,46 @@ describe('Shell desktop nav — nested dropdown', () => {
     expect(within(menu).getByRole('menuitem', { name: 'Widgets' })).toBeTruthy();
   });
 
-  it('opens on hover and closes on mouse-leave', () => {
+  it('opens on mouse hover and closes on mouse-leave', () => {
     render(<Shell page={page} nav={navWithDropdown()}><div /></Shell>);
     const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
     const trigger = primary.getByRole('button', { name: /Services/ });
     const wrapper = trigger.parentElement!;
 
-    fireEvent.mouseEnter(wrapper);
+    fireEvent.pointerEnter(wrapper, { pointerType: 'mouse' });
     expect(screen.getByRole('menu', { name: 'Services' })).toBeTruthy();
 
-    fireEvent.mouseLeave(wrapper);
+    fireEvent.pointerLeave(wrapper, { pointerType: 'mouse' });
     expect(screen.queryByRole('menu', { name: 'Services' })).toBeNull();
   });
 
-  it('closes on Escape (keyboard accessibility floor)', () => {
+  it('a touch tap does not flash the menu closed (P1: touch pointerenter must not arm hover-close)', () => {
+    // Regression for the touch-compatibility-event bug: a tap fires a pointerenter
+    // (pointerType 'touch') immediately before the click. Hover open/close must
+    // ignore non-mouse pointer types, or the click's toggle would see the menu
+    // already open (from the touch pointerenter) and immediately close it again.
     render(<Shell page={page} nav={navWithDropdown()}><div /></Shell>);
     const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
-    fireEvent.click(primary.getByRole('button', { name: /Services/ }));
+    const trigger = primary.getByRole('button', { name: /Services/ });
+    const wrapper = trigger.parentElement!;
+
+    fireEvent.pointerEnter(wrapper, { pointerType: 'touch' });
+    expect(screen.queryByRole('menu', { name: 'Services' })).toBeNull();
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu', { name: 'Services' })).toBeTruthy();
+  });
+
+  it('closes on Escape (keyboard accessibility floor) and restores focus to the trigger', () => {
+    render(<Shell page={page} nav={navWithDropdown()}><div /></Shell>);
+    const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
+    const trigger = primary.getByRole('button', { name: /Services/ });
+    fireEvent.click(trigger);
     expect(screen.getByRole('menu', { name: 'Services' })).toBeTruthy();
 
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('menu', { name: 'Services' })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('clicking the trigger again toggles the menu closed', () => {

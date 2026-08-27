@@ -11,6 +11,7 @@
 // literal. Colour from page.brand via resolveTheme.
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
@@ -56,6 +57,7 @@ function DesktopNavDropdown({
   onOpen,
   onClose,
   onToggle,
+  triggerRef,
 }: {
   link: NavLink;
   page: PageJson;
@@ -63,11 +65,20 @@ function DesktopNavDropdown({
   onOpen: () => void;
   onClose: () => void;
   onToggle: () => void;
+  triggerRef: (el: HTMLButtonElement | null) => void;
 }) {
   const menuId = `vf-dropdown-${slugify(link.label)}`;
+  // Touch devices fire a compatibility mouseenter immediately before their click,
+  // so a plain onMouseEnter+onClick pair opens then immediately toggles the menu
+  // closed again on tap — it never has a chance to be reached. Pointer events
+  // carry a real pointerType; gating hover-open/close on 'mouse' means a touch
+  // tap only ever goes through onToggle (a real open, not an open-then-close).
+  const onPointerEnter = (e: ReactPointerEvent) => { if (e.pointerType === 'mouse') onOpen(); };
+  const onPointerLeave = (e: ReactPointerEvent) => { if (e.pointerType === 'mouse') onClose(); };
   return (
-    <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
+    <div className="relative" onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={onToggle}
         aria-haspopup="true"
@@ -83,7 +94,14 @@ function DesktopNavDropdown({
           id={menuId}
           role="menu"
           aria-label={link.label}
-          className="absolute left-0 top-full z-20 mt-2 min-w-[200px] list-none rounded-lg border border-white/10 p-2 shadow-lg"
+          // top-full with NO margin keeps this panel's own hit-testable box flush
+          // against the trigger's — a margin gap here would be dead space no
+          // element covers, breaking hover continuity between trigger and menu
+          // (the wrapping div's geometric box ends at the button; it does not
+          // extend through an empty margin). Visual breathing room comes from
+          // p-2 (padding, part of this same box, same 0.5rem as the old
+          // margin-top) instead.
+          className="absolute left-0 top-full z-20 min-w-[200px] list-none rounded-lg border border-white/10 p-2 shadow-lg"
           style={{ background: page.brand.bg }}
         >
           {(link.children ?? []).map((c) => (
@@ -167,18 +185,29 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
   // since Cleaning's live nav allows Services and Locations open simultaneously).
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileAccordions, setOpenMobileAccordions] = useState<Set<string>>(new Set());
+  // Keyed by link.label (same key as openDropdown) so Escape can restore focus to
+  // the trigger a keyboard user was just inside, rather than dropping focus to body.
+  const dropdownTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Escape closes whichever dropdown is open — the keyboard-accessibility floor
-  // (WAI-ARIA menu-button pattern). Click-outside-to-close is deliberately not
-  // implemented: it is notoriously fiddly to combine correctly with the
-  // hover-open/click-toggle behaviour below without a state-ordering bug between
-  // a capture-phase document listener and the trigger's own bubble-phase onClick,
-  // and is not required by the keyboard/ARIA correctness this slice targets —
-  // a mouse user closes by hovering elsewhere, and every child is itself a link
-  // (activating one navigates away regardless of open state).
+  // Escape closes whichever dropdown is open and returns focus to its trigger —
+  // the keyboard-accessibility floor (WAI-ARIA menu-button pattern): a keyboard
+  // user who tabbed into the menu and pressed Escape continues from the trigger,
+  // not from a focus dropped to document body. Click-outside-to-close is
+  // deliberately not implemented: it is notoriously fiddly to combine correctly
+  // with the hover-open/click-toggle behaviour below without a state-ordering bug
+  // between a capture-phase document listener and the trigger's own bubble-phase
+  // onClick, and is not required by the keyboard/ARIA correctness this slice
+  // targets — a mouse user closes by hovering elsewhere, and every child is
+  // itself a link (activating one navigates away regardless of open state).
   useEffect(() => {
     if (!openDropdown) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenDropdown(null); };
+    const label = openDropdown;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+        dropdownTriggerRefs.current[label]?.focus();
+      }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [openDropdown]);
@@ -266,6 +295,7 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
                     onOpen={() => setOpenDropdown(l.label)}
                     onClose={() => setOpenDropdown((prev) => (prev === l.label ? null : prev))}
                     onToggle={() => setOpenDropdown((prev) => (prev === l.label ? null : l.label))}
+                    triggerRef={(el) => { dropdownTriggerRefs.current[l.label] = el; }}
                   />
                 ) : (
                   <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
