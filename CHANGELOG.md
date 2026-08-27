@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.3.0 (2026-08-27) - mobileFooterLink (F2-B3, netyvee/app#344)
+
+A Codex review of `vigil-cleaning`'s F2-B2 adapter PR found that `footerLink`
+alone can't express Cleaning's accepted design: the mobile accordion's "view
+all" link uses shorter wording ("View all →") than the desktop dropdown's
+("View all services →"/"View all locations →"), and `footerLink` renders the
+identical `NavLink` in both places — so an adapter setting `footerLink` to the
+desktop text would show that same longer text on mobile too, a real
+user-visible content mismatch against the accepted live nav.
+
+- `NavLink` gains `mobileFooterLink?: NavLink` (`src/types.ts`). Optional and
+  additive: the mobile accordion uses it when set, and falls back to
+  `footerLink` when it isn't — **byte-identical for every existing consumer**
+  (nothing sets it yet outside the new regression test).
+- `NavBar`'s `MobileNavAccordion` reads `link.mobileFooterLink ?? link.footerLink`.
+- 2 new tests (`tests/nav-parity.test.tsx`): mobile prefers `mobileFooterLink`
+  over `footerLink` when both are set; falls back to `footerLink` when
+  `mobileFooterLink` is unset. Full suite: 176 pass (was 175).
+
 ## v1.2.0 (2026-08-27) - standalone Nav primitive + Cleaning parity fields (F2-B1, netyvee/app#344)
 
 A re-grounding of `netyvee/vigil-cleaning` against F2-B0's nested-nav capability found two

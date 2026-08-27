@@ -209,18 +209,24 @@ function MobileNavAccordion({
               </li>
             ))}
           </ul>
-          {link.footerLink && (
-            <div className="mt-1 border-t pt-2" style={{ borderColor: line }}>
-              <Link
-                href={link.footerLink.href}
-                {...relAttrs(link.footerLink)}
-                className="block py-1.5 text-xs opacity-75"
-                onClick={onNavigate}
-              >
-                {link.footerLink.label}
-              </Link>
-            </div>
-          )}
+          {(() => {
+            // F2-B3 — mobileFooterLink lets the mobile accordion show shorter
+            // wording than the desktop dropdown's footerLink; falls back to
+            // footerLink when unset (byte-identical for every F2-B1 consumer).
+            const mobileFooter = link.mobileFooterLink ?? link.footerLink;
+            return mobileFooter && (
+              <div className="mt-1 border-t pt-2" style={{ borderColor: line }}>
+                <Link
+                  href={mobileFooter.href}
+                  {...relAttrs(mobileFooter)}
+                  className="block py-1.5 text-xs opacity-75"
+                  onClick={onNavigate}
+                >
+                  {mobileFooter.label}
+                </Link>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
