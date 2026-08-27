@@ -132,7 +132,7 @@ function DesktopNavDropdown({
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-controls={menuId}
-        className={`group relative flex items-center gap-1 pb-1 text-sm opacity-85 hover:opacity-100 ${underline ? '' : ''}`}
+        className={`flex items-center gap-1 text-sm opacity-85 hover:opacity-100 ${underline ? 'group relative pb-1' : ''}`}
       >
         {link.label}
         <span aria-hidden className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>{chevronIcon ?? '▾'}</span>
@@ -432,7 +432,7 @@ export function NavBar({
                     href={l.href}
                     {...relAttrs(l)}
                     aria-current={l.href === slug ? 'page' : undefined}
-                    className={`relative pb-1 text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium ${underline ? 'group' : ''}`}
+                    className={`text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium ${underline ? 'group relative pb-1' : ''}`}
                   >
                     {l.label}
                     {underline && (

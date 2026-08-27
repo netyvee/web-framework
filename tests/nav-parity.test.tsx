@@ -186,10 +186,16 @@ describe('F2-B4 — optional visual-parity theming props (default OFF, byte-iden
     expect(header.style.backdropFilter).toBe('blur(12px)');
   });
 
-  it('underline renders an animated underline span under flat links, absent by default', () => {
+  it('underline renders an animated underline span under flat links, absent by default (no layout classes leak in either)', () => {
+    // Codex review (netyvee/web-framework#5): pb-1/relative must stay behind the
+    // underline opt-in — the first pass added them unconditionally, which shifted
+    // every existing consumer's default link spacing by 0.25rem.
     const withoutUnderline = render(<Shell page={page} nav={nav}><div /></Shell>);
     const primaryOff = within(screen.getByRole('navigation', { name: 'Primary' }));
-    expect(primaryOff.getByRole('link', { name: 'Home' }).querySelector('span[aria-hidden]')).toBeNull();
+    const homeLinkOff = primaryOff.getByRole('link', { name: 'Home' });
+    expect(homeLinkOff.querySelector('span[aria-hidden]')).toBeNull();
+    expect(homeLinkOff.className).not.toContain('pb-1');
+    expect(homeLinkOff.className).not.toContain('relative');
     withoutUnderline.unmount();
 
     render(
@@ -231,5 +237,14 @@ describe('F2-B4 — optional visual-parity theming props (default OFF, byte-iden
     const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
     // chevron key omitted -> default ▾ glyph still renders on the dropdown trigger
     expect(primary.getByRole('button', { name: /Services/ }).textContent).toContain('▾');
+  });
+
+  it('dropdown trigger keeps no pb-1/relative layout classes when underline is unset (Codex review)', () => {
+    render(<Shell page={page} nav={navWithParityDropdown()}><div /></Shell>);
+    const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
+    const trigger = primary.getByRole('button', { name: /Services/ });
+    expect(trigger.className).not.toContain('pb-1');
+    expect(trigger.className).not.toContain('relative');
+    expect(trigger.className).not.toContain('group');
   });
 });
