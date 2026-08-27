@@ -131,12 +131,36 @@ export function isNavLinkRel(value: unknown): value is NavLinkRel {
 // disclosure trigger (button, not a navigating link — matches vigil-cleaning's
 // live "Services"/"Locations" pattern) that opens a menu of its children on
 // hover, click, or keyboard activation. The parent's own `href` is NOT rendered
-// as a navigation target when `children` is present; a consumer that wants a
-// "view all" destination includes it as an explicit entry inside `children`
-// (a plain NavLink like any other) rather than the framework inventing copy or
-// special-casing the parent href. Nesting is one level deep by design — a
-// child's own `children` (if a consumer sets one) is not rendered.
-export type NavLink = { label: string; href: string; rel?: NavLinkRel; children?: NavLink[] };
+// as a navigation target when `children` is present. Nesting is one level deep
+// by design — a child's own `children` (if a consumer sets one) is not rendered.
+//
+// v1.2 — F2-B1 (netyvee/app#344): four more optional fields, added because a
+// Cleaning-vs-framework Nav parity review found the plain-text dropdown could
+// not faithfully represent Cleaning's accepted, already-live navigation. All
+// four are additive and opt-in per NavLink — omitted everywhere ⇒ byte-identical
+// output for every existing consumer (Care/Staffing, and F2-B0's own tests):
+//   • icon        — rendered before a CHILD item's label (desktop + mobile).
+//   • description — rendered under a CHILD item's label, DESKTOP DROPDOWN ONLY
+//                    (Cleaning's own mobile accordion has no description either —
+//                    this is parity with the accepted design, not a framework
+//                    limitation to work around later).
+//   • columns     — 1 (default) or 2 desktop dropdown grid columns. Set on the
+//                    PARENT (the item that has `children`); has no effect on the
+//                    mobile accordion, which is always a single column.
+//   • footerLink  — a "view all" destination visually separated (border-top)
+//                    from `children` in both the desktop dropdown and the mobile
+//                    accordion. Distinct from putting a plain link inside
+//                    `children` itself, which renders inline with no separation.
+export type NavLink = {
+  label: string;
+  href: string;
+  rel?: NavLinkRel;
+  children?: NavLink[];
+  icon?: string;
+  description?: string;
+  columns?: 1 | 2;
+  footerLink?: NavLink;
+};
 export type FooterColumn = { heading: string; links: NavLink[] };
 
 export type SiteNav = {
