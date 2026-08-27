@@ -1,5 +1,33 @@
 # Changelog
 
+## v1.5.0 (2026-08-27) - shared deployment-attestation route (WEBSITE-DEPLOYMENT-ATTESTATION-01, netyvee/app#344)
+
+Adds `src/attestation.ts`, exporting a Next.js Route Handler (`GET`) and its payload
+builder (`buildAttestationPayload`) for the `/.well-known/vigil-deployment.json`
+deployment-attestation contract proven first on `netyvee/vigil-cleaning#4`. Every
+framework-adopted site (Care, Staffing, Main) wires the SAME shared handler instead
+of hand-copying the route each repo needs (as Cleaning had to, being off-framework).
+
+- Reports `git_sha`/`git_ref`/`environment`/`repo_owner`/`repo_slug`/`deployment_url`/
+  `production_url`, sourced entirely from Vercel's own build-time env vars. No
+  secrets, tokens, customer data or mutable DB state.
+- Deliberately **no site-specific defaults** — every field falls back to `null` when
+  its source env var is absent, rather than guessing a repo identity. This is a
+  correction over Cleaning's own hand-written route, which defaulted `repo_owner`/
+  `repo_slug` to its own identity when unset — harmless there, but the wrong pattern
+  to share across sites.
+- `force-dynamic` + `Cache-Control: no-store` — always reflects the CURRENT
+  deployment; caching would defeat the entire point.
+- Import directly from `@vigil/web-framework/src/attestation` (not the package
+  barrel) — this module has no client/browser dependency, but keeping Route
+  Handler-only code out of the barrel matches the existing `NavBar` convention.
+
+6 new tests (`tests/attestation.test.ts`): null-fallback shape, verbatim field
+mapping, `VERCEL_TARGET_ENV`/`VERCEL_ENV` precedence, the actual `GET` response
+(status/headers/body), and a no-secrets-exposed guard. Full suite: 188 pass (was
+182). Isolation check: 44 files identity-blank (was 43 — the new module has zero
+division-identifying content, same as everything else in `src/`).
+
 ## v1.4.0 (2026-08-27) - optional visual-parity theming props (F2-B4, netyvee/app#344)
 
 Assessing swapping Cleaning's live, bespoke `Nav.tsx` for `NavBar` (F2 "step 4") found that
