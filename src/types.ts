@@ -151,6 +151,14 @@ export function isNavLinkRel(value: unknown): value is NavLinkRel {
 //                    from `children` in both the desktop dropdown and the mobile
 //                    accordion. Distinct from putting a plain link inside
 //                    `children` itself, which renders inline with no separation.
+//
+// v1.3 — F2-B3 (netyvee/app#344): `mobileFooterLink`, added because Cleaning's
+// accepted design uses a SHORTER wording on the mobile accordion's footer link
+// ("View all →") than the desktop dropdown's ("View all services →"/"View all
+// locations →") — a real content difference `footerLink` alone can't express
+// (it renders the identical NavLink in both places). Optional; omitted ⇒ the
+// mobile accordion falls back to `footerLink` exactly as before (byte-identical
+// for every F2-B1 consumer that doesn't set it).
 export type NavLink = {
   label: string;
   href: string;
@@ -160,6 +168,7 @@ export type NavLink = {
   description?: string;
   columns?: 1 | 2;
   footerLink?: NavLink;
+  mobileFooterLink?: NavLink;
 };
 export type FooterColumn = { heading: string; links: NavLink[] };
 

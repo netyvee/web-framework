@@ -26,6 +26,7 @@ const SERVICES_WITH_PARITY_FIELDS = {
   href: '/services',
   columns: 2 as const,
   footerLink: { label: 'View all services →', href: '/services' },
+  mobileFooterLink: { label: 'View all →', href: '/services' },
   children: [
     { label: 'Office Cleaning', href: '/office-cleaning', icon: '🏢', description: 'Daily and contract office cleans' },
     { label: 'Healthcare Cleaning', href: '/healthcare-cleaning', icon: '🏥', description: 'Compliant clinical-grade cleaning' },
@@ -101,8 +102,21 @@ describe('Mobile accordion — icon and footerLink (no description, per accepted
     expect(menu.queryByText('Daily and contract office cleans')).toBeNull();
   });
 
-  it('renders footerLink in the accordion panel', () => {
+  it('renders mobileFooterLink (not footerLink) in the accordion panel when both are set', () => {
+    // F2-B3: the mobile accordion's footer link can carry different wording
+    // from the desktop dropdown's (Cleaning's accepted design uses the
+    // shorter "View all →" on mobile vs. "View all services →" on desktop).
     render(<Shell page={page} nav={navWithParityDropdown()}><div /></Shell>);
+    const menu = openMobileMenu();
+    expect(menu.getByRole('link', { name: 'View all →' })).toBeTruthy();
+    expect(menu.queryByRole('link', { name: 'View all services →' })).toBeNull();
+  });
+
+  it('falls back to footerLink on mobile when mobileFooterLink is unset', () => {
+    const nav = navWithParityDropdown();
+    const services = nav.primary.find((l) => l.label === 'Services')!;
+    delete (services as { mobileFooterLink?: unknown }).mobileFooterLink;
+    render(<Shell page={page} nav={nav}><div /></Shell>);
     const menu = openMobileMenu();
     expect(menu.getByRole('link', { name: 'View all services →' })).toBeTruthy();
   });
