@@ -68,5 +68,11 @@ export { MobileCta } from './shell/MobileCta';
 // shell v2 (v0.3 — coordinated complete shell: logo + accessible mobile nav +
 // complete footer + single governed sticky CTA)
 export { Shell } from './shell/Shell';
+// v1.2 — F2-B1 (netyvee/app#344): the nav/header primitive Shell renders
+// internally, exported standalone so a consumer can adopt just the nav (flat
+// links, F2-B0 dropdowns/accordions, F2-B1 icon/description/columns/footerLink)
+// without adopting Shell's footer/sticky-CTA/body layout. Controlled component:
+// the consumer owns `open`/`onOpenChange` (see NavBar.tsx's own comment on why).
+export { NavBar } from './shell/NavBar';
 // consent (v0.6.3 — MAIN-COOKIE-CONSENT-01: cookie banner + consent-gated GA4 analytics)
 export { CookieConsent, Analytics, readConsent, consentCookieValue, analyticsAllowed, CONSENT_COOKIE, type ConsentChoice } from './consent/Consent';

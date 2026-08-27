@@ -10,223 +10,26 @@
 // Brand assets (logo) come from nav.logo (the site config/asset contract), never a
 // literal. Colour from page.brand via resolveTheme.
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useState } from 'react';
 import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
+import { NavBar, Logo } from './NavBar';
 
-function Logo({ nav, src, height, theme }: { nav: SiteNav; src?: string; height: number; theme: { text: string } }) {
-  const logoSrc = src;
-  if (logoSrc) {
-    // plain <img> (not next/image) so the logo needs no per-site remotePatterns and
-    // renders identically as a repo-static or CDN asset.
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logoSrc} alt={nav.logo?.alt ?? nav.brandName} height={height} style={{ height, width: 'auto' }} />;
-  }
-  return <span className="font-display text-lg font-medium" style={{ color: theme.text }}>{nav.brandName}</span>;
-}
-
-// SM-F2 — typed link metadata must survive all the way to the rendered anchor.
-// `rel` reached the Shell and was silently discarded here, so a governed
-// corporate_parent edge rendered as an anonymous link indistinguishable from any
-// other: nothing downstream (Tier 3, a crawler, an auditor) could tell that the
-// relationship had been declared at all.
-//
-// It is emitted as `data-vf-rel`, NOT as `rel`. `corporate_parent` is a governance
-// classification of our own; the HTML `rel` attribute takes tokens from a registered
-// set, and inventing one there would produce invalid markup whose interpretation by
-// crawlers is undefined. `data-*` is the spec's own extension point: valid, inert to
-// search engines, and machine-readable for verification — which is exactly the
-// contract D-095 asks for (state ownership; do not route authority).
+// SM-F2 — typed link metadata must survive all the way to the rendered anchor
+// (footer/legal links here still need it — the nav/header itself now lives in
+// NavBar, see F2-B1). See NavBar.tsx's own copy of this comment for the full
+// rationale (data-vf-rel, not rel).
 function relAttrs(l: NavLink): { 'data-vf-rel'?: NavLinkRel } {
   return l.rel ? { 'data-vf-rel': l.rel } : {};
 }
 
-// F2-B0 — nested dropdown navigation (netyvee/app FRAMEWORK/IMPLEMENTATION-SEQUENCE.md
-// Step 5(b) precondition). A NavLink with `children` renders as a disclosure trigger,
-// not a navigating link — see the type's own doc comment in types.ts for why the
-// parent `href` is unused here. Desktop: hover opens, click toggles (keyboard/touch
-// parity), Escape and click-outside close. Mobile: an accordion under the item,
-// independent of other accordions and of the dropdown-open state above it.
-
-function DesktopNavDropdown({
-  link,
-  page,
-  isOpen,
-  onOpen,
-  onClose,
-  onToggle,
-  triggerRef,
-}: {
-  link: NavLink;
-  page: PageJson;
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
-  onToggle: () => void;
-  triggerRef: (el: HTMLButtonElement | null) => void;
-}) {
-  const menuId = `vf-dropdown-${slugify(link.label)}`;
-  // Touch devices fire a compatibility mouseenter immediately before their click,
-  // so a plain onMouseEnter+onClick pair opens then immediately toggles the menu
-  // closed again on tap — it never has a chance to be reached. Pointer events
-  // carry a real pointerType; gating hover-open/close on 'mouse' means a touch
-  // tap only ever goes through onToggle (a real open, not an open-then-close).
-  const onPointerEnter = (e: ReactPointerEvent) => { if (e.pointerType === 'mouse') onOpen(); };
-  const onPointerLeave = (e: ReactPointerEvent) => { if (e.pointerType === 'mouse') onClose(); };
-  return (
-    <div className="relative" onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={onToggle}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
-        aria-controls={menuId}
-        className="flex items-center gap-1 text-sm opacity-85 hover:opacity-100"
-      >
-        {link.label}
-        <span aria-hidden className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
-      </button>
-      {isOpen && (
-        <ul
-          id={menuId}
-          role="menu"
-          aria-label={link.label}
-          // top-full with NO margin keeps this panel's own hit-testable box flush
-          // against the trigger's — a margin gap here would be dead space no
-          // element covers, breaking hover continuity between trigger and menu
-          // (the wrapping div's geometric box ends at the button; it does not
-          // extend through an empty margin). Visual breathing room comes from
-          // p-2 (padding, part of this same box, same 0.5rem as the old
-          // margin-top) instead.
-          className="absolute left-0 top-full z-20 min-w-[200px] list-none rounded-lg border border-white/10 p-2 shadow-lg"
-          style={{ background: page.brand.bg }}
-        >
-          {(link.children ?? []).map((c) => (
-            <li key={c.href} role="none">
-              <Link
-                href={c.href}
-                role="menuitem"
-                {...relAttrs(c)}
-                aria-current={c.href === page.slug ? 'page' : undefined}
-                className="block rounded px-3 py-2 text-sm opacity-85 hover:opacity-100 aria-[current=page]:opacity-100 aria-[current=page]:font-medium"
-              >
-                {c.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function MobileNavAccordion({
-  link,
-  page,
-  isOpen,
-  onToggle,
-  onNavigate,
-}: {
-  link: NavLink;
-  page: PageJson;
-  isOpen: boolean;
-  onToggle: () => void;
-  onNavigate: () => void;
-}) {
-  const panelId = `vf-mobile-accordion-${slugify(link.label)}`;
-  return (
-    <div className="border-b py-1">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        className="flex w-full items-center justify-between py-2 text-base"
-      >
-        {link.label}
-        <span aria-hidden className={`text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`}>▾</span>
-      </button>
-      {isOpen && (
-        <ul id={panelId} className="list-none space-y-1 py-1 pl-3">
-          {(link.children ?? []).map((c) => (
-            <li key={c.href}>
-              <Link
-                href={c.href}
-                {...relAttrs(c)}
-                aria-current={c.href === page.slug ? 'page' : undefined}
-                className="block py-2 text-sm opacity-85 aria-[current=page]:opacity-100 aria-[current=page]:font-medium"
-                onClick={onNavigate}
-              >
-                {c.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function slugify(label: string): string {
-  return label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-
 export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; children: React.ReactNode }) {
   const t = resolveTheme(page.brand);
+  // Mobile menu open state lives here (not in NavBar) so the sticky CTA below
+  // can hide itself while the menu is open — see NavBar.tsx's own comment on
+  // why that coordination can't happen entirely inside NavBar.
   const [open, setOpen] = useState(false);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  // F2-B0 — desktop dropdown: only one open at a time (keyed by label). Mobile
-  // accordions are independent of each other and of the desktop state (a Set,
-  // since Cleaning's live nav allows Services and Locations open simultaneously).
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [openMobileAccordions, setOpenMobileAccordions] = useState<Set<string>>(new Set());
-  // Keyed by link.label (same key as openDropdown) so Escape can restore focus to
-  // the trigger a keyboard user was just inside, rather than dropping focus to body.
-  const dropdownTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  // Escape closes whichever dropdown is open and returns focus to its trigger —
-  // the keyboard-accessibility floor (WAI-ARIA menu-button pattern): a keyboard
-  // user who tabbed into the menu and pressed Escape continues from the trigger,
-  // not from a focus dropped to document body. Click-outside-to-close is
-  // deliberately not implemented: it is notoriously fiddly to combine correctly
-  // with the hover-open/click-toggle behaviour below without a state-ordering bug
-  // between a capture-phase document listener and the trigger's own bubble-phase
-  // onClick, and is not required by the keyboard/ARIA correctness this slice
-  // targets — a mouse user closes by hovering elsewhere, and every child is
-  // itself a link (activating one navigates away regardless of open state).
-  useEffect(() => {
-    if (!openDropdown) return;
-    const label = openDropdown;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpenDropdown(null);
-        dropdownTriggerRefs.current[label]?.focus();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [openDropdown]);
-
-  // §4 body-scroll-lock + focus management + ESC-to-close
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
-      toggleRef.current?.focus();
-    };
-  }, [open]);
-
   const phone = page.nap.phone;
   const tel = `tel:${phone.replace(/\s+/g, '')}`;
   const enquiry = page.nap.enquiry_url;
@@ -277,94 +80,17 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       >
         Skip to content
       </a>
-      {/* ── HEADER ─────────────────────────────────────────────── */}
-      <header style={{ background: page.brand.bg, color: page.brand.text }} className="sticky top-0 z-40 border-b" >
-        <div className="border-b" style={{ borderColor: t.line }}>
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
-            <Link href="/" aria-label={nav.brandName} className="flex items-center">
-              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} />
-            </Link>
-            <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
-              {nav.primary.map((l) =>
-                l.children && l.children.length > 0 ? (
-                  <DesktopNavDropdown
-                    key={l.label}
-                    link={l}
-                    page={page}
-                    isOpen={openDropdown === l.label}
-                    onOpen={() => setOpenDropdown(l.label)}
-                    onClose={() => setOpenDropdown((prev) => (prev === l.label ? null : prev))}
-                    onToggle={() => setOpenDropdown((prev) => (prev === l.label ? null : l.label))}
-                    triggerRef={(el) => { dropdownTriggerRefs.current[l.label] = el; }}
-                  />
-                ) : (
-                  <Link key={l.href} href={l.href} {...relAttrs(l)} className="text-sm opacity-85 hover:opacity-100">{l.label}</Link>
-                )
-              )}
-              {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
-              {hasHeaderCta && <a href={headerCtaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{headerCtaLabel}</a>}
-            </nav>
-            <button
-              ref={toggleRef}
-              onClick={() => setOpen(true)}
-              className="inline-flex items-center justify-center md:hidden"
-              aria-label="Open menu"
-              aria-expanded={open}
-              aria-controls="vf-mobile-nav"
-              /* display is a CLASS (not inline) so md:hidden can actually hide it — an inline
-                 display:inline-flex would override the utility and leak the toggle onto desktop. */
-              style={{ color: page.brand.text, fontSize: 22, lineHeight: 1, minWidth: 44, minHeight: 44 }}
-            >☰</button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── MOBILE NAV (full-screen, accessible) ───────────────── */}
-      {open && (
-        <div
-          id="vf-mobile-nav"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu"
-          className="fixed inset-0 z-50 flex flex-col md:hidden"
-          style={{ background: page.brand.bg, color: page.brand.text }}
-        >
-          <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
-            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} />
-            <button ref={closeRef} onClick={() => setOpen(false)} aria-label="Close menu" style={{ color: page.brand.text, fontSize: 26, lineHeight: 1 }}>×</button>
-          </div>
-          <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
-            {nav.primary.map((l) =>
-              l.children && l.children.length > 0 ? (
-                <MobileNavAccordion
-                  key={l.label}
-                  link={l}
-                  page={page}
-                  isOpen={openMobileAccordions.has(l.label)}
-                  onToggle={() =>
-                    setOpenMobileAccordions((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(l.label)) next.delete(l.label); else next.add(l.label);
-                      return next;
-                    })
-                  }
-                  onNavigate={() => setOpen(false)}
-                />
-              ) : (
-                <Link key={l.href} href={l.href} {...relAttrs(l)} className="border-b py-3 text-base" style={{ borderColor: t.line }} onClick={() => setOpen(false)}>{l.label}</Link>
-              )
-            )}
-            {hasPhone && <a href={tel} className="py-3 text-base font-medium" style={{ color: t.secondary }}>{phone}</a>}
-          </nav>
-          {/* single enquiry action inside the menu; the sticky CTA is hidden while
-              the menu is open, so there is no competing/duplicate CTA */}
-          {hasHeaderCta && (
-            <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-              <a href={headerCtaHref} onClick={() => setOpen(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{headerCtaLabel}</a>
-            </div>
-          )}
-        </div>
-      )}
+      {/* ── HEADER + MOBILE NAV (F2-B1: decomposed into NavBar) ─── */}
+      <NavBar
+        nav={nav}
+        slug={page.slug}
+        brand={page.brand}
+        phone={hasPhone ? phone : undefined}
+        headerCtaHref={hasHeaderCta ? headerCtaHref : undefined}
+        headerCtaLabel={hasHeaderCta ? headerCtaLabel : undefined}
+        open={open}
+        onOpenChange={setOpen}
+      />
 
       {/* ── MAIN ───────────────────────────────────────────────── */}
       <main id="main-content" className="flex-1">{children}</main>

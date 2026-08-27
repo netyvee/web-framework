@@ -1,5 +1,57 @@
 # Changelog
 
+## v1.2.0 (2026-08-27) - standalone Nav primitive + Cleaning parity fields (F2-B1, netyvee/app#344)
+
+A re-grounding of `netyvee/vigil-cleaning` against F2-B0's nested-nav capability found two
+structural gaps: (1) `Shell` was the framework's only export — a monolithic full-page shell
+requiring complete `PageJson` + `SiteNav`, with no way to adopt "just the nav" — and (2) the
+plain-text F2-B0 dropdown could not faithfully represent Cleaning's accepted, already-live
+navigation (icon-bearing menu grids, per-item descriptions, 2-column layout, a visually-separated
+"view all" link). This release closes both, evidence-scoped to exactly those deltas — no redesign
+of either side.
+
+- **New: `src/shell/NavBar.tsx`, exported as `NavBar`.** The nav/header rendering
+  extracted out of `Shell`'s §4 (logo, desktop nav with F2-B0 dropdowns, phone,
+  header CTA, mobile toggle + full-screen accordion menu) into a standalone
+  component with minimal props — `nav`, `slug`, `brand` (the same shape
+  `resolveTheme` already takes, not a full `PageJson`), resolved `phone`/CTA
+  strings, and a controlled `open`/`onOpenChange` pair (the mobile-menu-open
+  state stays consumer-controlled so a Shell-like wrapper can still coordinate a
+  sticky CTA around it — see the file's own comment). Named `NavBar`, not
+  `Header`, because `./Header` is the unrelated, still-exported legacy v0.2
+  component (unchanged).
+- **`Shell` now renders `NavBar` internally** instead of duplicating the nav
+  markup — there is exactly one nav implementation, not two. `Shell`'s own
+  business logic (recruitment-aware CTA routing, phone/CTA gating) is unchanged;
+  it now just passes the resolved values into `NavBar` rather than inlining the
+  markup itself. **Byte-identical output for every existing consumer** — the
+  full pre-existing suite (152 tests) passes unmodified.
+- **`NavLink` gains four more optional fields** (`src/types.ts`), each proven
+  necessary by the Cleaning parity review, each additive/opt-in:
+  - `icon?: string` — rendered before a CHILD item's label, desktop + mobile.
+  - `description?: string` — rendered under a CHILD item's label, **desktop
+    dropdown only** (Cleaning's own mobile accordion has no description either —
+    parity with the accepted design, not a framework limitation).
+  - `columns?: 1 | 2` — desktop dropdown grid columns, set on the PARENT (the
+    item with `children`); no effect on the mobile accordion (always one column).
+  - `footerLink?: NavLink` — a "view all" destination visually separated
+    (border-top) from `children`, in both the desktop dropdown and the mobile
+    accordion. Distinct from a plain link inside `children`, which renders
+    inline with no separation.
+- **Correctness fix, not just parity**: flat (non-dropdown) top-level `NavLink`s
+  now get `aria-current="page"` when their `href` matches `page.slug`, on both
+  desktop and mobile — previously only dropdown children had this. No visual
+  change for any existing consumer (no CSS previously depended on the attribute
+  being present or absent on a flat top-level link).
+- 8 new tests (`tests/nav-parity.test.tsx`) covering all four new fields plus the
+  aria-current fix; full suite **173 pass** (was 165).
+- `npx tsc --noEmit` clean. `npm run isolation`: OK, 43 files identity-blank (one
+  more file than before — `NavBar.tsx` itself carries no identity literals).
+
+**Consumer action: none required.** Every field is optional; `Shell`'s public
+props and rendered output are unchanged for consumers that set none of them
+(Care/Staffing). This is additive/minor, not the MAJOR breaking change v1.0.0 was.
+
 ## v1.1.0 (2026-08-27) - nested dropdown navigation (F2-B0, netyvee/app#344)
 
 `NavLink` gains an optional `children?: NavLink[]` (`src/types.ts`). **Additive: a
