@@ -15,6 +15,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, cleanup, within, fireEvent } from '@testing-library/react';
 import { Shell } from '../src/shell/Shell';
+import { NavBar } from '../src/shell/NavBar';
 import type { SiteNav } from '../src/types';
 import { page, nav } from './fixtures';
 
@@ -73,7 +74,9 @@ describe('Desktop dropdown — icon, description, columns, footerLink', () => {
     fireEvent.click(primary.getByRole('button', { name: /Services/ }));
     const menu = screen.getByRole('menu', { name: 'Services' });
     const list = menu.querySelector('ul')!;
-    const footer = screen.getByRole('link', { name: 'View all services →' });
+    // role="menuitem" (not the default "link"): assistive tech walking this
+    // role="menu" container must see a real menu item here, not a plain link.
+    const footer = screen.getByRole('menuitem', { name: 'View all services →' });
     // the footer link is NOT one of the <ul> children's <li role="none"> entries
     expect(list.contains(footer)).toBe(false);
     expect(menu.contains(footer)).toBe(true);
@@ -102,6 +105,25 @@ describe('Mobile accordion — icon and footerLink (no description, per accepted
     render(<Shell page={page} nav={navWithParityDropdown()}><div /></Shell>);
     const menu = openMobileMenu();
     expect(menu.getByRole('link', { name: 'View all services →' })).toBeTruthy();
+  });
+});
+
+describe('Desktop dropdown footerLink — menu semantics (Codex review)', () => {
+  it('exposes footerLink with role="menuitem", not a plain link, inside the role="menu" container', () => {
+    const menu = openDesktopMenu();
+    expect(menu.queryByRole('link', { name: 'View all services →' })).toBeNull();
+    expect(menu.getByRole('menuitem', { name: 'View all services →' })).toBeTruthy();
+  });
+});
+
+describe('NavBar standalone — focus-ring CSS vars (Codex review)', () => {
+  it('sets --vf-focus/--vf-accent on its own wrapper, so focus rings resolve even without Shell', () => {
+    const { container } = render(
+      <NavBar nav={nav} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} />
+    );
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.style.getPropertyValue('--vf-focus')).toBe(page.brand.cta);
+    expect(wrapper.style.getPropertyValue('--vf-accent')).toBe(page.brand.cta);
   });
 });
 

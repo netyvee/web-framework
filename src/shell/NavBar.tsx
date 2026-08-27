@@ -65,6 +65,7 @@ function slugify(label: string): string {
 function DesktopNavDropdown({
   link,
   bg,
+  line,
   slug,
   isOpen,
   onOpen,
@@ -74,6 +75,7 @@ function DesktopNavDropdown({
 }: {
   link: NavLink;
   bg: string;
+  line: string;
   slug: string;
   isOpen: boolean;
   onOpen: () => void;
@@ -139,9 +141,15 @@ function DesktopNavDropdown({
             ))}
           </ul>
           {link.footerLink && (
-            <div className="mt-1 border-t border-white/10 pt-2">
+            // role="none" on the wrapper (matching the pattern each <li role="none">
+            // above already uses) neutralizes its structural-div semantics so
+            // assistive tech walking this role="menu" container sees only
+            // menuitem/none children — not an unlabelled div — and the link itself
+            // is a real menuitem, not a plain link a menu-reading AT can skip.
+            <div role="none" className="mt-1 border-t pt-2" style={{ borderColor: line }}>
               <Link
                 href={link.footerLink.href}
+                role="menuitem"
                 {...relAttrs(link.footerLink)}
                 className="block rounded px-3 py-1.5 text-xs opacity-75 hover:opacity-100"
               >
@@ -158,12 +166,14 @@ function DesktopNavDropdown({
 function MobileNavAccordion({
   link,
   slug,
+  line,
   isOpen,
   onToggle,
   onNavigate,
 }: {
   link: NavLink;
   slug: string;
+  line: string;
   isOpen: boolean;
   onToggle: () => void;
   onNavigate: () => void;
@@ -200,7 +210,7 @@ function MobileNavAccordion({
             ))}
           </ul>
           {link.footerLink && (
-            <div className="mt-1 border-t border-white/10 pt-2">
+            <div className="mt-1 border-t pt-2" style={{ borderColor: line }}>
               <Link
                 href={link.footerLink.href}
                 {...relAttrs(link.footerLink)}
@@ -298,7 +308,14 @@ export function NavBar({
   const hasHeaderCta = Boolean(headerCtaHref && headerCtaHref.trim() && headerCtaLabel && headerCtaLabel.trim());
 
   return (
-    <>
+    // Shell already spreads t.cssVars onto its own page-root wrapper, so this is a
+    // no-op (redundant, harmless) there — but a consumer using NavBar standalone
+    // (F2-B2 is about to be exactly that) would otherwise never set --vf-focus/
+    // --vf-accent at all, and tokens.css' focus-ring rules would silently fall back
+    // to `currentColor`, which can be invisible against the header/CTA's own text
+    // color. Applying it here means NavBar's focus rings are always correct,
+    // wherever it's mounted.
+    <div style={t.cssVars as React.CSSProperties}>
       <header style={{ background: brand.bg, color: brand.text }} className="sticky top-0 z-40 border-b">
         <div className="border-b" style={{ borderColor: t.line }}>
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
@@ -312,6 +329,7 @@ export function NavBar({
                     key={l.label}
                     link={l}
                     bg={brand.bg}
+                    line={t.line}
                     slug={slug}
                     isOpen={openDropdown === l.label}
                     onOpen={() => setOpenDropdown(l.label)}
@@ -370,6 +388,7 @@ export function NavBar({
                   key={l.label}
                   link={l}
                   slug={slug}
+                  line={t.line}
                   isOpen={openMobileAccordions.has(l.label)}
                   onToggle={() =>
                     setOpenMobileAccordions((prev) => {
@@ -405,6 +424,6 @@ export function NavBar({
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
