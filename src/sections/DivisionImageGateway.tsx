@@ -2,16 +2,17 @@ import Image from 'next/image';
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
 import { resolveTheme } from '../tokens/theme';
-import { approvedDivisionHref } from './DivisionGateway';
+import { approvedDivisionHosts, approvedDivisionHref } from './DivisionGateway';
 
 // division_image_gateway (v0.6.6, MAIN-HOMEPAGE-VISUAL-02) — the PRIMARY corporate gateway, image-led.
 // Four equal columns, each a strict vertical unit in this DOM order (founder amendment):
 //     [division image] → [division name] → [Explore more →]
 // so every image sits directly above its own title and link. Governance is inherited from
-// division_gateway: corporate-only (page.site==='main'), and every destination must pass the approved
-// division-host allow-list (approvedDivisionHref) — a non-approved or duplicate host can never render,
-// so this can never become a generic external-card grid. It carries NO rel / data-vf-rel /
-// corporate_parent (an image gateway is not the D-095 ownership edge).
+// division_gateway: corporate-only (page.site==='main'), and every destination must pass the
+// consumer-supplied approved-host allow-list (page.site_settings.approved_division_hosts, read via
+// approvedDivisionHosts/approvedDivisionHref — see DivisionGateway.tsx / F2-B0A) — a non-approved or
+// duplicate host can never render, so this can never become a generic external-card grid. It carries
+// NO rel / data-vf-rel / corporate_parent (an image gateway is not the D-095 ownership edge).
 type Item = { title?: string; image?: any; image_alt?: string; href?: string; cta_label?: string };
 
 export function DivisionImageGateway({ fields, page }: { fields: any; page: PageJson }) {
@@ -19,13 +20,14 @@ export function DivisionImageGateway({ fields, page }: { fields: any; page: Page
   if (page.site !== 'main') return null;
   const t = resolveTheme(page.brand);
   const line = t.line;
+  const hosts = approvedDivisionHosts(page);
   const raw: Item[] = Array.isArray(fields.items) ? fields.items : [];
 
   // Keep only approved-host destinations, first-wins per host (dedupe → ≤4 unique divisions,
   // no duplicate, no unsupported fifth).
   const seen = new Set<string>();
   const items = raw
-    .map((it) => ({ it, href: approvedDivisionHref(it?.href) }))
+    .map((it) => ({ it, href: approvedDivisionHref(it?.href, hosts) }))
     .filter((x): x is { it: Item; href: string } => {
       if (!x.href || seen.has(x.href)) return false;
       seen.add(x.href);

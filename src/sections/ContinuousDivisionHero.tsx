@@ -1,7 +1,7 @@
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
 import { resolveTheme } from '../tokens/theme';
-import { approvedDivisionHref } from './DivisionGateway';
+import { approvedDivisionHosts, approvedDivisionHref } from './DivisionGateway';
 
 // continuous_division_hero (v0.6.8, MAIN-HOMEPAGE-VISUAL-02) — the corporate homepage as ONE continuous
 // hero, matching the founder-approved live-site pattern: a single team photograph spans the hero; the
@@ -10,8 +10,10 @@ import { approvedDivisionHref } from './DivisionGateway';
 // white division-card section — the photo is the shared hero visual and the bottom band is the gateway.
 //
 // Governance is inherited from division_gateway: corporate-only (page.site==='main') and every
-// destination must pass the approved division-host allow-list (approvedDivisionHref) — no fifth /
-// unknown / duplicate host, no division→division. It carries NO rel / data-vf-rel / corporate_parent.
+// destination must pass the consumer-supplied approved-host allow-list
+// (page.site_settings.approved_division_hosts, read via approvedDivisionHosts/approvedDivisionHref —
+// see DivisionGateway.tsx / F2-B0A) — no fifth / unknown / duplicate host, no division→division. It
+// carries NO rel / data-vf-rel / corporate_parent.
 type Item = { title?: string; href?: string; cta_label?: string };
 
 export function ContinuousDivisionHero({ fields, page }: { fields: any; page: PageJson }) {
@@ -25,9 +27,10 @@ export function ContinuousDivisionHero({ fields, page }: { fields: any; page: Pa
   const headingText = String(fields.heading ?? '').split('\n').map((s) => s.trim()).filter(Boolean).join(' ');
   const sub = typeof fields.sub === 'string' ? fields.sub : '';
 
+  const hosts = approvedDivisionHosts(page);
   const seen = new Set<string>();
   const items = (Array.isArray(fields.items) ? fields.items : [])
-    .map((it: Item) => ({ it, href: approvedDivisionHref(it?.href) }))
+    .map((it: Item) => ({ it, href: approvedDivisionHref(it?.href, hosts) }))
     .filter((x: { it: Item; href: string | null }): x is { it: Item; href: string } => {
       if (!x.href || seen.has(x.href)) return false;
       seen.add(x.href);

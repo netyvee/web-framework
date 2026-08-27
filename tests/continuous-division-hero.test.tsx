@@ -1,25 +1,36 @@
-// continuous_division_hero (v0.6.8) — one continuous hero (MAIN-HOMEPAGE-VISUAL-02, live-site pattern):
-// a single team photo, the headline in a top-left scrim, and the four division names/links in a bottom
-// scrim on the SAME photo. Guarantees: one H1; four governed division links in order; a single hero
-// section (no separate white card grid); approved hosts only; no rel/corporate_parent; corporate-only.
+// continuous_division_hero (v0.6.8; allow-list made consumer-supplied in F2-B0A, netyvee/app#344) —
+// one continuous hero (MAIN-HOMEPAGE-VISUAL-02, live-site pattern): a single team photo, the
+// headline in a top-left scrim, and the four division names/links in a bottom scrim on the SAME
+// photo. Guarantees: one H1; four governed division links in order; a single hero section (no
+// separate white card grid); approved hosts only; no rel/corporate_parent; corporate-only; since
+// F2-B0A, nothing renders unless the consumer has configured site_settings.approved_division_hosts.
+// Neutral test hosts throughout (fixtures.ts's own rule: never a real identity literal in the suite).
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ContinuousDivisionHero } from '../src/sections/ContinuousDivisionHero';
 import { page } from './fixtures';
 import type { PageJson } from '../src/types';
 
-const mainPage: PageJson = { ...page, site: 'main' };
-const divisionPage: PageJson = { ...page, site: 'care_services' };
+const TEST_HOSTS = [
+  'alpha.example.invalid',
+  'bravo.example.invalid',
+  'charlie.example.invalid',
+  'delta.example.invalid',
+];
+
+const mainPage: PageJson = { ...page, site: 'main', site_settings: { approved_division_hosts: TEST_HOSTS } };
+const divisionPage: PageJson = { ...page, site: 'care_services', site_settings: { approved_division_hosts: TEST_HOSTS } };
+const unconfiguredMainPage: PageJson = { ...page, site: 'main' };
 
 const base = {
-  hero_image: { url: 'https://res.cloudinary.com/x/team.jpg', alt: 'Vigil care, security and cleaning staff' },
+  hero_image: { url: 'https://res.cloudinary.com/x/team.jpg', alt: 'Test trading co staff' },
   heading: 'Essential people.\nExceptional service.',
   sub: 'Delivering care, security, staffing and cleaning services you can trust, every day.',
   items: [
-    { title: 'Care Services', href: 'https://care.vigilservices.co.uk/' },
-    { title: 'Care Staffing', href: 'https://staffing.vigilservices.co.uk/' },
-    { title: 'Security Services', href: 'https://security.vigilservices.co.uk/' },
-    { title: 'Cleaning Services', href: 'https://cleaning.vigilservices.co.uk/' },
+    { title: 'Alpha Care', href: 'https://alpha.example.invalid/' },
+    { title: 'Bravo Staffing', href: 'https://bravo.example.invalid/' },
+    { title: 'Charlie Security', href: 'https://charlie.example.invalid/' },
+    { title: 'Delta Cleaning', href: 'https://delta.example.invalid/' },
   ],
 };
 const render = (fields: any, p: PageJson = mainPage) =>
@@ -52,7 +63,7 @@ describe('continuous_division_hero', () => {
   it('places the four divisions in order inside the bottom gateway band (id="divisions")', () => {
     const html = render(base);
     expect(html).toContain('id="divisions"');
-    const order = ['Care Services', 'Care Staffing', 'Security Services', 'Cleaning Services'].map((t) => at(html, `>${t}<`));
+    const order = ['Alpha Care', 'Bravo Staffing', 'Charlie Security', 'Delta Cleaning'].map((t) => at(html, `>${t}<`));
     expect(order.every((i) => i >= 0)).toBe(true);
     expect(order).toEqual([...order].sort((a, b) => a - b));
   });
@@ -60,8 +71,8 @@ describe('continuous_division_hero', () => {
   it('the division names are the gateway links (name → Explore more) to approved hosts only', () => {
     const html = render(base);
     for (const h of [
-      'https://care.vigilservices.co.uk/', 'https://staffing.vigilservices.co.uk/',
-      'https://security.vigilservices.co.uk/', 'https://cleaning.vigilservices.co.uk/',
+      'https://alpha.example.invalid/', 'https://bravo.example.invalid/',
+      'https://charlie.example.invalid/', 'https://delta.example.invalid/',
     ]) expect(html).toContain(`href="${h}"`);
     expect((html.match(/Explore more/g) ?? []).length).toBe(4);
   });
@@ -70,7 +81,7 @@ describe('continuous_division_hero', () => {
     const html = render({ ...base, items: [
       ...base.items,
       { title: 'Rogue', href: 'https://evil.example.com/' },
-      { title: 'Care dup', href: 'https://care.vigilservices.co.uk/' },
+      { title: 'Alpha dup', href: 'https://alpha.example.invalid/' },
     ]});
     expect(html).not.toContain('evil.example.com');
     expect((html.match(/<li\b/g) ?? []).length).toBe(4);
@@ -85,6 +96,14 @@ describe('continuous_division_hero', () => {
 
   it('renders NOTHING on a division site', () => {
     expect(render(base, divisionPage)).toBe('');
+  });
+
+  it('fail-closed by default: renders no division links when the consumer has not configured approved_division_hosts', () => {
+    const html = render(base, unconfiguredMainPage);
+    // the hero itself still renders (headline/image are not gated), but the gateway band is empty
+    expect((html.match(/<h1\b/g) ?? []).length).toBe(1);
+    expect((html.match(/<li\b/g) ?? []).length).toBe(0);
+    for (const h of TEST_HOSTS) expect(html).not.toContain(h);
   });
 
   it('renders a fallback (no <img>) when no hero image is supplied, but still shows headline + gateway', () => {

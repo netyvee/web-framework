@@ -10,6 +10,8 @@ export interface VigilCspOptions {
   formActions?: string[];
   /** extra connect-src hosts (merged with 'self') */
   connectHosts?: string[];
+  /** extra external script-src origins only, e.g. consent-gated GA4 (v0.6.4) */
+  scriptHosts?: string[];
 }
 
 export interface SecurityHeader {
