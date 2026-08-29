@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.6.0 (2026-08-29) - rich structured content for Prose (F2 Step 5c prerequisite, netyvee/app#344)
+
+Cleaning's legal/support pages (privacy policy, modern slavery statement, equal
+opportunities policy, etc.) are genuine multi-section documents — headings, lists,
+inline links and emphasis — which `Prose`'s existing `fields.body` cannot represent:
+it renders exactly one flat paragraph. Converting any of those pages to the
+`RenderSections`/section-registry model on today's contract would have collapsed
+real structure and lost content, so this lands the missing capability first rather
+than forcing a lossy conversion.
+
+- New optional `fields.blocks` on the `prose` section type: an array of
+  `ProseBlock` (`heading` with `level: 2 | 3`, `paragraph` with inline
+  `ProseInline[]` content, `list` ordered/unordered with `ProseInline[][]` items).
+  `ProseInline` is a plain string or `{ text, bold?, italic?, href? }` — structured
+  data only, never raw HTML, so there is no `dangerouslySetInnerHTML` or
+  executable-markup surface.
+- **Fully backward-compatible, additive-only.** `fields.body` behaviour is
+  byte-identical when `blocks` is absent or empty — proven against a snapshot of
+  every real `prose` section currently live across Care (12 pages), Staffing (43
+  pages) and Main (4 pages): 99 sections, all still take the legacy single-paragraph
+  path (`tests/prose-rich-content.test.tsx`, using
+  `tests/fixtures-data/real-prose-sections.json`).
+- An unrecognised block `type` throws outside production (parity with the section
+  registry's own unknown-section-type contract) rather than silently dropping
+  content.
+
+10 new tests. Full suite: 198 pass (was 188). Typecheck clean. Isolation check: 44
+files identity-blank (unchanged — the new types/rendering carry no division
+identity).
+
+Deliberately not done here: no website page conversion (Cleaning's own PR follows
+once this is merged), no shell/nav change, no new section type (`prose` itself is
+extended, per the "preserve the existing contract" preference over forking a
+second one).
+
 ## v1.5.0 (2026-08-27) - shared deployment-attestation route (WEBSITE-DEPLOYMENT-ATTESTATION-01, netyvee/app#344)
 
 Adds `src/attestation.ts`, exporting a Next.js Route Handler (`GET`) and its payload
