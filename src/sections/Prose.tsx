@@ -43,8 +43,11 @@ function renderBlock(block: ProseBlock, key: number) {
       );
     case 'list': {
       const ListTag = block.ordered ? 'ol' : 'ul';
+      // The marker must follow the list semantics, not just the element name: an <ol>
+      // carrying list-disc renders numbered content with bullets, hiding the ordering.
+      const markerClass = block.ordered ? 'list-decimal' : 'list-disc';
       return (
-        <ListTag key={key} className="mb-4 list-inside list-disc space-y-1 opacity-80">
+        <ListTag key={key} className={`mb-4 list-inside ${markerClass} space-y-1 opacity-80`}>
           {block.items.map((item, i) => (
             <li key={i}>{item.map((n, j) => renderInline(n, j))}</li>
           ))}

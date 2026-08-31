@@ -83,6 +83,36 @@ describe('Prose — rich blocks (new, additive)', () => {
     expect(ol).toContain('<ol');
   });
 
+  // The element name alone is not the contract a reader experiences. An <ol> styled with
+  // `list-disc` renders numbered content behind bullets, so the ordering the author asked for
+  // is invisible — and an element-only assertion would pass anyway. Assert the marker itself.
+  it('marks an ordered list with numbers and an unordered list with bullets', () => {
+    const openingTag = (html: string, tag: 'ol' | 'ul') => {
+      const m = html.match(new RegExp(`<${tag}[^>]*>`));
+      expect(m, `expected the rendered output to contain an <${tag}>`).not.toBeNull();
+      return m![0];
+    };
+
+    const ol = openingTag(render({ blocks: [{ type: 'list', ordered: true, items: [['First']] }] }), 'ol');
+    expect(ol).toContain('list-decimal');
+    expect(ol).not.toContain('list-disc');
+
+    const ul = openingTag(render({ blocks: [{ type: 'list', items: [['One']] }] }), 'ul');
+    expect(ul).toContain('list-disc');
+    expect(ul).not.toContain('list-decimal');
+
+    // Ordering is a property of the list, not of the page: two lists in one document must not
+    // bleed markers into each other.
+    const mixed = render({
+      blocks: [
+        { type: 'list', ordered: true, items: [['Step one'], ['Step two']] },
+        { type: 'list', items: [['A bullet']] },
+      ],
+    });
+    expect(openingTag(mixed, 'ol')).toContain('list-decimal');
+    expect(openingTag(mixed, 'ul')).toContain('list-disc');
+  });
+
   it('renders a full multi-block legal-page-shaped document without losing structure', () => {
     const html = render({
       heading: 'Modern Slavery Statement',
