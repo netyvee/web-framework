@@ -16,6 +16,18 @@
 export type { SectionProvenance } from './provenance';
 import type { SectionProvenance as _SectionProvenance } from './provenance';
 
+// ── Rich prose content (netyvee/app#344, F2 Step 5c prerequisite) ───────────
+// Optional, additive alternative to a `prose` section's flat `fields.body`
+// string, for content that genuinely has headings/lists/inline formatting
+// (e.g. legal/policy pages) rather than a single paragraph. Plain structured
+// data only — never raw HTML — so there is no executable-markup surface.
+export type ProseInline = string | { text: string; bold?: boolean; italic?: boolean; href?: string };
+
+export type ProseBlock =
+  | { type: 'heading'; level?: 2 | 3; text: string }
+  | { type: 'paragraph'; content: ProseInline[] }
+  | { type: 'list'; ordered?: boolean; items: ProseInline[][] };
+
 export type Section = {
   type: string;
   fields: Record<string, any>;
