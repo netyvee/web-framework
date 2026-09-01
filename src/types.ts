@@ -21,12 +21,18 @@ import type { SectionProvenance as _SectionProvenance } from './provenance';
 // string, for content that genuinely has headings/lists/inline formatting
 // (e.g. legal/policy pages) rather than a single paragraph. Plain structured
 // data only — never raw HTML — so there is no executable-markup surface.
+// `table` (v1.7.0) covers tabular reference data (e.g. a cookie-policy's
+// cookie/purpose/duration listing) that a heading/paragraph/list cannot
+// represent without losing its column structure. Headers are plain strings
+// (no formatting need has arisen); cell content is `ProseInline[]` so a cell
+// can carry the same bold/italic/link formatting a paragraph can.
 export type ProseInline = string | { text: string; bold?: boolean; italic?: boolean; href?: string };
 
 export type ProseBlock =
   | { type: 'heading'; level?: 2 | 3; text: string }
   | { type: 'paragraph'; content: ProseInline[] }
-  | { type: 'list'; ordered?: boolean; items: ProseInline[][] };
+  | { type: 'list'; ordered?: boolean; items: ProseInline[][] }
+  | { type: 'table'; headers: string[]; rows: ProseInline[][][] };
 
 export type Section = {
   type: string;
