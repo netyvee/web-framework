@@ -54,6 +54,33 @@ function renderBlock(block: ProseBlock, key: number) {
         </ListTag>
       );
     }
+    case 'table':
+      return (
+        <div key={key} className="mb-4 overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr>
+                {block.headers.map((h, i) => (
+                  <th key={i} className="pb-2 pr-4 font-medium opacity-70">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, i) => (
+                <tr key={i}>
+                  {row.map((cell, j) => (
+                    <td key={j} className="py-1.5 pr-4 opacity-80">
+                      {renderInline(cell, j)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
     default:
       // Parity guard, matching the section-registry's own unknown-type handling:
       // an unrecognised block is a content/schema drift signal, not silently

@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.7.0 (2026-09-01) - table block for Prose (F2 Step 5c, netyvee/app#344)
+
+Cleaning's `cookie-policy-eu` is the last remaining legal/support page blocked on a
+schema gap: it contains three genuine data tables (cookie name / purpose / duration),
+which `heading`/`paragraph`/`list` cannot represent without collapsing the column
+structure into prose.
+
+- New `ProseBlock` variant: `{ type: 'table'; headers: string[]; rows: ProseInline[][] }`.
+  Headers are plain strings (no formatting need has arisen in real content); each
+  cell is `ProseInline[]`, so a cell can carry the same bold/italic/link formatting
+  a paragraph can.
+- **Additive only.** Existing `heading`/`paragraph`/`list` blocks and the legacy
+  `fields.body` path are unaffected — proven by the full existing
+  `tests/prose-rich-content.test.tsx` suite passing unchanged, plus one new test for
+  the `table` case.
+
+Deliberately not done here: no page conversion (Cleaning's own PR follows once this
+is merged), no column alignment/sizing options (no real content has needed them
+yet — add when one does, per the additive-only policy).
+
 ## v1.6.0 (2026-08-29) - rich structured content for Prose (F2 Step 5c prerequisite, netyvee/app#344)
 
 Cleaning's legal/support pages (privacy policy, modern slavery statement, equal

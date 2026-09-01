@@ -137,6 +137,30 @@ describe('Prose — rich blocks (new, additive)', () => {
     expect(html).toContain('<a href="/equal-opportunities-employer-policy/">Equal Opportunities Policy</a>');
   });
 
+  it('renders a table with headers and rows', () => {
+    const html = render({
+      blocks: [
+        {
+          type: 'table',
+          headers: ['Cookie', 'Purpose', 'Duration'],
+          rows: [
+            ['_ga', 'Distinguishes users', '2 years'],
+            [{ text: '_gid', bold: true }, 'Distinguishes users over a shorter period', '24 hours'],
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<table');
+    expect(html).toContain('<th');
+    expect(html).toContain('Cookie');
+    expect(html).toContain('Purpose');
+    expect(html).toContain('Duration');
+    expect(html).toContain('<td');
+    expect(html).toContain('_ga');
+    expect(html).toContain('Distinguishes users');
+    expect(html).toContain('<strong>_gid</strong>');
+  });
+
   it('throws loudly on an unknown block type outside production (parity with the section registry)', () => {
     expect(() => render({ blocks: [{ type: 'not_a_block' }] })).toThrow('Unknown prose block type: not_a_block');
   });
