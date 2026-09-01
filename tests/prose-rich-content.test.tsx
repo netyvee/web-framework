@@ -144,8 +144,8 @@ describe('Prose — rich blocks (new, additive)', () => {
           type: 'table',
           headers: ['Cookie', 'Purpose', 'Duration'],
           rows: [
-            ['_ga', 'Distinguishes users', '2 years'],
-            [{ text: '_gid', bold: true }, 'Distinguishes users over a shorter period', '24 hours'],
+            [['_ga'], ['Distinguishes users'], ['2 years']],
+            [[{ text: '_gid', bold: true }], ['Distinguishes users over a shorter period'], ['24 hours']],
           ],
         },
       ],
@@ -159,6 +159,23 @@ describe('Prose — rich blocks (new, additive)', () => {
     expect(html).toContain('_ga');
     expect(html).toContain('Distinguishes users');
     expect(html).toContain('<strong>_gid</strong>');
+  });
+
+  it('renders a table cell with mixed inline content, matching paragraph.content semantics', () => {
+    // A cell is ProseInline[] — the same "runs" shape as a paragraph's content —
+    // so plain text and a formatted/linked run can sit in the same cell.
+    const html = render({
+      blocks: [
+        {
+          type: 'table',
+          headers: ['Source'],
+          rows: [[['See our ', { text: 'privacy policy', href: '/privacy-policy/' }, ' for details.']]],
+        },
+      ],
+    });
+    expect(html).toContain('See our');
+    expect(html).toContain('<a href="/privacy-policy/">privacy policy</a>');
+    expect(html).toContain('for details.');
   });
 
   it('throws loudly on an unknown block type outside production (parity with the section registry)', () => {

@@ -32,7 +32,7 @@ export type ProseBlock =
   | { type: 'heading'; level?: 2 | 3; text: string }
   | { type: 'paragraph'; content: ProseInline[] }
   | { type: 'list'; ordered?: boolean; items: ProseInline[][] }
-  | { type: 'table'; headers: string[]; rows: ProseInline[][] };
+  | { type: 'table'; headers: string[]; rows: ProseInline[][][] };
 
 export type Section = {
   type: string;

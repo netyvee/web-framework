@@ -72,7 +72,7 @@ function renderBlock(block: ProseBlock, key: number) {
                 <tr key={i}>
                   {row.map((cell, j) => (
                     <td key={j} className="py-1.5 pr-4 opacity-80">
-                      {renderInline(cell, j)}
+                      {cell.map((n, k) => renderInline(n, k))}
                     </td>
                   ))}
                 </tr>
