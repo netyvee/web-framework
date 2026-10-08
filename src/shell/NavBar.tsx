@@ -332,6 +332,7 @@ export function NavBar({
   logoInvert,
   logoWordmark,
   logoRound,
+  headerCtaClassName,
   icons,
 }: {
   nav: SiteNav;
@@ -374,12 +375,25 @@ export function NavBar({
   // why these weren't part of the original F2-B4 set):
   //   • logoWordmark — renders the logo image AND the brandName text together.
   //   • logoRound    — crops the logo image into a circle (borderRadius: 50%).
+  //
+  // F2-04 also adds `headerCtaClassName`, found while wiring Cleaning's real nav:
+  // the header CTA anchor's className was previously hardcoded, so a consumer with
+  // its own existing CTA button class (padding/radius/font/hover all already
+  // defined there, e.g. Cleaning's `.btn-primary`) could not reuse it without a
+  // visible style mismatch against every other CTA on its own site. Optional:
+  // omitted, the anchor keeps its exact current hardcoded className (every
+  // existing caller — Shell, Care, Staffing, Main — is unaffected). Applied to
+  // BOTH the desktop and mobile-menu CTA anchors, replacing their className
+  // entirely (not merged) — same pattern as `icons` fully replacing a glyph: the
+  // consumer takes full ownership of a string they supply, rather than the
+  // framework trying to merge its own defaults with an unknown override.
   fixed?: boolean;
   blur?: boolean;
   underline?: boolean;
   logoInvert?: boolean;
   logoWordmark?: boolean;
   logoRound?: boolean;
+  headerCtaClassName?: string;
   icons?: { chevron?: React.ReactNode; menu?: React.ReactNode; close?: React.ReactNode };
 }) {
   const t = resolveTheme(brand);
@@ -497,7 +511,7 @@ export function NavBar({
                 )
               )}
               {hasPhone && <a href={tel} className="text-sm font-medium" style={{ color: t.secondary }}>{phone}</a>}
-              {hasHeaderCta && <a href={headerCtaHref} style={{ background: t.accent, color: t.onAccent }} className="rounded-lg px-4 py-2 text-sm font-medium">{headerCtaLabel}</a>}
+              {hasHeaderCta && <a href={headerCtaHref} style={{ background: t.accent, color: t.onAccent }} className={headerCtaClassName ?? 'rounded-lg px-4 py-2 text-sm font-medium'}>{headerCtaLabel}</a>}
             </nav>
             <button
               ref={toggleRef}
@@ -567,7 +581,7 @@ export function NavBar({
               the menu is open, so there is no competing/duplicate CTA */}
           {hasHeaderCta && (
             <div className="border-t px-6 py-4" style={{ borderColor: t.line, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-              <a href={headerCtaHref} onClick={() => onOpenChange(false)} style={{ background: t.accent, color: t.onAccent }} className="block rounded-lg px-5 py-3 text-center text-sm font-medium">{headerCtaLabel}</a>
+              <a href={headerCtaHref} onClick={() => onOpenChange(false)} style={{ background: t.accent, color: t.onAccent }} className={headerCtaClassName ?? 'block rounded-lg px-5 py-3 text-center text-sm font-medium'}>{headerCtaLabel}</a>
             </div>
           )}
         </div>
