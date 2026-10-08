@@ -222,6 +222,42 @@ describe('F2-B4 — optional visual-parity theming props (default OFF, byte-iden
     expect(screen.getByAltText('Vigil').style.filter).toBe('brightness(0) invert(1)');
   });
 
+  it('logoWordmark renders the logo image AND the brandName text together, coloured from theme.accent (brand.cta); omitted by default renders the image alone', () => {
+    const navWithLogo: SiteNav = { ...nav, logo: { src: '/logo.png', alt: 'Vigil' } };
+    const withoutWordmark = render(
+      <NavBar nav={navWithLogo} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} />
+    );
+    expect(screen.getByAltText('Vigil')).toBeTruthy();
+    expect(screen.queryByText(navWithLogo.brandName)).toBeNull();
+    withoutWordmark.unmount();
+
+    render(
+      <NavBar nav={navWithLogo} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} logoWordmark />
+    );
+    expect(screen.getByAltText('Vigil')).toBeTruthy();
+    // jsdom normalises an inline hex colour to rgb() on read-back, so compare
+    // against the browser's own normalised form of the same brand.cta value,
+    // not the raw hex literal.
+    const probe = document.createElement('span');
+    probe.style.color = page.brand.cta;
+    const wordmarkText = screen.getByText(navWithLogo.brandName);
+    expect(wordmarkText.style.color).toBe(probe.style.color);
+  });
+
+  it('logoRound applies borderRadius 50% to the logo image; omitted by default', () => {
+    const navWithLogo: SiteNav = { ...nav, logo: { src: '/logo.png', alt: 'Vigil' } };
+    const withoutRound = render(
+      <NavBar nav={navWithLogo} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} />
+    );
+    expect(screen.getByAltText('Vigil').style.borderRadius).toBe('');
+    withoutRound.unmount();
+
+    render(
+      <NavBar nav={navWithLogo} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} logoRound />
+    );
+    expect(screen.getByAltText('Vigil').style.borderRadius).toBe('50%');
+  });
+
   it('icons overrides the default menu glyph; omitted keys (chevron) keep their default', () => {
     render(
       <NavBar
