@@ -27,29 +27,70 @@ export function Logo({
   height,
   theme,
   invert,
+  wordmark,
+  round,
 }: {
   nav: SiteNav;
   src?: string;
   height: number;
-  theme: { text: string };
+  theme: { text: string; accent: string };
   // F2-B4 (netyvee/app#344) — some consumers ship a single dark-mark logo asset
   // and rely on CSS to render it light-on-dark (Cleaning's live Nav.tsx does this
   // today). Optional/default-false: every existing caller (Shell, Care, Staffing)
   // omits it and gets the exact same <img>, no filter, as before.
   invert?: boolean;
+  // F2-04 (netyvee/app#344) — Cleaning's live Nav.tsx renders the logo image AND a
+  // text wordmark side by side; this component previously rendered one OR the
+  // other (image when `src` is set, else the bare brandName span), which was the
+  // confirmed visual-parity gap blocking Cleaning's nav-framework cutover.
+  // Optional/default-false: every existing caller (Shell, Care, Staffing) omits it
+  // and gets the exact same image-only (or text-only) output as before. The
+  // wordmark's colour is `theme.accent` (== page.brand.cta), not a literal — on
+  // Cleaning that resolves to the same #4ecdc4 its live wordmark already uses,
+  // because the CRM-exported page JSON already carries that value there.
+  wordmark?: boolean;
+  // F2-04 (netyvee/app#344) — Cleaning's live Nav.tsx crops its logo image into a
+  // circle (`borderRadius: '50%'`); found alongside the wordmark gap while
+  // checking render parity for the nav-framework cutover, not a separate
+  // capability. Optional/default-false: every existing caller renders the exact
+  // same uncropped image as before.
+  round?: boolean;
 }) {
   const logoSrc = src;
   if (logoSrc) {
     // plain <img> (not next/image) so the logo needs no per-site remotePatterns and
     // renders identically as a repo-static or CDN asset.
     // eslint-disable-next-line @next/next/no-img-element
-    return (
+    const img = (
       <img
         src={logoSrc}
         alt={nav.logo?.alt ?? nav.brandName}
         height={height}
-        style={{ height, width: 'auto', ...(invert ? { filter: 'brightness(0) invert(1)' } : {}) }}
+        style={{
+          height,
+          width: 'auto',
+          ...(invert ? { filter: 'brightness(0) invert(1)' } : {}),
+          ...(round ? { borderRadius: '50%' } : {}),
+        }}
       />
+    );
+    if (!wordmark) return img;
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+        {img}
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 500,
+            letterSpacing: '0.06em',
+            color: theme.accent,
+            textTransform: 'uppercase',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {nav.brandName}
+        </span>
+      </span>
     );
   }
   return <span className="font-display text-lg font-medium" style={{ color: theme.text }}>{nav.brandName}</span>;
@@ -289,6 +330,8 @@ export function NavBar({
   blur,
   underline,
   logoInvert,
+  logoWordmark,
+  logoRound,
   icons,
 }: {
   nav: SiteNav;
@@ -325,10 +368,18 @@ export function NavBar({
   //   • icons      — override the default ▾ (dropdown/accordion chevron), ☰ (open
   //                  menu) and × (close menu) glyphs with custom nodes. Any subset;
   //                  an omitted key keeps its default glyph.
+  //
+  // F2-04 (netyvee/app#344) adds two more, same-shape opt-ins, both forwarded
+  // straight to Logo's own props of the same name (see Logo's doc comments for
+  // why these weren't part of the original F2-B4 set):
+  //   • logoWordmark — renders the logo image AND the brandName text together.
+  //   • logoRound    — crops the logo image into a circle (borderRadius: 50%).
   fixed?: boolean;
   blur?: boolean;
   underline?: boolean;
   logoInvert?: boolean;
+  logoWordmark?: boolean;
+  logoRound?: boolean;
   icons?: { chevron?: React.ReactNode; menu?: React.ReactNode; close?: React.ReactNode };
 }) {
   const t = resolveTheme(brand);
@@ -406,7 +457,7 @@ export function NavBar({
         <div className="border-b" style={{ borderColor: t.line }}>
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
             <Link href="/" aria-label={nav.brandName} className="flex items-center">
-              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} invert={logoInvert} />
+              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} />
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
               {nav.primary.map((l) =>
@@ -474,7 +525,7 @@ export function NavBar({
           style={{ background: brand.bg, color: brand.text }}
         >
           <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
-            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} invert={logoInvert} />
+            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} />
             <button ref={closeRef} onClick={() => onOpenChange(false)} aria-label="Close menu" style={{ color: brand.text, fontSize: 26, lineHeight: 1 }}>{icons?.close ?? '×'}</button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">

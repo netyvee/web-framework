@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.8.0 (2026-10-08) - NavBar logo wordmark + round-crop parity (F2-04, netyvee/app#344)
+
+Cleaning's live `Nav.tsx` renders its logo image and a text wordmark side by side,
+cropped into a circle — the confirmed visual-parity gap blocking the Cleaning
+nav-framework cutover (F2-04): `NavBar`'s shared `Logo` component previously
+rendered the image OR the bare `brandName` text, never both, and had no circular-crop
+option.
+
+- `NavBar`/`Logo` gain two more additive, default-off opt-ins, same shape as the
+  existing F2-B4 set (`fixed`/`blur`/`underline`/`logoInvert`):
+  - `logoWordmark` — renders the logo image and `nav.brandName` together, the
+    wordmark coloured from `theme.accent` (== `page.brand.cta`), never a literal.
+  - `logoRound` — crops the logo image into a circle (`borderRadius: '50%'`).
+- **Additive only.** Every existing caller (Shell, Care, Staffing, Main) omits both
+  and renders byte-identically to before — proven by the full existing nav-parity
+  suite passing unchanged, plus two new tests for the added behaviour.
+
+Deliberately not done here: no change to `Shell.tsx`'s own `NavBar` invocation
+(Cleaning uses `NavBar` directly, not `Shell`) and no consumer cutover (Cleaning's
+own `Nav.tsx` -> `NavBar` flip is a separate, later PR in `netyvee/vigil-cleaning`
+once this is merged, matching the `v1.7.0`/`table`-type -> `#18` sequencing).
+
 ## v1.7.0 (2026-09-01) - table block for Prose (F2 Step 5c, netyvee/app#344)
 
 Cleaning's `cookie-policy-eu` is the last remaining legal/support page blocked on a
