@@ -258,6 +258,28 @@ describe('F2-B4 — optional visual-parity theming props (default OFF, byte-iden
     expect(screen.getByAltText('Vigil').style.borderRadius).toBe('50%');
   });
 
+  it('headerCtaClassName replaces the header CTA anchor\'s className entirely (not merged); omitted by default keeps the current hardcoded className', () => {
+    const withoutOverride = render(
+      <NavBar nav={nav} slug={page.slug} brand={page.brand} open={false} onOpenChange={() => {}} headerCtaHref="/quote" headerCtaLabel="Get a quote" />
+    );
+    expect(screen.getByRole('link', { name: 'Get a quote' }).className).toBe('rounded-lg px-4 py-2 text-sm font-medium');
+    withoutOverride.unmount();
+
+    render(
+      <NavBar
+        nav={nav}
+        slug={page.slug}
+        brand={page.brand}
+        open={false}
+        onOpenChange={() => {}}
+        headerCtaHref="/quote"
+        headerCtaLabel="Get a quote"
+        headerCtaClassName="btn-primary text-sm"
+      />
+    );
+    expect(screen.getByRole('link', { name: 'Get a quote' }).className).toBe('btn-primary text-sm');
+  });
+
   it('icons overrides the default menu glyph; omitted keys (chevron) keep their default', () => {
     render(
       <NavBar

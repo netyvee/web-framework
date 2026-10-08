@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.8.1 (2026-10-08) - NavBar header CTA className override (F2-04, netyvee/app#344)
+
+Found while wiring Cleaning's real `Nav.tsx` onto `NavBar` (the consumer-side follow-up
+to v1.8.0): the header CTA anchor's className was hardcoded, so a consumer with an
+existing CTA button class — padding/radius/font/hover already defined there, e.g.
+Cleaning's own `.btn-primary` — could not reuse it without a visible style mismatch
+against every other CTA on its own site.
+
+- `NavBar` gains `headerCtaClassName?: string`, applied to BOTH the desktop and
+  mobile-menu CTA anchors, **replacing** their className entirely (not merged) — the
+  consumer takes full ownership of a string they supply, same pattern as `icons`
+  fully replacing a glyph rather than the framework trying to merge unknown classes
+  with its own defaults.
+- **Additive only.** Omitted, both anchors keep their exact current hardcoded
+  className — every existing caller (Shell, Care, Staffing, Main) is unaffected,
+  proven by the full existing suite passing unchanged, plus one new test for the
+  added behaviour.
+
 ## v1.8.0 (2026-10-08) - NavBar logo wordmark + round-crop parity (F2-04, netyvee/app#344)
 
 Cleaning's live `Nav.tsx` renders its logo image and a text wordmark side by side,
