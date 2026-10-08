@@ -177,6 +177,22 @@ export function isNavLinkRel(value: unknown): value is NavLinkRel {
 // (it renders the identical NavLink in both places). Optional; omitted ⇒ the
 // mobile accordion falls back to `footerLink` exactly as before (byte-identical
 // for every F2-B1 consumer that doesn't set it).
+//
+// v1.9 — F2-04 correction (netyvee/app#344 comment 6070463685): `dropdownMinWidth`,
+// set on the PARENT (the item with `children`), same as `columns`. A visual
+// evidence review found Cleaning's desktop dropdown visibly narrower/more cramped
+// than its accepted pre-framework presentation, because the panel's width was a
+// hardcoded framework constant with no way for a consumer to express "this
+// dropdown's content needs more room" (long two-column labels wrap to two lines
+// at the default width). Deliberately a plain number/string (CSS `min-width`
+// value, e.g. 480 or '480px'), not a Tailwind class override: the panel's base
+// width was a `min-w-[...]` utility class, and a consumer-supplied dynamic
+// Tailwind class is invisible to Tailwind's static content scanner (the same
+// landmine `tailwind.config.ts`'s own content-glob comment already documents for
+// this exact component) — a className-based override here would silently ship
+// unstyled. An inline style has no such scanning dependency. Optional; omitted ⇒
+// the panel keeps its exact previous 200px min-width, unchanged for every
+// existing consumer.
 export type NavLink = {
   label: string;
   href: string;
@@ -187,6 +203,7 @@ export type NavLink = {
   columns?: 1 | 2;
   footerLink?: NavLink;
   mobileFooterLink?: NavLink;
+  dropdownMinWidth?: number | string;
 };
 export type FooterColumn = { heading: string; links: NavLink[] };
 

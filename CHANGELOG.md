@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.9.0 (2026-10-08) - NavBar dropdown width + mobile dialog opacity (F2-04, netyvee/app#344)
+
+Two bounded corrections from the Founder's review of the F2-04 visual evidence pack
+(comment 6070463685): the structural/DOM parity proofs that gated v1.8.0/v1.8.1
+didn't catch either, because both are presentation issues only a rendered
+screenshot exposes.
+
+- **Desktop dropdown width.** `NavLink` gains `dropdownMinWidth?: number | string`,
+  set on the parent (the item with `children`), same placement as `columns`. The
+  dropdown panel's `min-w-[200px]` Tailwind class is replaced with an inline
+  `minWidth` style driven by this field (falling back to `200` — byte-identical to
+  before when unset). Deliberately NOT a className override: the panel's base width
+  was a Tailwind utility class, and a dynamically-interpolated Tailwind class is
+  invisible to Tailwind's static content scanner — the same landmine
+  `vigil-cleaning`'s own `tailwind.config.ts` already documents for this exact
+  component. An inline style has no such dependency.
+- **Mobile dialog opacity.** The full-screen mobile nav dialog previously used
+  `brand.bg` verbatim as its own background. A translucent `brand.bg` is valid and
+  common for a sticky header (paired with `blur`'s backdrop-filter), but the dialog
+  never received that same backdrop-filter, so a translucent `brand.bg` left the
+  dialog translucent too — page content visibly bleeding through behind the open
+  menu. `NavBar` now exports `resolveOpaqueSurface(bg)`, which strips any alpha
+  channel from `rgba()`/`hsla()`/8-digit-hex/4-digit-hex backgrounds before they
+  reach the dialog; an already-opaque background (every existing consumer today)
+  round-trips unchanged. `blur`, when enabled, still layers `backdropFilter` on the
+  dialog as a cosmetic enhancement, never the only thing preventing bleed-through.
+- **Additive only, automatic for the opacity fix.** `dropdownMinWidth` is opt-in
+  per `NavLink`. The opaque-surface fix requires no new consumer configuration at
+  all — it's applied unconditionally, verified as a byte-identical no-op for every
+  existing consumer's already-opaque `brand.bg` (Care's `#0a1628` included) by both
+  a dedicated unit test on `resolveOpaqueSurface` and the full existing nav-parity
+  suite passing unchanged.
+
 ## v1.8.1 (2026-10-08) - NavBar header CTA className override (F2-04, netyvee/app#344)
 
 Found while wiring Cleaning's real `Nav.tsx` onto `NavBar` (the consumer-side follow-up

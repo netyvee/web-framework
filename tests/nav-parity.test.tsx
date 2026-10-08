@@ -15,7 +15,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, cleanup, within, fireEvent } from '@testing-library/react';
 import { Shell } from '../src/shell/Shell';
-import { NavBar } from '../src/shell/NavBar';
+import { NavBar, resolveOpaqueSurface } from '../src/shell/NavBar';
 import type { SiteNav } from '../src/types';
 import { page, nav } from './fixtures';
 
@@ -304,5 +304,108 @@ describe('F2-B4 — optional visual-parity theming props (default OFF, byte-iden
     expect(trigger.className).not.toContain('pb-1');
     expect(trigger.className).not.toContain('relative');
     expect(trigger.className).not.toContain('group');
+  });
+});
+
+// F2-04 correction (netyvee/app#344 comment 6070463685) — dropdown sizing is
+// visibly narrower/more cramped than Cleaning's accepted pre-framework
+// presentation (a visual-evidence review finding, not a DOM/parity gap the
+// earlier byte-identical proofs could catch). dropdownMinWidth lets a consumer
+// restore the breathing room their own design already had, without a
+// Tailwind-class override (see types.ts's NavLink doc comment for why a
+// className approach is unsafe here).
+describe('Desktop dropdown width — dropdownMinWidth (F2-04 correction)', () => {
+  it('defaults to the previous 200px min-width when dropdownMinWidth is unset', () => {
+    openDesktopMenu();
+    const menu = screen.getByRole('menu', { name: 'Services' });
+    expect(menu.style.minWidth).toBe('200px');
+  });
+
+  it('applies a consumer-supplied dropdownMinWidth, set on the parent NavLink', () => {
+    const wideNav: SiteNav = {
+      ...nav,
+      primary: [...nav.primary, { ...SERVICES_WITH_PARITY_FIELDS, dropdownMinWidth: 480 }],
+    };
+    render(<Shell page={page} nav={wideNav}><div /></Shell>);
+    const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
+    fireEvent.click(primary.getByRole('button', { name: /Services/ }));
+    const menu = screen.getByRole('menu', { name: 'Services' });
+    expect(menu.style.minWidth).toBe('480px');
+  });
+
+  it('accepts a string CSS value unchanged (e.g. "30rem")', () => {
+    const wideNav: SiteNav = {
+      ...nav,
+      primary: [...nav.primary, { ...SERVICES_WITH_PARITY_FIELDS, dropdownMinWidth: '30rem' }],
+    };
+    render(<Shell page={page} nav={wideNav}><div /></Shell>);
+    const primary = within(screen.getByRole('navigation', { name: 'Primary' }));
+    fireEvent.click(primary.getByRole('button', { name: /Services/ }));
+    const menu = screen.getByRole('menu', { name: 'Services' });
+    expect(menu.style.minWidth).toBe('30rem');
+  });
+});
+
+// F2-04 correction (netyvee/app#344 comment 6070463685) — the full-screen mobile
+// dialog previously inherited brand.bg verbatim; a translucent brand.bg (valid
+// for the sticky header) left the dialog translucent too, with page content
+// visibly bleeding through behind the open menu (a visual-evidence review
+// finding). resolveOpaqueSurface forces a fully-opaque dialog background by
+// default, with no new consumer configuration required.
+describe('resolveOpaqueSurface (F2-04 correction)', () => {
+  it('strips the alpha channel from an rgba() background', () => {
+    expect(resolveOpaqueSurface('rgba(10, 22, 40, 0.92)')).toBe('rgb(10, 22, 40)');
+  });
+
+  it('strips the alpha channel from an hsla() background', () => {
+    expect(resolveOpaqueSurface('hsla(210, 60%, 10%, 0.5)')).toBe('hsl(210, 60%, 10%)');
+  });
+
+  it('strips the alpha channel from 8-digit and 4-digit hex', () => {
+    expect(resolveOpaqueSurface('#0a1628eb')).toBe('#0a1628');
+    expect(resolveOpaqueSurface('#0a2d')).toBe('#0a2');
+  });
+
+  it('passes an already-opaque background through unchanged', () => {
+    expect(resolveOpaqueSurface('#0a1628')).toBe('#0a1628');
+    expect(resolveOpaqueSurface('rgb(10, 22, 40)')).toBe('rgb(10, 22, 40)');
+  });
+});
+
+describe('Mobile full-screen dialog surface (F2-04 correction)', () => {
+  it('keeps the exact opaque background every existing consumer already has (non-regression)', () => {
+    render(<Shell page={page} nav={nav}><div /></Shell>);
+    fireEvent.click(screen.getByLabelText('Open menu'));
+    const dialog = document.getElementById('vf-mobile-nav')!;
+    // jsdom normalizes any hex color assigned to style.background to rgb() on
+    // read-back, for both the old code and this one — resolveOpaqueSurface's own
+    // "already opaque -> pass through unchanged" unit test above is what actually
+    // proves this is a no-op; this asserts the fixture's exact color still reaches
+    // the dialog's inline style, not a difference introduced by the fix.
+    expect(dialog.style.background).toBe('rgb(10, 22, 40)');
+  });
+
+  it('resolves a translucent brand.bg to an opaque dialog background', () => {
+    const translucentPage = { ...page, brand: { ...page.brand, bg: 'rgba(10, 22, 40, 0.92)' } };
+    render(<Shell page={translucentPage} nav={nav}><div /></Shell>);
+    fireEvent.click(screen.getByLabelText('Open menu'));
+    const dialog = document.getElementById('vf-mobile-nav')!;
+    expect(dialog.style.background).toBe('rgb(10, 22, 40)');
+  });
+
+  it('layers backdropFilter on top when blur is enabled, without it being load-bearing for opacity', () => {
+    render(
+      <NavBar
+        nav={nav}
+        slug={page.slug}
+        brand={{ ...page.brand, bg: 'rgba(10, 22, 40, 0.92)' }}
+        open={true}
+        onOpenChange={() => {}}
+        blur
+      />
+    );
+    const dialog = document.getElementById('vf-mobile-nav')!;
+    expect(dialog.style.background).toBe('rgb(10, 22, 40)');
+    expect(dialog.style.backdropFilter).toBe('blur(12px)');
   });
 });

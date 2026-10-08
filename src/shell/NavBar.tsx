@@ -21,6 +21,32 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 
+// F2-04 correction (netyvee/app#344 comment 6070463685) — the full-screen mobile
+// nav dialog previously used `brand.bg` verbatim as its own background. A
+// translucent brand.bg is valid and common for a sticky HEADER (especially
+// paired with `blur`'s backdrop-filter), but the mobile dialog never received
+// that same backdrop-filter — only the header does — so a translucent brand.bg
+// left the full-screen dialog translucent too, with nothing compensating: a
+// visual evidence review found page content behind the open menu visibly
+// bleeding through its own link list. The dialog must stay legible and
+// self-contained regardless of what the header's background looks like, so
+// this strips any alpha channel from brand.bg for the dialog specifically,
+// rather than asking every consumer to configure a second color. A brand.bg
+// that is already fully opaque (every existing consumer today) round-trips
+// unchanged. `blur`, where enabled, still layers on top of this as a cosmetic
+// enhancement — never the only thing standing between the menu and bleed-through.
+export function resolveOpaqueSurface(bg: string): string {
+  const rgba = bg.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*[\d.]+\s*)?\)$/i);
+  if (rgba) return `rgb(${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
+  const hsla = bg.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+%)\s*,\s*([\d.]+%)\s*(?:,\s*[\d.]+\s*)?\)$/i);
+  if (hsla) return `hsl(${hsla[1]}, ${hsla[2]}, ${hsla[3]})`;
+  const hex8 = bg.match(/^#([0-9a-f]{6})[0-9a-f]{2}$/i);
+  if (hex8) return `#${hex8[1]}`;
+  const hex4 = bg.match(/^#([0-9a-f]{3})[0-9a-f]$/i);
+  if (hex4) return `#${hex4[1]}`;
+  return bg; // already opaque, or a form (named color, var()) with no alpha to strip
+}
+
 export function Logo({
   nav,
   src,
@@ -200,8 +226,8 @@ function DesktopNavDropdown({
           // extend through an empty margin). Visual breathing room comes from
           // p-2 (padding, part of this same box, same 0.5rem as the old
           // margin-top) instead.
-          className="absolute left-0 top-full z-20 min-w-[200px] rounded-lg border border-white/10 p-2 shadow-lg"
-          style={{ background: bg }}
+          className="absolute left-0 top-full z-20 rounded-lg border border-white/10 p-2 shadow-lg"
+          style={{ background: bg, minWidth: link.dropdownMinWidth ?? 200 }}
         >
           <ul className={`m-0 list-none p-0 ${gridColsClass}`}>
             {(link.children ?? []).map((c) => (
@@ -536,7 +562,11 @@ export function NavBar({
           aria-modal="true"
           aria-label="Menu"
           className="fixed inset-0 z-50 flex flex-col md:hidden"
-          style={{ background: brand.bg, color: brand.text }}
+          style={{
+            background: resolveOpaqueSurface(brand.bg),
+            color: brand.text,
+            ...(blur ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
+          }}
         >
           <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
             <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} />
