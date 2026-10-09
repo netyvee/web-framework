@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.10.0 (2026-10-09) - Shared sentinel-image contract (F2-06 item A, netyvee/app#344)
+
+First item of F2-06 (framework generalisation batch 1) — the image-slot/orphan-
+protection contract. `netyvee/vigil-cleaning` and `netyvee/security` each
+independently built an identical guard against the CRM Page Manager's
+unassigned-image sentinel (`/placeholder-image.svg`) leaking onto a live page
+(`UNASSIGNED_IMAGE_SRC`/`hasAssignedImage`, #1519), plus Cleaning separately
+built a live-domain crawl script asserting the same thing against production.
+
+- `SENTINEL_IMAGE_PATH` and `isSentinelImage(ref: ImageRef): boolean` exported
+  from `types.ts`, reading whichever of the string or object (`url`) form of
+  `ImageRef` matches the constant.
+- `scripts/verify-no-leaked-sentinel.mjs` — the live-domain crawl-and-scan
+  lifted from Cleaning's own `scripts/ops/verify-sentinel-safety-live.mjs`,
+  parameterised by `--base`/`BASE_URL` instead of reading that repo's own
+  `ops/vercel-policy.json`, so every consumer calls the same script.
+- **Additive only.** No existing export changed; nothing currently imports
+  either new symbol. Each consumer retires its own duplicate in a separate,
+  same-day follow-up PR (same two-step pattern already proven on #9/#18 and
+  the F2-04 chain) — this PR alone changes no consumer's behaviour.
+- 7 new tests: `SENTINEL_IMAGE_PATH`'s exact value, `isSentinelImage()` on
+  string/object/null/undefined/no-url forms, and a sync check holding the
+  live script's own literal copy of the constant (it runs via plain `node`,
+  with no TS loader, so it can't import from `src/types.ts` directly) equal
+  to the real one.
+
 ## v1.9.0 (2026-10-08) - NavBar dropdown width + mobile dialog opacity (F2-04, netyvee/app#344)
 
 Two bounded corrections from the Founder's review of the F2-04 visual evidence pack
