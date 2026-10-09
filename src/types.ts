@@ -113,6 +113,25 @@ export type ImageRef =
   | null
   | undefined;
 
+// F2-06 item A (netyvee/app#344): the sentinel path the CRM Page Manager writes
+// into an optional image slot when the slot exists but has no real assignment
+// yet (CONTENT_DEPENDENCY — GROWTH-RUNTIME-CAPABILITY-READINESS-01, #1519).
+// netyvee/vigil-cleaning and netyvee/security each independently built an
+// identical guard against this same literal leaking onto a live page — this is
+// the shared constant + predicate those two (and any future consumer) should
+// import instead of re-declaring the string. A consumer's own slot type may use
+// a different field name than ImageRef's `url` (e.g. `src`); where it does,
+// comparing that field directly against SENTINEL_IMAGE_PATH is the correct
+// de-duplication — isSentinelImage() itself is for callers already holding an
+// ImageRef-shaped value (e.g. anything read via imgSrc()/imgAlt() below).
+export const SENTINEL_IMAGE_PATH = '/placeholder-image.svg';
+
+export function isSentinelImage(ref: ImageRef): boolean {
+  if (!ref) return false;
+  const src = typeof ref === 'string' ? ref : ref.url;
+  return src === SENTINEL_IMAGE_PATH;
+}
+
 // ── Navigation / footer / site-identity contracts ────────────────────────────
 // NAP (phone/email/address/trading_name/enquiry_url) is NEVER part of SiteNav —
 // it comes exclusively from the page JSON `nap` block (registry-sourced), so a
