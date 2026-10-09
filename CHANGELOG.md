@@ -1,5 +1,48 @@
 # Changelog
 
+## v1.14.0 (2026-10-09) - Shared SEO integrity engine (F2-07 item B, netyvee/app#344)
+
+Second item of F2-07 (framework generalisation batch 2, gate-closing).
+`netyvee/vigil-cleaning/scripts/seo-integrity-check.mjs` and
+`netyvee/security/scripts/seo-integrity-check.mjs` were a ~717-line
+config-driven SEO governance CI gate that had diverged, between the two
+repos, by nothing but a comment wording change (the table-header/cell
+forbidden-claims scanning fix from Codex review, `netyvee/vigil-cleaning#18`,
+was already present in both copies). The script was already fully
+config-driven — `ROOT` is `process.cwd()`, every per-site value (site name,
+domain, canonicalBase, NAP, forbidden claims, scan dirs, scoring thresholds,
+CRM endpoints) already flowed through `--config seo-governance.config.json`,
+and nothing in the file used `__dirname`/`import.meta.url` — so this is a
+verbatim lift, not a redesign.
+
+- `bin/seo-integrity-check.mjs` — the shared engine, exposed as the
+  `vigil-seo-check` package bin. A consuming repo invokes it via
+  `node node_modules/@vigil/web-framework/bin/seo-integrity-check.mjs
+  --config seo-governance.config.json` from its own root; every path it
+  touches (`seo-governance.config.json`, `.seo-baseline.json`,
+  `AUDIT/OVERRIDE-LOG.md`, `app/`, `content/pages/`, `next.config.*`,
+  `app/sitemap.ts`, `seo-integrity-report.json`) resolves against that
+  repo's `cwd`, not this package — unchanged from how both original copies
+  behaved.
+- Each site keeps its own `seo-governance.config.json` (policy/thresholds)
+  and `.seo-baseline.json` (regression-tracking snapshot) locally, as data —
+  this package ships only the rules, same split the script's own header
+  comment already described before this change ("the RULES live here; the
+  per-site DATA lives in seo-governance.config.json").
+- `tests/seo-integrity-check.test.ts` (9 tests) — runs the shared bin as a
+  real subprocess against synthetic fixtures (same pattern as
+  `division-isolation-main-mode.test.ts` from F2-06 item D), covering the
+  config-schema fatal gate, a clean pass, `H_MISSING_CANONICAL`,
+  `H_CANONICAL_FORM`, `H_NAP_PHONE`, `H_SITEMAP_CANONICAL`,
+  `--report-only`'s always-exit-0 behaviour, and that every path resolves
+  against the invoking repo's cwd rather than this package.
+- Not included here: byte-for-byte output-parity proof against each site's
+  REAL current config/content/baseline — that is produced in each
+  consumer's retirement PR (run the old local script and this shared copy
+  against the same checkout, diff stdout + `seo-integrity-report.json`),
+  immediately before that PR retires the local copy, per the package spec's
+  own acceptance criterion.
+
 ## v1.13.0 (2026-10-09) - Shared markdown blog loader + BlogPosting JSON-LD (F2-07 item A, netyvee/app#344)
 
 First item of F2-07 (framework generalisation batch 2, gate-closing — no
