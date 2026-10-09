@@ -266,6 +266,18 @@ export type SiteNav = {
   // v0.6.7 — opt-in footer copyright line "© {year} {brandName}. All rights reserved." with the year
   // generated at render (never a stale literal). Division sites omit it ⇒ footer unchanged.
   copyright?: boolean;
+  // F2-06 item B (netyvee/app#344) — optional free-form rich-text footer slot, for
+  // content genuinely beyond nav links/NAP/CTA/companyReg. Found via a line-for-line
+  // diff of Cleaning's and Security's bespoke footers against Shell's footer
+  // (AUDIT/F2-06-07-FRAMEWORK-GENERALISATION-PACKAGE-SPEC-01.md item B): Security's
+  // footer content is already fully expressible with the existing contract (brand
+  // blurb, NAP, nav.footer columns, social, legalLinks, companyReg) — no gap there.
+  // Cleaning's footer carries a genuine gap: a two-paragraph SEO/keyword block with
+  // no home in nav links/NAP/CTA/companyReg. Reuses the exact ProseBlock/ProseInline
+  // renderer already proven for Prose (F2-03/F2-05) rather than a second one — see
+  // sections/Prose.tsx's exported renderBlock/renderInline. Optional; omitted (every
+  // current consumer) ⇒ footer unchanged.
+  footerRichText?: ProseBlock[];
 };
 
 // ── Site configuration schema ────────────────────────────────────────────────
