@@ -15,6 +15,7 @@ import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
 import { NavBar, Logo } from './NavBar';
+import { renderBlock } from '../sections/Prose';
 
 // SM-F2 — typed link metadata must survive all the way to the rendered anchor
 // (footer/legal links here still need it — the nav/header itself now lives in
@@ -130,6 +131,11 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
             )}
           </div>
         </div>
+        {nav.footerRichText && nav.footerRichText.length > 0 && (
+          <div className="mx-auto mt-10 max-w-6xl border-t pt-8 text-[12px] leading-relaxed opacity-70" style={{ borderColor: t.text5 }} data-vf-footer-richtext>
+            {nav.footerRichText.map((b, i) => renderBlock(b, i))}
+          </div>
+        )}
       </footer>
 
       {/* ── STICKY CTA (single, governed) ──────────────────────── */}

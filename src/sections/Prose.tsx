@@ -13,7 +13,7 @@
 import * as React from 'react';
 import type { PageJson, ProseBlock, ProseInline } from '../types';
 
-function renderInline(node: ProseInline, key: number) {
+export function renderInline(node: ProseInline, key: number) {
   const text = typeof node === 'string' ? node : node.text;
   if (typeof node === 'string' || (!node.bold && !node.italic && !node.href)) {
     return <React.Fragment key={key}>{text}</React.Fragment>;
@@ -25,7 +25,11 @@ function renderInline(node: ProseInline, key: number) {
   return <React.Fragment key={key}>{el}</React.Fragment>;
 }
 
-function renderBlock(block: ProseBlock, key: number) {
+// Exported (F2-06 item B, netyvee/app#344) so the shell footer's optional
+// footerRichText slot can render the exact same ProseBlock contract without a
+// second block-rendering implementation — "reuse, not a second renderer" per
+// AUDIT/F2-06-07-FRAMEWORK-GENERALISATION-PACKAGE-SPEC-01.md.
+export function renderBlock(block: ProseBlock, key: number) {
   switch (block.type) {
     case 'heading': {
       const Tag = block.level === 3 ? 'h3' : 'h2';

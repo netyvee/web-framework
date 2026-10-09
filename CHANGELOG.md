@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.12.0 (2026-10-09) - Optional footer rich-text slot (F2-06 item B, netyvee/app#344)
+
+Second item of F2-06 (framework generalisation batch 1). The package spec
+flagged item B as blocked on a diff step — no site's bespoke footer had
+actually been diffed against the framework's `Shell` footer to confirm what
+rich text, if any, it was missing. That diff is now done:
+
+- Security's bespoke footer is already fully expressible with the existing
+  `Shell` footer contract (brand blurb, NAP, `nav.footer` columns, social,
+  `legalLinks`, `companyReg`) — no gap. `FRAMEWORK_ALREADY_EQUIVALENT`.
+- Cleaning's bespoke footer carries a genuine gap: a two-paragraph SEO/
+  keyword block with no home in nav links/NAP/CTA/companyReg.
+  `GENERALISE_INTO_FRAMEWORK`.
+
+Added `SiteNav.footerRichText?: ProseBlock[]`, rendered in `Shell.tsx`'s
+footer via the exact same `ProseBlock`/`ProseInline` renderer `Prose.tsx`
+already proves (`renderBlock`/`renderInline` now exported from
+`sections/Prose.tsx` for this reuse) — not a second rendering
+implementation.
+
+- **Additive only.** Optional field, omitted by every current consumer
+  (Care/Staffing/Main's `Shell` usage, and Cleaning/Security, which don't
+  use `Shell` at all today). 5 new tests prove the footer is byte-identical
+  when the field is absent or an empty array, and that blocks render
+  correctly via the shared renderer when present.
+- Does **not** include converting Cleaning's or Security's bespoke footer
+  onto `Shell` itself — neither currently consumes `Shell`/the standalone
+  `Footer` component at all (they compose `NavBar` directly, same pattern
+  as the F2-04 nav cutover), and a full footer swap carries the same
+  visual-parity risk the Nav cutover took several rounds to close. This
+  PR only proves and ships the missing capability; the site-level swap is
+  a separate, larger, visually-gated item, not started here.
+
 ## v1.11.0 (2026-10-09) - division-isolation-check.mjs gains a `main` mode (F2-06 item D, netyvee/app#344)
 
 Third item of F2-06. `netyvee/main/scripts/content-check.mjs` documented, in its
