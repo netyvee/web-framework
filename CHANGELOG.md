@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.11.0 (2026-10-09) - Optional footer rich-text slot (F2-06 item B, netyvee/app#344)
+## v1.12.0 (2026-10-09) - Optional footer rich-text slot (F2-06 item B, netyvee/app#344)
 
 Second item of F2-06 (framework generalisation batch 1). The package spec
 flagged item B as blocked on a diff step — no site's bespoke footer had
@@ -32,6 +32,36 @@ implementation.
   visual-parity risk the Nav cutover took several rounds to close. This
   PR only proves and ships the missing capability; the site-level swap is
   a separate, larger, visually-gated item, not started here.
+
+## v1.11.0 (2026-10-09) - division-isolation-check.mjs gains a `main` mode (F2-06 item D, netyvee/app#344)
+
+Third item of F2-06. `netyvee/main/scripts/content-check.mjs` documented, in its
+own header comment, exactly why it couldn't use this script: `--own` only knew
+four division keys, and even if `main` were added as a fifth, it would encode
+the wrong rule — a division's isolation rule is "no OTHER division's value may
+appear"; the corporate front door's rule is "linking to all four division
+domains is the entire purpose of this site (D-033), but no division's PHONE
+may be presented as the corporate number."
+
+- `--own main` is a new, explicit built-mode branch (not a fifth `DIVISIONS`
+  entry): forbidden domains stay empty (every division link is allowed),
+  forbidden phones are ALL FOUR division phones (main has no "own" phone to
+  exclude from the forbidden set, unlike every other `--own <division>`).
+- 5 new tests (subprocess-invoking the real script against synthetic build
+  output, the same way consumer CI invokes it): passes a page linking all
+  four division domains; fails on any one division phone in any of its three
+  forms; fails on all four when all four are present; excludes `/admin`
+  output (same as every other mode); and a regression guard proving the
+  existing `--own <division>` domain-forbidding behaviour is unchanged.
+- **Additive only.** Every existing `--own <division>`/`--config` call site
+  (Care/Staffing/Cleaning/Security) is untouched — this only adds a new,
+  previously-erroring value for `--own`.
+- Main's own `scripts/content-check.mjs` keeps its other checks (schema
+  shape, SEO essentials, `nap.phone`/`enquiry_url` empty, duplicate titles) —
+  those are pre-build CRM-content governance, not division-isolation. Only
+  the division-phone-forbidding loop is superseded by this mode; Main's own
+  follow-up PR retires that loop and wires in `--mode built --own main`
+  after its build step, the same way Care/Staffing already call this script.
 
 ## v1.10.0 (2026-10-09) - Shared sentinel-image contract (F2-06 item A, netyvee/app#344)
 
