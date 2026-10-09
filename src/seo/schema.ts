@@ -92,12 +92,14 @@ export function buildJsonLd(page: PageJson, opts: JsonLdOptions): Record<string,
     });
   }
 
-  // Article/BlogPosting when declared (SEO-04 item 3). Gated exactly like Service;
-  // a no-op for every current page (none set schema_type==='Article'). Populated only
-  // from fields already on PageJson — sub-fields absent from the page are omitted.
-  if (page.seo.schema_type === 'Article') {
+  // Article/BlogPosting when declared (SEO-04 item 3; BlogPosting added F2-07
+  // item A, netyvee/app#344, for the markdown blog loader's synthetic pages
+  // — see blog/markdownLoader.ts's buildMarkdownBlogJsonLd()). Gated exactly
+  // like Service. Populated only from fields already on PageJson — sub-fields
+  // absent from the page are omitted.
+  if (page.seo.schema_type === 'Article' || page.seo.schema_type === 'BlogPosting') {
     const article: any = {
-      '@type': 'Article',
+      '@type': page.seo.schema_type,
       headline: page.seo.title,
       description: page.seo.description,
       url,

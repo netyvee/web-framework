@@ -1,5 +1,60 @@
 # Changelog
 
+## v1.13.0 (2026-10-09) - Shared markdown blog loader + BlogPosting JSON-LD (F2-07 item A, netyvee/app#344)
+
+First item of F2-07 (framework generalisation batch 2, gate-closing — no
+blog/service-page archetype may migrate until this package lands).
+`netyvee/vigil-cleaning/lib/blog/markdownPosts.ts` and
+`netyvee/security/lib/blog/markdownPosts.ts` were the same loader with the
+site identity swapped (division/host/name/enquiryUrl/phone/ctaLabel) plus
+two genuine field differences: Cleaning's index-grid summary carried
+`readTime`/`tags` that Security's didn't; Security's carried an `image`
+field (defaulting to F2-06's sentinel) that Cleaning's didn't.
+
+- `createMarkdownBlogLoader(identity, opts?)` — the ~90% shared mechanism
+  (frontmatter parsing via `gray-matter`, now a framework dependency;
+  slug/date/word-count derivation; intro/body split; related-posts
+  selection), parameterised by a site-identity config instead of a
+  hardcoded `SITE` constant. Returns `getMarkdownSlugs`/`getMarkdownPost`/
+  `getMarkdownPostSummaries`, the same three functions and signatures both
+  original loaders exported.
+- The two genuine field differences resolved as additive-optional fields
+  on the shared `MarkdownBlogSummary` type (`readTime?`, `tags?`,
+  `image?`) — computed unconditionally for every consumer (cheap to
+  derive; a consumer that doesn't read a field is unaffected by its
+  presence), rather than picking one site's shape and breaking the other.
+- `buildMarkdownBlogJsonLd(post, identity, { slug })` — markdown posts have
+  no `PageJson` of their own (they render through the bespoke
+  `BlogPostData`/`BlogPost` path, not the Shell/sections registry), so
+  this builds a minimal synthetic `PageJson` and hands it to the
+  framework's own `buildJsonLd()`, reusing its Organization/WebSite/
+  FAQPage/BreadcrumbList logic rather than a second JSON-LD
+  implementation. `buildJsonLd()` gained a `BlogPosting` branch alongside
+  the existing `Article` one (`seo/schema.ts`'s own comment already
+  anticipated this: "Article/BlogPosting when declared").
+  **Disclosed, intentional output change** versus each site's retired
+  bespoke `lib/schema/blog-post-schema.ts` (which only ever emitted
+  `Article`): Organization/WebSite nodes are now present (every other
+  `PageJson`-driven page already carries them) and `'@type'` is
+  `'BlogPosting'`. The blog post content itself (outside this JSON-LD
+  script tag) is unaffected.
+- 17 new tests (`tests/markdown-blog-loader.test.ts`, synthetic fixtures —
+  neither consumer has any markdown posts committed yet, so there is no
+  real-content snapshot to diff against): site-identity scoping, every
+  field derivation ported from both original loaders, the summary shape
+  resolving both sites' differences, and `buildMarkdownBlogJsonLd`'s
+  BlogPosting/Organization/BreadcrumbList/FAQPage output.
+- **Not included here**: retiring each site's local `markdownPosts.ts`/
+  `lib/schema/blog-post-schema.ts` in favour of this loader — separate,
+  same-day consumer PRs, same two-step pattern as every other F2-06/07
+  item.
+- **Not included here**: the "registered `page_type` for blog
+  index/post archetypes" sub-item from the package spec. Markdown blog
+  posts don't flow through the CRM's `page_type`-governed export pipeline
+  at all today (`PageJson.page_type` stays a free string by design), so
+  there is nothing in this repo for a registered enum to gate yet — flagged
+  as a `netyvee/app` (CRM)-side follow-up, not a `web-framework` gap.
+
 ## v1.12.0 (2026-10-09) - Optional footer rich-text slot (F2-06 item B, netyvee/app#344)
 
 Second item of F2-06 (framework generalisation batch 1). The package spec
