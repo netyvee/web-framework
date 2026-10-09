@@ -12,6 +12,16 @@
 //                                   /admin output is excluded (frozen internal tools,
 //                                   C-13).
 //
+// --own main (F2-06 item D, netyvee/app#344) is a THIRD, inverted rule, not a fifth
+// division: the corporate site's entire purpose is linking to all four division
+// domains (D-033), so domains are never forbidden for it — only division PHONES are,
+// and ALL FOUR, not "every one but my own" (main has no division phone of its own).
+// Generalised from netyvee/main's own scripts/content-check.mjs, whose header comment
+// named this exact gap: "division-isolation-check.mjs should grow a `main` mode so
+// this logic can move upstream instead of living per-consumer." Main's other checks
+// (schema shape, SEO essentials, nap.phone/enquiry_url empty, duplicate titles) are
+// pre-build CRM-content governance, not division-isolation, and stay local to Main.
+//
 // The identity table lives HERE (scripts/, outside the src/ scan scope) precisely so
 // the framework source itself can stay identity-blank.
 
@@ -77,9 +87,15 @@ if (mode === 'src') {
   let ownLabel = '';
   const own = opt('--own');
   const cfgPath = opt('--config');
-  if (own) {
+  if (own === 'main') {
+    // Corporate front door, not a fifth division: linking to every division domain
+    // is this site's entire purpose (D-033), so domains stay allowed — only division
+    // phones are forbidden, and ALL FOUR (there is no "own" division phone to exclude).
+    ownLabel = 'main (corporate — division domains explicitly allowed)';
+    for (const d of Object.values(DIVISIONS)) forbiddenPhones.push(...phoneForms(d.phone));
+  } else if (own) {
     if (!DIVISIONS[own]) {
-      console.error(`Unknown site key "${own}". Valid: ${Object.keys(DIVISIONS).join(', ')}`);
+      console.error(`Unknown site key "${own}". Valid: ${Object.keys(DIVISIONS).join(', ')}, main`);
       process.exit(1);
     }
     ownLabel = DIVISIONS[own].domain;
