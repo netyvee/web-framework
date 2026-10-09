@@ -76,3 +76,15 @@ export { Shell } from './shell/Shell';
 export { NavBar } from './shell/NavBar';
 // consent (v0.6.3 — MAIN-COOKIE-CONSENT-01: cookie banner + consent-gated GA4 analytics)
 export { CookieConsent, Analytics, readConsent, consentCookieValue, analyticsAllowed, CONSENT_COOKIE, type ConsentChoice } from './consent/Consent';
+
+// markdown blog loader (F2-07 item A, netyvee/app#344)
+export {
+  createMarkdownBlogLoader,
+  buildMarkdownBlogJsonLd,
+  type MarkdownBlogIdentity,
+  type MarkdownBlogImage,
+  type MarkdownBlogSummary,
+  type MarkdownBlogPostData,
+  type MarkdownBlogLoaderResult,
+  type MarkdownBlogLoader,
+} from './blog/markdownLoader';
