@@ -174,3 +174,22 @@ describe('cta_new_tab: optional primary-CTA new-tab behaviour (F2-08 canary)', (
     }
   });
 });
+
+describe('F2-08 canary: locations_coverage.sub, cta.fine_print, region_label', () => {
+  it('locations_coverage renders the optional sub line; omitted ⇒ none', () => {
+    const w = render([{ type: 'locations_coverage', fields: { heading: 'Coverage', sub: 'Serving London', locations: [{ label: 'Barnet' }] } }]);
+    expect(w).toContain('Serving London');
+    const wo = render([{ type: 'locations_coverage', fields: { heading: 'Coverage', locations: [{ label: 'Barnet' }] } }]);
+    expect(wo).not.toContain('<p');
+  });
+  it('cta renders optional fine_print; omitted ⇒ none', () => {
+    expect(render([{ type: 'cta', fields: { heading: 'H', cta_label: 'Go', cta_url: '/e', fine_print: 'Reg. 123' } }])).toContain('Reg. 123');
+    expect(render([{ type: 'cta', fields: { heading: 'H', cta_label: 'Go', cta_url: '/e' } }])).not.toContain('opacity-40');
+  });
+  it('region_label wraps the section in a named region; omitted ⇒ no wrapper', () => {
+    const w = render([{ type: 'quick_answer', fields: { region_label: 'Quick answer', text: 'T' } }]);
+    expect(w).toContain('<div role="region" aria-label="Quick answer"><section');
+    const wo = render([{ type: 'quick_answer', fields: { text: 'T' } }]);
+    expect(wo).not.toContain('role="region"');
+  });
+});

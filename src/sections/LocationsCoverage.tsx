@@ -16,6 +16,9 @@ export function LocationsCoverage({ fields, page }: { fields: any; page: PageJso
     <section className="border-b px-6 py-16 md:px-12" style={{ background: surfaceBg(t, surface), color: t.text, borderColor: t.line }}>
       <div className="mx-auto max-w-5xl">
         {fields.heading && <h2>{fields.heading}</h2>}
+        {/* F2-08 canary (netyvee/app#344): optional supporting line under the heading
+            (service pages' "Serving all major London boroughs…"). Absent ⇒ unchanged. */}
+        {fields.sub && <p className="mt-2 text-sm" style={{ color: t.text4 }}>{fields.sub}</p>}
         <ul className="mt-6 flex list-none flex-wrap gap-2 p-0">
           {locations.map((l, i) => (
             <li key={i}>

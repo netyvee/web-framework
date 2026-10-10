@@ -28,6 +28,10 @@ export function Cta({ fields, page }: { fields: any; page: PageJson }) {
              style={{ border: `1px solid ${t.text3}`, color: t.text }}>{fields.cta_secondary_label}</a>
         </div>
       )}
+      {/* F2-08 canary (netyvee/app#344): optional small print under the CTA (the
+          service pages' "<trading name> is a trading name of Vigil Services Ltd · Reg."
+          legal line). Absent ⇒ unchanged. */}
+      {fields.fine_print && <p className="mt-6 text-xs opacity-40">{fields.fine_print}</p>}
     </section>
   );
 }

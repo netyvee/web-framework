@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.19.0 (2026-10-10) - three more optional parity capabilities found by the Cleaning canary diff (F2-08, netyvee/app#344)
+
+The canary's old-vs-new rendered-output diff (committed fixtures, DOM-level) found three
+things the bespoke service pages render that the framework could not express:
+- `locations_coverage`: optional `sub` (supporting line under the heading).
+- `cta`: optional `fine_print` (small-print line under the CTA — carries the
+  "<trading name> is a trading name of Vigil Services Ltd · Reg. 11756806" legal disclosure).
+- any section: optional `fields.region_label` → wrapped in `<div role="region" aria-label>` so a
+  page can keep its named region landmarks. Absent ⇒ no wrapper.
+All default-off; markup byte-identical for every existing consumer (asserted by tests).
+
 ## v1.18.0 (2026-10-10) - optional `cta_new_tab` on `hero`/`cta` (F2-08 canary, netyvee/app#344)
 
 Found while preparing the Cleaning service-page canary: the bespoke service pages open
