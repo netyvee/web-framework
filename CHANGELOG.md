@@ -1,5 +1,47 @@
 # Changelog
 
+## v1.15.0 (2026-10-10) - Service-page archetype spike: small additive section gaps (F2-08, netyvee/app#344)
+
+Founder-authorised bounded spike (comment 6098104337 on `netyvee/app#344`):
+can `netyvee/vigil-cleaning`'s bespoke `ServicePageData`/`ServicePage` service-page
+archetype be represented through the shared `PageJson`/section model without
+losing capability? Mapped every element of the representative
+`office-cleaning-london` page against the existing section library (`hero`,
+`quick_answer`, `service_grid`, `process_steps`, `differentiation_panel`,
+`compliance_strip`, `locations_coverage`, `faq`, `cta`, plus `buildJsonLd()`'s
+Service/FAQPage/BreadcrumbList nodes) — full classification matrix posted to
+`#344`. Nearly everything mapped onto an existing type unchanged; this release
+ships only the handful of genuinely small, additive gaps the mapping found:
+
+- `text_image`: optional `blocks` (`ProseBlock[]`), reusing Prose's own
+  `renderBlock` rather than a second renderer, for intro content that's
+  genuinely multi-paragraph beside an image. Omitted ⇒ unchanged flat-body markup.
+- `service_grid`: optional per-item `icon` glyph, rendered only when the item
+  has no `image` — service cards that use an icon rather than a photo no
+  longer need a slot they don't have. Omitted ⇒ unchanged.
+- `cta`: optional `cta_secondary_label`/`cta_secondary_url`, mirroring the
+  secondary-CTA pattern `Hero`'s `CtaRow` already proved in v0.2. Omitted ⇒
+  unchanged single-CTA markup.
+- `differentiation_panel`: optional per-item `stat`. Omitted ⇒ unchanged.
+- **`case_study`** (new section type): the one genuinely new type the mapping
+  found — a labelled Challenge/Solution/Result narrative with optional
+  sector/borough/image. `testimonial`'s flat quote/author shape can't
+  represent this without losing the labelled structure, so it's a new type
+  rather than a forced fit, per the "generalise only the smallest reusable
+  capability" instruction.
+
+Every change here is additive/optional — omitted, every existing consumer
+(Care, Staffing, Main, Cleaning, Security) renders byte-identically to before.
+268/268 tests pass (31 files, 11 new, `tests/f2-08-spike-sections.test.tsx`).
+`tsc --noEmit` clean. Isolation OK, 46 files identity-blank.
+
+**Not included here**: the actual spike page (a non-live, non-indexed render
+of `office-cleaning-london` through this section set, proving structural/SEO
+parity against the real live page) — that is a `netyvee/vigil-cleaning`
+consumer PR, following this framework PR, per the same two-step pattern used
+throughout F2-06/07. No live page is retired or replaced by either PR; this
+is a spike, not a migration (Founder disposition, comment 6098104337).
+
 ## v1.14.0 (2026-10-09) - Shared SEO integrity engine (F2-07 item B, netyvee/app#344)
 
 Second item of F2-07 (framework generalisation batch 2, gate-closing).

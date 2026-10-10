@@ -33,6 +33,9 @@ import { ContinuousDivisionHero } from './ContinuousDivisionHero';
 import { CorporateHero } from './CorporateHero';
 import { DivisionImageGateway } from './DivisionImageGateway';
 import { ReassuranceStrip } from './ReassuranceStrip';
+// F2-08 spike (netyvee/app#344) — labelled Challenge/Solution/Result narrative,
+// the one genuinely new section type the service-page capability review found.
+import { CaseStudy } from './CaseStudy';
 
 type SectionProps = { fields: any; page: PageJson };
 
@@ -68,6 +71,8 @@ const MAP: Record<string, React.FC<SectionProps>> = {
   reassurance_strip: ReassuranceStrip,
   // v0.6.8 — continuous hero: one team photo, headline overlay + integrated bottom gateway scrim
   continuous_division_hero: ContinuousDivisionHero,
+  // F2-08 spike
+  case_study: CaseStudy,
 };
 
 export const SECTION_TYPES = Object.keys(MAP);

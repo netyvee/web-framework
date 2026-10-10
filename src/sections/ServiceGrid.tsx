@@ -2,6 +2,13 @@
 // v0.4.0: optional per-item internal `href` makes a card a link (used for clickable
 // location-hub cards and blog-index article cards). Items WITHOUT href render
 // byte-identically to v0.3.x, so existing consumers (Care) are unaffected.
+//
+// F2-08 spike (netyvee/app#344): optional per-item `icon` (a short glyph/emoji
+// string), rendered only when the item has no `image` — a service page's
+// bespoke ServicePageData.services cards use an icon glyph, never a photo, so
+// this is the smallest change that lets those cards keep their existing
+// appearance rather than forcing every card onto an image slot it doesn't have.
+// Items with neither icon nor image render exactly as before (nothing extra).
 import Image from 'next/image';
 import Link from 'next/link';
 import type { PageJson } from '../types';
@@ -17,6 +24,7 @@ export function ServiceGrid({ fields, page }: { fields: any; page: PageJson }) {
           const inner = (
             <>
               {src && <Image src={src} alt={imgAlt(it.image, it.image_alt)} width={400} height={260} className="mb-4 rounded-lg" />}
+              {!src && it.icon && <span aria-hidden className="mb-3 block text-2xl">{it.icon}</span>}
               <h3 className="text-xl font-medium" style={{ color: page.brand.secondary }}>{it.title}</h3>
               <p className="mt-2 opacity-80">{it.body}</p>
               {it.href && (
