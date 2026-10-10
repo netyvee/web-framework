@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.16.0 (2026-10-10) - F2-08 closure, part 1: the two heading gaps the spike evidence found (netyvee/app#344)
+
+Founder reviewed the F2-08 spike evidence on `#344` and `web-framework#18`: useful,
+framework work sound, but not yet authorising broader migration — the spike
+itself found two real visible-structure gaps, which this release closes:
+
+- `compliance_strip`: optional `heading`, a VISIBLE label above the chips
+  (e.g. "Regulatory compliance") — the bespoke `ComplianceStrip` component the
+  spike compared against renders that as a real `<p>`, not just an
+  `aria-label`. Omitted ⇒ byte-identical markup to before (same `<section>`
+  tag/className/children; verified by a dedicated test asserting the exact
+  no-heading markup string, not just text-content presence).
+- `case_study`: optional `heading`, a VISIBLE section-level label above the
+  card (e.g. "Client case study") — the bespoke page wraps its case study in
+  exactly that `<h2>`, which the new section type (introduced in v1.15.0) had
+  no field for yet.
+
+4 new tests (`tests/f2-08-spike-sections.test.tsx`), 272/272 total pass.
+`tsc --noEmit` clean. Isolation OK, 46 files identity-blank.
+
+Part of a larger closure package (full plan on `#344`): this PR is items 1
+of 5; items 2-5 (durable Cleaning consumer proof, browser evidence for the
+two disclosed UX deltas, the Organization/WebSite duplication disposition,
+and the "15-minute response" content-governance flag) are tracked
+separately, not bundled here.
+
 ## v1.15.0 (2026-10-10) - Service-page archetype spike: small additive section gaps (F2-08, netyvee/app#344)
 
 Founder-authorised bounded spike (comment 6098104337 on `netyvee/app#344`):

@@ -7,6 +7,13 @@
 // Challenge/Solution/Result structure. This is the one genuinely new section
 // type the F2-08 capability review found (every other service-page element
 // mapped onto an existing section, additively extended at most).
+//
+// F2-08 closure (Founder disposition on the spike evidence): optional
+// `heading`, a VISIBLE section-level label (e.g. "Client case study") above
+// the card — the bespoke page the spike compared against wraps its case study
+// in exactly that visible `<h2>`, which this section initially had no field
+// for. Omitted ⇒ unchanged (this type has no prior consumer to stay
+// byte-identical for; still additive/optional for forward consistency).
 import Image from 'next/image';
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
@@ -23,6 +30,9 @@ export function CaseStudy({ fields, page }: { fields: any; page: PageJson }) {
 
   return (
     <section aria-label="Case study" className="px-6 py-16 md:px-12" style={{ background: surfaceBg(t, surface), color: t.text }}>
+      {fields.heading && (
+        <h2 className="mx-auto mb-10 max-w-5xl text-center text-2xl font-medium">{fields.heading}</h2>
+      )}
       <div className="mx-auto grid max-w-5xl items-start gap-10 rounded-2xl p-8 md:grid-cols-2" style={{ background: t.bgCard, border: `1px solid ${t.line}` }}>
         {src && (
           <div className="overflow-hidden rounded-xl">
