@@ -19,7 +19,10 @@ export function TextImage({ fields, page }: { fields: any; page: PageJson }) {
     <section style={{ background: page.brand.bg, color: page.brand.text }} className="px-6 py-16">
       <div className="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-2">
         <div>
-          <h2 className="text-3xl font-medium">{fields.heading}</h2>
+          {/* F2-08 canary (netyvee/app#344): the `blocks` (additive) path emits no EMPTY <h2> when
+              it has no heading — an empty heading is an accessibility defect (axe empty-heading).
+              The legacy flat path is unchanged: its <h2> is rendered exactly as before. */}
+          {(!blocks || fields.heading) && <h2 className="text-3xl font-medium">{fields.heading}</h2>}
           {blocks ? (
             <div className="mt-4">{blocks.map((b, i) => renderBlock(b, i))}</div>
           ) : (
