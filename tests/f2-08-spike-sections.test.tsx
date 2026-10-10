@@ -57,6 +57,21 @@ describe('service_grid: optional icon (no-image cards)', () => {
   });
 });
 
+describe('service_grid: optional visible heading (F2-08 final parity correction)', () => {
+  it('renders the heading as an h2 above the grid when present', () => {
+    const html = render([{ type: 'service_grid', fields: { heading: 'Our services', items: [{ title: 'T', body: 'B' }] } }]);
+    expect(html).toContain('<h2');
+    expect(html).toContain('Our services');
+    expect(html.indexOf('Our services')).toBeLessThan(html.indexOf('<h3'));
+  });
+
+  it('omitted ⇒ no h2 and the section wraps the grid exactly as before', () => {
+    const html = render([{ type: 'service_grid', fields: { items: [{ title: 'T', body: 'B' }] } }]);
+    expect(html).not.toContain('<h2');
+    expect(html).toMatch(/<section[^>]*class="px-6 py-16"[^>]*><div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">/);
+  });
+});
+
 describe('cta: optional secondary CTA', () => {
   it('renders both CTAs when the secondary pair is present', () => {
     const html = render([
