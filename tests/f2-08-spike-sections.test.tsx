@@ -86,7 +86,32 @@ describe('differentiation_panel: optional per-item stat', () => {
   });
 });
 
+describe('compliance_strip: optional visible heading (F2-08 closure)', () => {
+  it('renders the heading label above the chips when present', () => {
+    const html = render([{ type: 'compliance_strip', fields: { heading: 'Regulatory compliance', items: ['DBS Enhanced'] } }]);
+    expect(html).toContain('Regulatory compliance');
+    expect(html).toContain('DBS Enhanced');
+  });
+
+  it('omitted ⇒ byte-identical to the pre-closure markup (section is the flex row itself)', () => {
+    const html = render([{ type: 'compliance_strip', fields: { items: ['DBS Enhanced'] } }]);
+    expect(html).toContain('<section aria-label="Compliance and assurance" class="flex flex-wrap justify-center gap-5 border-y');
+    expect(html).not.toContain('Regulatory compliance');
+  });
+});
+
 describe('case_study (new section type — labelled Challenge/Solution/Result narrative)', () => {
+  it('renders an optional visible section heading above the card (F2-08 closure)', () => {
+    const html = render([{ type: 'case_study', fields: { heading: 'Client case study', title: 'T', challenge: 'c' } }]);
+    expect(html).toContain('<h2');
+    expect(html).toContain('Client case study');
+  });
+
+  it('heading omitted ⇒ no h2 rendered', () => {
+    const html = render([{ type: 'case_study', fields: { title: 'T', challenge: 'c' } }]);
+    expect(html).not.toContain('<h2');
+  });
+
   it('renders title, labelled parts, sector/borough and image', () => {
     const html = render([
       {
