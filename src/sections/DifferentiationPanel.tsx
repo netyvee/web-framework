@@ -1,11 +1,16 @@
 // differentiation_panel (SECTION-LIBRARY §14). Value-card grid (the "why us"
 // section), optional lead image (EEAT split variant).
+//
+// F2-08 spike (netyvee/app#344): optional per-item `stat`, a short verifiable
+// figure a service page's EEAT point may cite alongside its title/body (e.g.
+// ServicePageData.TrustPoint.stat) — rendered under the body, omitted ⇒
+// byte-identical to before for every existing consumer.
 import Image from 'next/image';
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
 import { resolveTheme, surfaceBg, type Surface } from '../tokens/theme';
 
-type Item = { icon?: string; title: string; body: string };
+type Item = { icon?: string; title: string; body: string; stat?: string };
 
 export function DifferentiationPanel({ fields, page }: { fields: any; page: PageJson }) {
   const items: Item[] = Array.isArray(fields?.items) ? fields.items.filter((it: any) => it?.title) : [];
@@ -32,6 +37,7 @@ export function DifferentiationPanel({ fields, page }: { fields: any; page: Page
                   {it.title}
                 </h3>
                 <p className="mt-2 text-[13px] leading-relaxed" style={{ color: t.text3 }}>{it.body}</p>
+                {it.stat && <p className="mt-1 text-[12px] font-medium" style={{ color: t.accent }}>{it.stat}</p>}
               </li>
             ))}
           </ul>

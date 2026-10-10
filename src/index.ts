@@ -60,6 +60,9 @@ export { QuickAnswer } from './sections/QuickAnswer';
 export { LocationsCoverage } from './sections/LocationsCoverage';
 export { ContactBlock } from './sections/ContactBlock';
 export { EnquiryFunnel } from './sections/EnquiryFunnel';
+// F2-08 spike (netyvee/app#344) — the one new section type the service-page
+// capability review found (labelled Challenge/Solution/Result narrative).
+export { CaseStudy } from './sections/CaseStudy';
 
 // shell (v0.2 individual components — retained for backward compat)
 export { Header } from './shell/Header';
