@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.18.0 (2026-10-10) - optional `cta_new_tab` on `hero`/`cta` (F2-08 canary, netyvee/app#344)
+
+Found while preparing the Cleaning service-page canary: the bespoke service pages open
+their primary (CRM enquiry) CTA in a new tab; the framework's `hero`/`cta` open it in the
+same tab, which would silently change funnel behaviour. Adds optional `cta_new_tab`
+(primary CTA only → `target="_blank" rel="noopener noreferrer"`). Omitted ⇒ no extra
+attributes, markup byte-identical for every existing consumer (asserted by test).
+
 ## v1.17.0 (2026-10-10) - F2-08 final parity correction: `service_grid` optional visible heading (netyvee/app#344)
 
 Founder disposition on `#344`: the last material visible-parity residual from the

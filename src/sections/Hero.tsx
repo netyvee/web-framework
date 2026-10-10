@@ -23,18 +23,22 @@ function TrustChips({ chips, accent }: { chips: string[]; accent: string }) {
 
 function CtaRow({ fields, page }: { fields: any; page: PageJson }) {
   const t = resolveTheme(page.brand);
+  // F2-08 canary (netyvee/app#344): optional `cta_new_tab` opens the PRIMARY CTA in a
+  // new tab (the bespoke Cleaning/Security service pages do, to keep the visitor on
+  // site while the CRM enquiry form opens). Absent ⇒ no extra attributes (byte-identical).
+  const newTab = fields.cta_new_tab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   const hasSecondary = fields.cta_secondary_label && fields.cta_secondary_url;
   if (!fields.cta_label || !fields.cta_url) return null;
   if (!hasSecondary) {
     // byte-identical to the v0.1.x single-CTA markup
     return (
-      <a href={fields.cta_url} style={{ background: page.brand.cta, color: page.brand.bg }}
+      <a href={fields.cta_url} {...newTab} style={{ background: page.brand.cta, color: page.brand.bg }}
          className="mt-8 inline-block rounded-lg px-6 py-3 font-medium">{fields.cta_label}</a>
     );
   }
   return (
     <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-      <a href={fields.cta_url} style={{ background: page.brand.cta, color: page.brand.bg }} className="inline-block rounded-lg px-6 py-3 font-medium">{fields.cta_label}</a>
+      <a href={fields.cta_url} {...newTab} style={{ background: page.brand.cta, color: page.brand.bg }} className="inline-block rounded-lg px-6 py-3 font-medium">{fields.cta_label}</a>
       <a href={fields.cta_secondary_url} className="inline-block rounded-lg px-6 py-3 font-medium" style={{ border: `1px solid ${t.text3}`, color: t.text }}>{fields.cta_secondary_label}</a>
     </div>
   );

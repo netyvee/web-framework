@@ -156,3 +156,21 @@ describe('case_study (new section type — labelled Challenge/Solution/Result na
     expect(html).toBe('');
   });
 });
+
+describe('cta_new_tab: optional primary-CTA new-tab behaviour (F2-08 canary)', () => {
+  const h = (fields: any) => render([{ type: 'hero', fields: { heading: 'H', cta_label: 'Go', cta_url: 'https://crm.example.invalid/e', ...fields } }]);
+  const c = (fields: any) => render([{ type: 'cta', fields: { heading: 'H', cta_label: 'Go', cta_url: 'https://crm.example.invalid/e', ...fields } }]);
+  it('hero and cta: target=_blank + rel=noopener noreferrer on the primary CTA only', () => {
+    for (const html of [h({ cta_new_tab: true, cta_secondary_label: 'Call', cta_secondary_url: 'tel:1' }), c({ cta_new_tab: true, cta_secondary_label: 'Call', cta_secondary_url: 'tel:1' }), h({ cta_new_tab: true }), c({ cta_new_tab: true })]) {
+      expect(html.match(/target="_blank"/g)).toHaveLength(1);
+      expect(html).toContain('rel="noopener noreferrer"');
+      expect(html).not.toMatch(/href="tel:1"[^>]*target=/);
+    }
+  });
+  it('omitted ⇒ no target/rel attributes (byte-identical)', () => {
+    for (const html of [h({}), c({}), h({ cta_secondary_label: 'Call', cta_secondary_url: 'tel:1' }), c({ cta_secondary_label: 'Call', cta_secondary_url: 'tel:1' })]) {
+      expect(html).not.toContain('target=');
+      expect(html).not.toContain('rel=');
+    }
+  });
+});
