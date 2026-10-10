@@ -208,3 +208,10 @@ describe('text_image: no empty <h2> on the additive blocks path (F2-08 canary)',
     expect(render([{ type: 'text_image', fields: { heading: 'H', body: 'B' } }])).toContain('<h2 class="text-3xl font-medium">H</h2>');
   });
 });
+
+describe('process_steps: explicit single mobile column (F2-08 canary mobile-overflow fix)', () => {
+  it('the grid declares grid-cols-1 before the md: columns', () => {
+    const html = render([{ type: 'process_steps', fields: { steps: [{ title: 'A', body: 'a' }, { title: 'B', body: 'b' }, { title: 'C', body: 'c' }] } }]);
+    expect(html).toContain('grid list-none grid-cols-1 gap-8 p-0 md:grid-cols-3');
+  });
+});
