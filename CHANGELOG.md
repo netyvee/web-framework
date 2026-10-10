@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.20.0 (2026-10-10) - text_image: no empty `<h2>` on the additive `blocks` path (F2-08 canary, netyvee/app#344)
+
+The canary's DOM diff found the v1.15.0 `blocks` path rendering an empty `<h2>` when a page
+has no intro heading (an accessibility defect — axe `empty-heading`; the bespoke pages have
+none). The `blocks` path now omits the `<h2>` when there is no heading. The legacy flat
+(`body`) path is untouched and stays byte-identical (asserted).
+
 ## v1.19.0 (2026-10-10) - three more optional parity capabilities found by the Cleaning canary diff (F2-08, netyvee/app#344)
 
 The canary's old-vs-new rendered-output diff (committed fixtures, DOM-level) found three

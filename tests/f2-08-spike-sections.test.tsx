@@ -193,3 +193,18 @@ describe('F2-08 canary: locations_coverage.sub, cta.fine_print, region_label', (
     expect(wo).not.toContain('role="region"');
   });
 });
+
+describe('text_image: no empty <h2> on the additive blocks path (F2-08 canary)', () => {
+  const blocks = [{ type: 'paragraph', content: ['P'] }];
+  it('blocks + no heading ⇒ no h2', () => {
+    expect(render([{ type: 'text_image', fields: { heading: '', blocks } }])).not.toContain('<h2');
+    expect(render([{ type: 'text_image', fields: { blocks } }])).not.toContain('<h2');
+  });
+  it('blocks + heading ⇒ h2 rendered', () => {
+    expect(render([{ type: 'text_image', fields: { heading: 'H', blocks } }])).toContain('<h2 class="text-3xl font-medium">H</h2>');
+  });
+  it('legacy flat path unchanged (h2 always rendered)', () => {
+    expect(render([{ type: 'text_image', fields: { heading: '', body: 'B' } }])).toContain('<h2 class="text-3xl font-medium"></h2>');
+    expect(render([{ type: 'text_image', fields: { heading: 'H', body: 'B' } }])).toContain('<h2 class="text-3xl font-medium">H</h2>');
+  });
+});
