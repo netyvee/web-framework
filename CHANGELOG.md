@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.21.0 (2026-10-10) - process_steps: no horizontal overflow on mobile when steps have images (F2-08 canary, netyvee/app#344)
+
+Found by the canary's 390px-viewport check: the `process_steps` grid had no explicit mobile
+column, so the implicit auto column sized to a step image's 400px width attribute and the page
+overflowed a 390px viewport by 34px. Adds `grid-cols-1`. No change at `md:` and up or when no
+step has an image.
+
 ## v1.20.0 (2026-10-10) - text_image: no empty `<h2>` on the additive `blocks` path (F2-08 canary, netyvee/app#344)
 
 The canary's DOM diff found the v1.15.0 `blocks` path rendering an empty `<h2>` when a page

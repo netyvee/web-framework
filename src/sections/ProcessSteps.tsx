@@ -1,4 +1,9 @@
 // process_steps (SECTION-LIBRARY §15). Numbered steps, optional per-step image.
+//
+// F2-08 canary (netyvee/app#344): the grid now declares an explicit single mobile column
+// (`grid-cols-1`). Without it the implicit auto column took the step image's 400px width
+// attribute and pushed the page 34px wider than a 390px viewport (horizontal scroll) on
+// any page with step images. No visual change at md+ or when there are no images.
 import Image from 'next/image';
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
@@ -18,7 +23,7 @@ export function ProcessSteps({ fields, page }: { fields: any; page: PageJson }) 
     <section className="px-6 py-16 md:px-12" style={{ background: surfaceBg(t, surface), color: t.text }}>
       <div className="mx-auto max-w-5xl">
         {fields.heading && <h2>{fields.heading}</h2>}
-        <ol className={`mt-8 grid list-none gap-8 p-0 ${MD_COLS[cols] ?? 'md:grid-cols-3'}`}>
+        <ol className={`mt-8 grid list-none grid-cols-1 gap-8 p-0 ${MD_COLS[cols] ?? 'md:grid-cols-3'}`}>
           {steps.map((s, i) => {
             const src = imgSrc(s.image);
             return (
