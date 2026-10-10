@@ -90,7 +90,17 @@ export function RenderSections({ page }: { page: PageJson }) {
           }
           return null;
         }
-        return <C key={i} fields={s.fields} page={page} />;
+        const el = <C key={i} fields={s.fields} page={page} />;
+        // F2-08 canary (netyvee/app#344): optional `fields.region_label` exposes the section as a
+        // named region landmark (the bespoke service pages label every section). Absent ⇒ the
+        // element is returned untouched — no wrapper, byte-identical for every existing consumer.
+        return s.fields?.region_label ? (
+          <div key={i} role="region" aria-label={s.fields.region_label}>
+            <C fields={s.fields} page={page} />
+          </div>
+        ) : (
+          el
+        );
       })}
     </>
   );
