@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.17.0 (2026-10-10) - F2-08 final parity correction: `service_grid` optional visible heading (netyvee/app#344)
+
+Founder disposition on `#344`: the last material visible-parity residual from the
+durable proof is that `service_grid` cannot render the section heading
+corresponding to the Cleaning page's "Our services" `<h2>`. Adds an optional
+`heading` field, rendered as a visible `<h2>` above the grid. Omitted ⇒ markup
+byte-identical to v1.16.0 (asserted by an exact-markup test), so every existing
+consumer is unaffected. No new section type, no architecture change.
+
 ## v1.16.0 (2026-10-10) - F2-08 closure, part 1: the two heading gaps the spike evidence found (netyvee/app#344)
 
 Founder reviewed the F2-08 spike evidence on `#344` and `web-framework#18`: useful,

@@ -9,6 +9,11 @@
 // this is the smallest change that lets those cards keep their existing
 // appearance rather than forcing every card onto an image slot it doesn't have.
 // Items with neither icon nor image render exactly as before (nothing extra).
+//
+// F2-08 final parity correction (netyvee/app#344): optional section-level
+// `heading`, rendered as a VISIBLE <h2> above the grid (the bespoke Cleaning
+// page's "Our services" heading). Omitted ⇒ byte-identical markup to before
+// (every existing consumer): the heading wrapper is only emitted when set.
 import Image from 'next/image';
 import Link from 'next/link';
 import type { PageJson } from '../types';
@@ -16,8 +21,7 @@ import { imgSrc, imgAlt } from '../loader';
 
 export function ServiceGrid({ fields, page }: { fields: any; page: PageJson }) {
   const items: any[] = fields.items ?? [];
-  return (
-    <section style={{ background: page.brand.bg, color: page.brand.text }} className="px-6 py-16">
+  const grid = (
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map((it, i) => {
           const src = imgSrc(it.image);
@@ -45,6 +49,13 @@ export function ServiceGrid({ fields, page }: { fields: any; page: PageJson }) {
           );
         })}
       </div>
+  );
+  return (
+    <section style={{ background: page.brand.bg, color: page.brand.text }} className="px-6 py-16">
+      {fields.heading && (
+        <h2 className="mx-auto mb-10 max-w-5xl text-center text-2xl font-medium" style={{ color: page.brand.secondary }}>{fields.heading}</h2>
+      )}
+      {grid}
     </section>
   );
 }
