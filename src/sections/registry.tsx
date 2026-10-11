@@ -36,6 +36,7 @@ import { ReassuranceStrip } from './ReassuranceStrip';
 // F2-08 spike (netyvee/app#344) — labelled Challenge/Solution/Result narrative,
 // the one genuinely new section type the service-page capability review found.
 import { CaseStudy } from './CaseStudy';
+import { ImageBanner } from './ImageBanner';
 
 type SectionProps = { fields: any; page: PageJson };
 
@@ -73,6 +74,8 @@ const MAP: Record<string, React.FC<SectionProps>> = {
   continuous_division_hero: ContinuousDivisionHero,
   // F2-08 spike
   case_study: CaseStudy,
+  // F2-08 borough batch
+  image_banner: ImageBanner,
 };
 
 export const SECTION_TYPES = Object.keys(MAP);
