@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.22.0 (2026-10-11) - new `image_banner` section (F2-08 borough/location batch, netyvee/app#344)
+
+The borough/location archetype's "local area" image is a standalone full-width image band; no
+existing section renders an image without text. New additive section type `image_banner`
+(renders nothing when there is no image). No existing section or consumer is affected.
+
 ## v1.21.0 (2026-10-10) - process_steps: no horizontal overflow on mobile when steps have images (F2-08 canary, netyvee/app#344)
 
 Found by the canary's 390px-viewport check: the `process_steps` grid had no explicit mobile

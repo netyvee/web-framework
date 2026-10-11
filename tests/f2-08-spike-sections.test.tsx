@@ -215,3 +215,15 @@ describe('process_steps: explicit single mobile column (F2-08 canary mobile-over
     expect(html).toContain('grid list-none grid-cols-1 gap-8 p-0 md:grid-cols-3');
   });
 });
+
+describe('image_banner (new section type — borough local-area image)', () => {
+  it('renders the image alone, with alt, capped at max-h-64', () => {
+    const html = render([{ type: 'image_banner', fields: { image: { url: 'https://res.cloudinary.com/x/local.jpg', alt: 'Local area in Barnet' } } }]);
+    expect(html).toContain('alt="Local area in Barnet"');
+    expect(html).toContain('max-h-64');
+    expect(html).not.toContain('<h2');
+  });
+  it('renders nothing without an image (no empty band)', () => {
+    expect(render([{ type: 'image_banner', fields: {} }])).toBe('');
+  });
+});
