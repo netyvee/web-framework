@@ -7,7 +7,7 @@ const render = (sections: any[]) =>
   renderToStaticMarkup(<RenderSections page={withSections(sections)} />);
 
 describe('section registry', () => {
-  it('exposes the v0.2 library + v0.6.x corporate sections + F2-08 case_study: 9 nucleus + 10 library + 6 corporate + 1 spike types', () => {
+  it('exposes the v0.2 library + v0.6.x corporate sections + F2-08 case_study: 9 nucleus + 10 library + 6 corporate + 2 F2-08 types', () => {
     expect(SECTION_TYPES.sort()).toEqual(
       [
         // nucleus (v0.1.x)
@@ -21,6 +21,8 @@ describe('section registry', () => {
         'corporate_hero', 'division_image_gateway', 'reassurance_strip', 'continuous_division_hero',
         // F2-08 service-page archetype spike (netyvee/app#344)
         'case_study',
+        // F2-08 borough/location batch
+        'image_banner',
       ].sort()
     );
   });
