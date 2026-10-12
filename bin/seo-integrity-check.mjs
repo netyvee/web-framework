@@ -424,6 +424,51 @@ for (const p of pages) {
   }
 }
 
+// F2-08 (netyvee/app#344): pages migrated to the shared JSON/framework source (service pages, borough
+// pages, homepages) keep their copy in content/pages/<slug>.json under ARBITRARY section field shapes
+// (items, paragraphs, headings, FAQ q/a, chips...), and a route may render it without a literal
+// `getPage('<slug>')` in page.tsx (e.g. <FrameworkServicePage file="slug"/>). The collection above only
+// follows that literal and only reads Prose `blocks`, so such copy silently fell out of the
+// forbidden-claims gate the moment it moved out of page.tsx. Scan EVERY content/pages/*.json, every
+// string value, regardless of how the page renders it. Findings are de-duplicated against the
+// collection above (same file + same line + same claim is reported once).
+const NON_PROSE_KEYS = /(^|_)(url|href|src|canonical|slug|site|page_type|schema_type|type|icon|id|provenance|correction_ref|status|variant|layout|surface|region_label|aria_label|schema_version|schema_version|phone|email)$/i;
+const isInlineRun = (v) =>
+  Array.isArray(v) && v.length > 0 &&
+  v.every((x) => typeof x === 'string' || (x && typeof x === 'object' && typeof x.text === 'string' && Object.keys(x).every((k) => ['text', 'href', 'bold', 'italic'].includes(k)))) &&
+  v.some((x) => typeof x !== 'string');
+function collectProse(node, key, out) {
+  if (typeof node === 'string') { if (!NON_PROSE_KEYS.test(key || '')) out.push({ text: node, fragments: [node] }); return; }
+  if (isInlineRun(node)) { const parts = node.map(flattenInline); out.push({ text: parts.join(''), fragments: parts }); return; }
+  if (Array.isArray(node)) { for (const x of node) collectProse(x, key, out); return; }
+  if (node && typeof node === 'object') { for (const [k, v] of Object.entries(node)) collectProse(v, k, out); }
+}
+const contentDirAbs = path.resolve(ROOT, 'content/pages');
+if (fs.existsSync(contentDirAbs)) {
+  for (const f of fs.readdirSync(contentDirAbs).filter((x) => x.endsWith('.json') && !x.startsWith('_')).sort()) {
+    const contentFile = `content/pages/${f}`;
+    let raw, json;
+    try { raw = fs.readFileSync(path.join(contentDirAbs, f), 'utf8'); json = JSON.parse(raw); } catch { continue; }
+    const entries = [];
+    collectProse(json, '', entries);
+    const literals = scanStringLiterals(raw);
+    let litCursor = 0;
+    for (const { text, fragments } of entries) {
+      if (!text) continue;
+      let line = null;
+      for (const frag of fragments) {
+        if (!frag) continue;
+        let found = -1;
+        for (let k = litCursor; k < literals.length; k++) if (literals[k].value === frag) { found = k; break; }
+        if (found === -1) continue;
+        if (line === null) line = literals[found].line;
+        litCursor = found + 1;
+      }
+      contentPages.push({ file: contentFile, src: text, line, allJson: true });
+    }
+  }
+}
+
 // ───────────────────────── parse next.config redirects ────────────────────
 const redirectSources = new Set();
 const ncPath = ['next.config.mjs', 'next.config.js'].map((f) => path.resolve(ROOT, f)).find(fs.existsSync);
@@ -533,6 +578,7 @@ for (const f of scanFiles) {
 const forbiddenClaims = cfg.forbiddenClaims || [];
 const claimEnforce = !!cfg.forbiddenClaimsEnforce;
 if (forbiddenClaims.length) {
+  const seenClaims = new Set();
   for (const p of [...pages, ...contentPages]) {
     for (const claim of forbiddenClaims) {
       let re;
@@ -540,6 +586,9 @@ if (forbiddenClaims.length) {
       const m = p.src.match(re);
       if (m) {
         const line = p.line != null ? p.line : p.src.slice(0, m.index).split('\n').length;
+        const dedupeKey = `${p.file}|${claim}|${line}`;
+        if (seenClaims.has(dedupeKey)) continue;
+        seenClaims.add(dedupeKey);
         const message = `Forbidden marketing claim "${m[0].trim()}" (pattern: /${claim}/i)`;
         const fix = 'Remove the forbidden claim — see SEO-GOVERNANCE.md / CLAUDE.md FORBIDDEN list';
         if (claimEnforce) {

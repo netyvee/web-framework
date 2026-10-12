@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.23.0 (2026-10-12) - SEO gate: forbidden-claims scan covers every `content/pages/*.json` string (F2-08, netyvee/app#344)
+
+Pages migrated to the shared JSON source (service pages, borough pages, homepages) keep their copy
+under arbitrary section field shapes, and may render it without a literal `getPage('<slug>')` in
+page.tsx. The gate only followed that literal and only read Prose `blocks`, so the moment copy moved
+out of page.tsx it silently fell out of forbidden-claims coverage (found when migrated Cleaning pages
+that carry "all 32 boroughs" stopped being reported). The gate now scans every string value in every
+`content/pages/*.json` (inline link runs joined; URL/icon/type-like keys skipped), de-duplicated
+against the existing collection. Output for sites whose JSON is only Prose blocks is unchanged.
+
 ## v1.22.0 (2026-10-11) - new `image_banner` section (F2-08 borough/location batch, netyvee/app#344)
 
 The borough/location archetype's "local area" image is a standalone full-width image band; no

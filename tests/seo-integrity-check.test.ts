@@ -157,3 +157,39 @@ describe('seo-integrity-check.mjs (F2-07 item B shared engine)', () => {
     expect(() => readFileSync(path.join(dir, '.seo-baseline.json'), 'utf8')).not.toThrow();
   });
 });
+
+describe('F2-08: forbidden claims inside migrated content/pages JSON of any shape', () => {
+  it('flags a claim in a section item and in an inline run, without a getPage() literal in page.tsx', () => {
+    writeConfig({ forbiddenClaims: ['ISO certified', '32 boroughs'] });
+    writeHomePage();
+    writeSitemap();
+    mkdirSync(path.join(dir, 'content', 'pages'), { recursive: true });
+    writeFileSync(
+      path.join(dir, 'content', 'pages', 'svc.json'),
+      JSON.stringify(
+        {
+          schema_version: 1,
+          sections: [
+            { type: 'service_grid', fields: { items: [{ title: 'Cleaning', body: 'We are ISO certified.', href: '/x' }] } },
+            { type: 'seo_columns', fields: { columns: [[{ paragraphs: [['Serving all ', { text: '32 boroughs', href: '/y' }, ' today.']] }]] } },
+          ],
+        },
+        null,
+        2
+      )
+    );
+    const r = run();
+    expect(r.stdout).toContain('content/pages/svc.json');
+    expect(r.stdout).toMatch(/Forbidden marketing claim "ISO certified"/);
+    expect(r.stdout).toMatch(/Forbidden marketing claim "32 boroughs"/);
+  });
+
+  it('does not flag clean JSON or URL-ish values', () => {
+    writeConfig({ forbiddenClaims: ['ISO certified'] });
+    writeHomePage();
+    writeSitemap();
+    mkdirSync(path.join(dir, 'content', 'pages'), { recursive: true });
+    writeFileSync(path.join(dir, 'content', 'pages', 'ok.json'), JSON.stringify({ sections: [{ type: 'cta', fields: { heading: 'Hello', cta_url: 'https://x.test/iso-certified' } }] }));
+    expect(run().stdout).not.toContain('content/pages/ok.json');
+  });
+});
