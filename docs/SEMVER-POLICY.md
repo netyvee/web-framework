@@ -28,7 +28,8 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
-| **v1.6.0** | 1 | 14.2.x | none yet — additive capability (`netyvee/app#344` F2 Step 5c prerequisite, `Prose` optional `fields.blocks` rich-content contract), no consumer repinned in this package; byte-identical for every current consumer, proven against all 99 real `prose` sections live on Care/Staffing/Main | ✅ **current** |
+| **v1.24.0** | 1 | 14.2.x | none yet — additive tooling (`netyvee/app#344` TECHNICAL-SEO-C5-FRAMEWORK-ENGINE-01, `scripts/seo-crawl/` shared crawler); nothing in `src/` changes, byte-identical for every current consumer, no consumer repinned in this package | ✅ **current** |
+| v1.6.0 | 1 | 14.2.x | none yet — additive capability (`netyvee/app#344` F2 Step 5c prerequisite, `Prose` optional `fields.blocks` rich-content contract), no consumer repinned in this package; byte-identical for every current consumer, proven against all 99 real `prose` sections live on Care/Staffing/Main | superseded (additive minor) |
 | v1.5.0 | 1 | 14.2.x | none yet — additive module (`netyvee/app#344` WEBSITE-DEPLOYMENT-ATTESTATION-01, shared `src/attestation.ts` Route Handler), no consumer repinned in this package; byte-identical for every current consumer (new module, nothing else touched) | superseded (additive minor) |
 | v1.4.0 | 1 | 14.2.x | none — additive capability (`netyvee/app#344` F2-B4, `NavBar` visual-parity theming props: `fixed`/`blur`/`underline`/`logoInvert`/`icons`), no consumer repinned in this package; byte-identical for every current consumer | superseded (additive minor) |
 | v1.3.0 | 1 | 14.2.x | none — additive capability (`netyvee/app#344` F2-B3, `mobileFooterLink`), no consumer repinned in this package; byte-identical for every current consumer | superseded (additive minor) |

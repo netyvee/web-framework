@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.24.0 (2026-10-25) - shared technical-SEO crawler: loopback crawl of a built site, baseline-gated (TECHNICAL-SEO-C5-FRAMEWORK-ENGINE-01, netyvee/app#344)
+
+Adds `scripts/seo-crawl/technical-seo-crawl.mjs` (+ `thresholds.json`), the read-only crawler netyvee/app uses against the five
+live sites, so a site can crawl its OWN built output before merge. It follows every internal link, image, stylesheet and script,
+reconciles sitemap, robots and canonicals against the pages it fetched, and reports broken URLs, soft 404s, redirect loops,
+canonical contradictions, accidental `noindex` and missing metadata. Zero dependencies; GET and HEAD only.
+- `--origin http://127.0.0.1:<port>` crawls a locally started build of ONE site. URLs stay in production-host space; every request
+  goes to the loopback origin (only `127.0.0.1`, `localhost`, `[::1]` are accepted) and the production host is never requested.
+- `--baseline <file> --fail-on-new-errors` gates ERROR-class findings only. Accepted debt needs a reason, an owner and an expiry at
+  most 90 days ahead; expired entries stop covering their finding.
+- Exit codes: 0 completed, 1 new ERROR (with `--fail-on-new-errors`), 2 bad input, 3 a site unreachable.
+- The file is byte-identical to the copy in netyvee/app `scripts/seo-crawl/`; `engineHash()` is written into every report so a stale copy is visible.
+- `register.md` keeps up to 400 characters of each error's detail (was 140), so the HTTP status at the end of a long image URL (for example a `/_next/image?url=...` wrapping a CDN URL) is not cut off.
+The host allow-list lives in `scripts/`, outside the `src/` identity scan, with the other identity tables. Contract impact: none
+(new optional script; nothing in `src/` changes; no consumer is affected until it adds a CI step). Warn-only on introduction: consumers
+add it as an advisory step first. Tests: `tests/technical-seo-crawl.test.mjs` (20), run by `npm test`.
+
 ## v1.23.0 (2026-10-12) - SEO gate: forbidden-claims scan covers every `content/pages/*.json` string (F2-08, netyvee/app#344)
 
 Pages migrated to the shared JSON source (service pages, borough pages, homepages) keep their copy

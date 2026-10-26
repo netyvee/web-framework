@@ -1,0 +1,5 @@
+{
+  "_comment": "Single source for the length bounds the technical-SEO tooling shares. `hard` = the CRM publish gate (PageHealthService) blocks outside it; `target` = the band the crawler reports as a WARNING outside it. Characters, inclusive. Changing a number here changes the crawler now and the CRM gate when TECHNICAL-SEO-PHASE-C-DESIGN-01 slice C4 wires it.",
+  "title": { "hard": [10, 70], "target": [20, 65] },
+  "description": { "hard": [50, 180], "target": [70, 165] }
+}
