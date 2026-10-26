@@ -12,6 +12,7 @@ canonical contradictions, accidental `noindex` and missing metadata. Zero depend
   most 90 days ahead; expired entries stop covering their finding.
 - Exit codes: 0 completed, 1 new ERROR (with `--fail-on-new-errors`), 2 bad input, 3 a site unreachable.
 - The file is byte-identical to the copy in netyvee/app `scripts/seo-crawl/`; `engineHash()` is written into every report so a stale copy is visible.
+- `register.md` keeps up to 400 characters of each error's detail (was 140), so the HTTP status at the end of a long image URL (for example a `/_next/image?url=...` wrapping a CDN URL) is not cut off.
 The host allow-list lives in `scripts/`, outside the `src/` identity scan, with the other identity tables. Contract impact: none
 (new optional script; nothing in `src/` changes; no consumer is affected until it adds a CI step). Warn-only on introduction: consumers
 add it as an advisory step first. Tests: `tests/technical-seo-crawl.test.mjs` (20), run by `npm test`.

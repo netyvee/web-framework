@@ -561,7 +561,7 @@ function register(results, unrouted = [], gates = []) {
     const errs = r.findings.filter((f) => f.severity === 'ERROR');
     if (errs.length) {
       lines.push('', '### Errors', '', '| RULE | URL | DETAIL |', '|---|---|---|');
-      for (const f of errs.slice(0, 80)) lines.push(`| ${f.rule} | ${f.url.replace(/\|/g, '%7C')} | ${String(f.detail).replace(/\|/g, '/').slice(0, 140)} |`);
+      for (const f of errs.slice(0, 80)) lines.push(`| ${f.rule} | ${f.url.replace(/\|/g, '%7C')} | ${String(f.detail).replace(/\|/g, '/').slice(0, 400)} |`);
       if (errs.length > 80) lines.push(`| … | ${errs.length - 80} more in register.json | |`);
     }
     if (r.probes.length) {
