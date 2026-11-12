@@ -37,3 +37,23 @@ jobs:
         # 12 consecutive tags because nothing checked them. Skips silently on branch
         # and PR builds; fails a tag build that would otherwise ship the same drift.
         run: node scripts/release-gate.mjs
+
+  compat:
+    name: typecheck + tests on Next 16 / React 19
+    # v1.25.0: the peer range admits Next 15/16 and React 19 (security: Next 14.x has no further patches).
+    # The primary job above keeps the Next 14 / React 18 pin; this one proves the other end of the range.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install (Next 14 lockfile, then swap in Next 16 / React 19 without touching the lockfile)
+        run: |
+          npm install
+          npm install --no-save next@16.4.6 react@19 react-dom@19 @types/react@19 @types/react-dom@19
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Render tests
+        run: npm test

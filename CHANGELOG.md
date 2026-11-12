@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.25.0 (2026-11-12) - peer range admits Next 15/16 and React 19 (security: Next 14.x advisories; netyvee/app#344)
+
+`next` 14.2.35 is the last 14.x release and `npm audit` reports a critical and several high advisories against it that are fixed only
+in Next 15.5.x and later (the bundled PostCSS is clean from Next 16). The framework's peer range (`next ^14.2`, `react ^18`) blocked
+every consumer from upgrading. This release widens it: `next ^14.2.0 || ^15.0.0 || ^16.0.0`, `react`/`react-dom` `^18 || ^19`.
+No `src/` change: the framework reads no `params`, `cookies()` or `headers()`, and builds unchanged on Next 16.4.6 with React 19 (Care
+canary: DOM, metadata and response headers identical to the Next 14 build once the consumer's own `params` access is awaited).
+- CI: a second job typechecks and runs the full suite on Next 16.4.6 / React 19 (the primary job keeps the Next 14 / React 18 pin).
+- Tests: `division_image_gateway` and `division_visual_hero` strip React 19's hoisted `<link rel="preload" as="image">` before asserting
+  the markup carries no `rel=` (no-op on React 18); `@testing-library/dom` added as an explicit devDependency (peer of RTL 16).
+- Consumer action when moving to Next 15+: `params` in `generateMetadata`/pages is a Promise; `await` it (works on Next 14 too).
+Contract impact: none for a consumer that stays on Next 14 / React 18 (byte-identical).
+
 ## v1.24.0 (2026-10-25) - shared technical-SEO crawler: loopback crawl of a built site, baseline-gated (TECHNICAL-SEO-C5-FRAMEWORK-ENGINE-01, netyvee/app#344)
 
 Adds `scripts/seo-crawl/technical-seo-crawl.mjs` (+ `thresholds.json`), the read-only crawler netyvee/app uses against the five

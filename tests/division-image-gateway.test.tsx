@@ -32,7 +32,9 @@ const four = {
   ],
 };
 const render = (fields: any, p: PageJson = mainPage) =>
-  renderToStaticMarkup(<DivisionImageGateway fields={fields} page={p} />);
+  // React 19 hoists a <link rel="preload" as="image"> for `priority` images into the markup; that resource hint is
+  // not part of the component's DOM relationship contract (no-op on React 18).
+  renderToStaticMarkup(<DivisionImageGateway fields={fields} page={p} />).replace(/<link rel="preload"[^>]*>/g, '');
 
 // index in the rendered string of each landmark for a division, to assert DOM ordering
 const at = (html: string, needle: string) => html.indexOf(needle);
