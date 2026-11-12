@@ -5,6 +5,8 @@
 // that is absent by default (React renders `false &&` as nothing). This is why
 // v0.2 is parity-safe for existing pinned pages.
 import Image from 'next/image';
+// `priority` alone no longer sets fetchpriority="high" on the <img> and its preload link from Next 16 (it is deprecated in favour of
+// `preload` + `fetchPriority`); stating fetchPriority explicitly keeps the LCP hint on Next 14, 15 and 16 (byte-identical on Next 14).
 import type { PageJson } from '../types';
 import { imgSrc, imgAlt } from '../loader';
 import { resolveTheme } from '../tokens/theme';
@@ -83,7 +85,7 @@ export function Hero({ fields, page }: { fields: any; page: PageJson }) {
           </div>
           {src && (
             <div className="overflow-hidden rounded-2xl">
-              <Image src={src} alt={imgAlt(fields.image, fields.image_alt)} width={1200} height={628} priority />
+              <Image src={src} alt={imgAlt(fields.image, fields.image_alt)} width={1200} height={628} priority fetchPriority="high" />
             </div>
           )}
         </div>
@@ -106,7 +108,7 @@ export function Hero({ fields, page }: { fields: any; page: PageJson }) {
         <CtaRow fields={fields} page={page} />
         {src && (
           <div className="mt-10 overflow-hidden rounded-xl">
-            <Image src={src} alt={imgAlt(fields.image, fields.image_alt)} width={1200} height={628} priority />
+            <Image src={src} alt={imgAlt(fields.image, fields.image_alt)} width={1200} height={628} priority fetchPriority="high" />
           </div>
         )}
       </div>
