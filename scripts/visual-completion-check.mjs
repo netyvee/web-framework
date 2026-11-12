@@ -14,6 +14,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { readBuiltCss } from './built-css.mjs';
 
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
@@ -32,9 +33,8 @@ const headerHtml = (home.match(/<header[\s\S]*?<\/header>/i) ?? [''])[0];
 const footerHtml = (home.match(/<footer[^>]*data-vf-footer[\s\S]*?<\/footer>/i) ?? home.match(/<footer[\s\S]*?<\/footer>/i) ?? [''])[0];
 
 // built CSS (for responsive-typography clamp())
-let css = '';
-const cssDir = path.join(siteDir, '.next', 'static', 'css');
-if (fs.existsSync(cssDir)) for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith('.css'))) css += fs.readFileSync(path.join(cssDir, f), 'utf8');
+// (Next 14/15: .next/static/css; Next 16: .next/static/chunks - see scripts/built-css.mjs)
+const css = readBuiltCss(siteDir);
 
 const results = [];
 const gate = (name, pass, detail, hard = true) => results.push({ name, pass, detail, hard });

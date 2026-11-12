@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.25.2 (2026-11-12) - QA scripts find the built CSS on Next 16 (netyvee/app#344)
+
+Next 16 (Turbopack) writes built stylesheets to `.next/static/chunks/*.css`; Next 14/15 wrote `.next/static/css/*.css`. `scripts/visual-completion-check.mjs`
+and `scripts/capture-baseline.mjs` read only the old location, so on a Next 16 build `visual-completion-check` failed its hard
+`responsive-typography` gate ("no clamp() in built CSS") although the build has three `clamp()` rules, and `capture-baseline` recorded no CSS.
+New `scripts/built-css.mjs` (`builtCssFiles`, `readBuiltCss`) reads both locations in a deterministic order; both scripts use it. Found by running
+the Staffing canary's QA gates on Next 16.4.6. No `src/` change; output is unchanged for a Next 14/15 build. Test: `tests/built-css.test.mjs` (4).
+Consumers' own scripts that read `.next/static/css` (for example Cleaning's `scripts/capture-visual-baseline.mjs`) need the same change when they move to Next 16.
+Contract impact: none for Next 14/15 consumers.
+
 ## v1.25.1 (2026-11-12) - hero image keeps fetchpriority="high" on Next 16 (netyvee/app#344)
 
 On Next 16 the `priority` prop no longer sets `fetchpriority="high"` on the `<img>` or on its `<link rel="preload" as="image">` (it is deprecated
