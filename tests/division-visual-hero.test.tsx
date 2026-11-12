@@ -16,7 +16,9 @@ const base = {
 };
 
 const render = (fields: any, p: PageJson = mainPage) =>
-  renderToStaticMarkup(<DivisionVisualHero fields={fields} page={p} />);
+  // React 19 hoists a <link rel="preload" as="image"> for `priority` images into the markup; that resource hint is
+  // not part of the component's DOM relationship contract (no-op on React 18).
+  renderToStaticMarkup(<DivisionVisualHero fields={fields} page={p} />).replace(/<link rel="preload"[^>]*>/g, '');
 
 // helper: the ordered labels as they must appear in the rendered figcaptions
 const LABELS = ['Care Services', 'Care Staffing', 'Security Services', 'Cleaning Services'];

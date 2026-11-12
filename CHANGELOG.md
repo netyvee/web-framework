@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.25.0 (2026-11-12) - peer range admits Next 15/16 and React 19 (security: Next 14.x advisories; netyvee/app#344)
+
+`next` 14.2.35 is the last 14.x release and `npm audit` reports a critical and several high advisories against it that are fixed only
+in Next 15.5.x and later (the bundled PostCSS is clean from Next 16). The framework's peer range (`next ^14.2`, `react ^18`) blocked
+every consumer from upgrading. This release widens it: `next ^14.2.0 || ^15.0.0 || ^16.0.0`, `react`/`react-dom` `^18 || ^19`.
+No `src/` change: the framework reads no `params`, `searchParams`, `cookies()` or `headers()`. Typecheck and the full suite pass on Next 14.2.35 /
+React 18, Next 15.5.29 / React 19 and Next 16.4.6 / React 19 (CI guards 14.2.35, 15.5.29 and 16.4.6). A local Care canary build on Next 16.4.6 / React 19 matched the
+Next 14 build (rendered HTML, metadata, response headers) once the consumer's own `params` access was awaited; that evidence lives in the PR
+description (netyvee/web-framework#28), not in this repository. `npm audit` of a Next 16.4.6 + React 19 install reported 0 production
+vulnerabilities on 2026-11-12 (the lockfile here still resolves Next 14.2.35, so `npm audit` in this repo still reports it).
+- CI: a second job typechecks and runs the full suite on Next 15.5.29 and Next 16.4.6, both with React 19 (the primary job keeps the Next 14 / React 18 pin).
+- Pairing note: Next 15+ App Router expects React 19. Next 15 with React 18 passes typecheck and the unit tests here but has not been built or run, so treat it as unsupported.
+- Tests: `division_image_gateway` and `division_visual_hero` strip React 19's hoisted `<link rel="preload" as="image">` before asserting
+  the markup carries no `rel=` (no-op on React 18); `@testing-library/dom` added as an explicit devDependency (peer of RTL 16).
+- Consumer action when moving to Next 15+: `params` in `generateMetadata`/pages is a Promise; `await` it (works on Next 14 too).
+Contract impact: none for a consumer that stays on Next 14 / React 18 (byte-identical).
+
 ## v1.24.0 (2026-10-25) - shared technical-SEO crawler: loopback crawl of a built site, baseline-gated (TECHNICAL-SEO-C5-FRAMEWORK-ENGINE-01, netyvee/app#344)
 
 Adds `scripts/seo-crawl/technical-seo-crawl.mjs` (+ `thresholds.json`), the read-only crawler netyvee/app uses against the five

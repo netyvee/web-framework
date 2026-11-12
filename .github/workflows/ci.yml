@@ -37,3 +37,28 @@ jobs:
         # 12 consecutive tags because nothing checked them. Skips silently on branch
         # and PR builds; fails a tag build that would otherwise ship the same drift.
         run: node scripts/release-gate.mjs
+
+  compat:
+    name: typecheck + tests on Next ${{ matrix.next }} / React 19
+    strategy:
+      fail-fast: false
+      matrix:
+        next: ['15.5.29', '16.4.6']
+    # v1.25.0: the peer range admits Next 15/16 and React 19 (security: Next 14.x has no further patches).
+    # The primary job above keeps the Next 14 / React 18 pin; this one proves the other end of the range.
+    # Next 15 + React 18 is intentionally not tested: Next 15 App Router expects React 19.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install (Next 14 lockfile, then swap in the matrix Next + React 19 without touching the lockfile)
+        run: |
+          npm install
+          npm install --no-save next@${{ matrix.next }} react@19 react-dom@19 @types/react@19 @types/react-dom@19
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Render tests
+        run: npm test

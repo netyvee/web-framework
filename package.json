@@ -1,8 +1,8 @@
 {
   "name": "@vigil/web-framework",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "private": false,
-  "description": "Vigil website framework — versioned render-from-JSON engine, shell, sections and QA shared by the Vigil division sites.",
+  "description": "Vigil website framework \u2014 versioned render-from-JSON engine, shell, sections and QA shared by the Vigil division sites.",
   "license": "UNLICENSED",
   "repository": "github:netyvee/web-framework",
   "main": "src/index.ts",
@@ -29,11 +29,12 @@
     "gray-matter": "^4.0.3"
   },
   "peerDependencies": {
-    "next": "^14.2.0",
-    "react": "^18",
-    "react-dom": "^18"
+    "next": "^14.2.0 || ^15.0.0 || ^16.0.0",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^18",
