@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.25.1 (2026-11-12) - hero image keeps fetchpriority="high" on Next 16 (netyvee/app#344)
+
+On Next 16 the `priority` prop no longer sets `fetchpriority="high"` on the `<img>` or on its `<link rel="preload" as="image">` (it is deprecated
+in favour of `preload` + `fetchPriority`), so the hero image, usually the largest contentful paint, lost its priority hint. `Hero` (standard
+and split layouts) now passes `fetchPriority="high"` explicitly alongside `priority`. Found by diffing the rendered HTML of a Care canary build
+on Next 16.4.6 against the Next 14 build. Output is byte-identical on Next 14 (it already emitted the attribute). Test: `tests/hero-fetchpriority.test.tsx`.
+Contract impact: none; the only change is the hint on the hero image.
+
 ## v1.25.0 (2026-11-12) - peer range admits Next 15/16 and React 19 (security: Next 14.x advisories; netyvee/app#344)
 
 `next` 14.2.35 is the last 14.x release and `npm audit` reports a critical and several high advisories against it that are fixed only
