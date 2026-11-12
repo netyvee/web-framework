@@ -6,7 +6,7 @@
 in Next 15.5.x and later (the bundled PostCSS is clean from Next 16). The framework's peer range (`next ^14.2`, `react ^18`) blocked
 every consumer from upgrading. This release widens it: `next ^14.2.0 || ^15.0.0 || ^16.0.0`, `react`/`react-dom` `^18 || ^19`.
 No `src/` change: the framework reads no `params`, `searchParams`, `cookies()` or `headers()`. Typecheck and the full suite pass on Next 14.2.35 /
-React 18, Next 15.5.29 / React 19 and Next 16.4.6 / React 19 (CI guards 14 and 16). A local Care canary build on Next 16.4.6 / React 19 matched the
+React 18, Next 15.5.29 / React 19 and Next 16.4.6 / React 19 (CI guards 14.2.35, 15.5.29 and 16.4.6). A local Care canary build on Next 16.4.6 / React 19 matched the
 Next 14 build (rendered HTML, metadata, response headers) once the consumer's own `params` access was awaited; that evidence lives in the PR
 description (netyvee/web-framework#28), not in this repository. `npm audit` of a Next 16.4.6 + React 19 install reported 0 production
 vulnerabilities on 2026-11-12 (the lockfile here still resolves Next 14.2.35, so `npm audit` in this repo still reports it).
