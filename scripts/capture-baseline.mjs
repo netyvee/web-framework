@@ -16,6 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { normalizeHtml } from './normalize-html.mjs';
+import { builtCssFiles } from './built-css.mjs';
 
 const args = process.argv.slice(2);
 const opt = (n) => {
@@ -31,7 +32,6 @@ if (!siteDir || !outDir) {
 }
 
 const appDir = path.join(siteDir, '.next', 'server', 'app');
-const cssDir = path.join(siteDir, '.next', 'static', 'css');
 const sha = (s) => crypto.createHash('sha256').update(s).digest('hex');
 const pick = (html, re) => (html.match(re) ?? [, null])[1];
 
@@ -69,9 +69,9 @@ for (const { fp, name: f } of htmlFiles(appDir)) {
   };
 }
 
-if (fs.existsSync(cssDir)) {
-  for (const f of fs.readdirSync(cssDir).filter((f) => f.endsWith('.css'))) {
-    const body = fs.readFileSync(path.join(cssDir, f), 'utf8');
+{
+  for (const { name: f, file } of builtCssFiles(siteDir)) {
+    const body = fs.readFileSync(file, 'utf8');
     // content-addressed name: the hashed filename changes per build, the CONTENT is
     // what parity compares.
     const h = sha(body);
