@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.26.0 (2026-11-13) - NavBar: logo height and contextual division label (netyvee/app#344, D-140)
+
+Three optional, default-off `NavBar` props for the master-brand header (Vigil wordmark plus a small contextual division label, D-140):
+`logoHeight` (logo image height in px; default stays 30 on the bar and 28 in the mobile menu, scaled proportionally when set),
+`logoLabel` (muted uppercase text after the wordmark behind a hairline; contextual text only, takes `theme.text` at reduced opacity so it suits a dark or a light header)
+and `logoLabelCollapse` (hide the label below 1100px wide where it would touch the navigation). Omitting all three is byte-identical to v1.25.2.
+Test: `tests/navbar-logo-label.test.tsx`.
+Contract impact: none for existing consumers (additive, optional props).
+
 ## v1.25.2 (2026-11-12) - QA scripts find the built CSS on Next 16 (netyvee/app#344)
 
 Next 16 (Turbopack) writes built stylesheets to `.next/static/chunks/*.css`; Next 14/15 wrote `.next/static/css/*.css`. `scripts/visual-completion-check.mjs`

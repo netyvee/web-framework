@@ -28,6 +28,7 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
+| **v1.26.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — minor: `NavBar` gains optional `logoHeight`, `logoLabel`, `logoLabelCollapse` (master-brand header, `netyvee/app#344`, D-140); default-off, omitted = byte-identical to v1.25.2; no consumer change required |
 | **v1.25.2** | 1 | 14.2.x, 15.x, 16.4.x | none yet — patch: the QA scripts `visual-completion-check` and `capture-baseline` read built CSS from `.next/static/chunks` as well as `.next/static/css` (Next 16 moved it; `netyvee/app#344`); no `src/` change, unchanged for Next 14/15 builds; no consumer is repinned in this release | current |
 | **v1.25.1** | 1 | 14.2.x, 15.x, 16.4.x | none yet — patch: `Hero` passes `fetchPriority="high"` explicitly so the hero image keeps its LCP hint on Next 16 (`netyvee/app#344`); byte-identical on Next 14; no consumer is repinned in this release | superseded (patch) |
 | **v1.25.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — peer-range widening for the Next.js security upgrade (`netyvee/app#344`); nothing in `src/` changes, byte-identical for every Next 14 / React 18 consumer; CI also runs the suite on Next 15.5.29 and 16.4.6 with React 19. A local Care canary build on Next 16.4.6 matched the Next 14 build (evidence in PR #28, not committed here); no consumer is repinned in this release. Next 15 with React 18 is unsupported (App Router expects React 19) | superseded (patch) |
