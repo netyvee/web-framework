@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.27.0 (2026-11-13) - Shell: optional header presentation (netyvee/app#344, D-140/D-142)
+
+`Shell` gains an optional `header` prop (`ShellHeader`: `brand`, `logoHeight`, `logoLabel`, `logoLabelCollapse`). `header.brand` colours the header and its
+mobile menu only, so a site can have a white header on a dark page without changing `page.brand`, which the hero, sections and footer keep. The other three options
+pass straight to the v1.26.0 `NavBar` props. Omitting `header` is byte-identical to v1.26.0. Test: `tests/shell-header.test.tsx`.
+Contract impact: none for existing consumers (additive, optional prop).
+
 ## v1.26.0 (2026-11-13) - NavBar: logo height and contextual division label (netyvee/app#344, D-140)
 
 Three optional, default-off `NavBar` props for the master-brand header (Vigil wordmark plus a small contextual division label, D-140):

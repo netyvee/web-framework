@@ -25,7 +25,21 @@ function relAttrs(l: NavLink): { 'data-vf-rel'?: NavLinkRel } {
   return l.rel ? { 'data-vf-rel': l.rel } : {};
 }
 
-export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; children: React.ReactNode }) {
+// v1.27.0 (netyvee/app#344, D-140/D-142) — optional header presentation, default-off. The header can take its own
+// colours (e.g. a white header on a dark page) and the master-brand logo options, WITHOUT changing page.brand, which
+// the rest of the page (hero, sections, footer) keeps. Omitting it is byte-identical to v1.26.0.
+export type ShellHeader = {
+  /** Colours for the header and its mobile menu only. Default: page.brand. */
+  brand?: PageJson['brand'];
+  /** Logo image height in px (NavBar `logoHeight`). */
+  logoHeight?: number;
+  /** Small contextual division label after the wordmark (NavBar `logoLabel`). */
+  logoLabel?: string;
+  /** Hide that label below 1100px wide (NavBar `logoLabelCollapse`). */
+  logoLabelCollapse?: boolean;
+};
+
+export function Shell({ page, nav, header, children }: { page: PageJson; nav: SiteNav; header?: ShellHeader; children: React.ReactNode }) {
   const t = resolveTheme(page.brand);
   // Mobile menu open state lives here (not in NavBar) so the sticky CTA below
   // can hide itself while the menu is open — see NavBar.tsx's own comment on
@@ -85,7 +99,10 @@ export function Shell({ page, nav, children }: { page: PageJson; nav: SiteNav; c
       <NavBar
         nav={nav}
         slug={page.slug}
-        brand={page.brand}
+        brand={header?.brand ?? page.brand}
+        logoHeight={header?.logoHeight}
+        logoLabel={header?.logoLabel}
+        logoLabelCollapse={header?.logoLabelCollapse}
         phone={hasPhone ? phone : undefined}
         headerCtaHref={hasHeaderCta ? headerCtaHref : undefined}
         headerCtaLabel={hasHeaderCta ? headerCtaLabel : undefined}
