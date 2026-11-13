@@ -55,6 +55,8 @@ export function Logo({
   invert,
   wordmark,
   round,
+  label,
+  labelCollapse,
 }: {
   nav: SiteNav;
   src?: string;
@@ -81,6 +83,13 @@ export function Logo({
   // capability. Optional/default-false: every existing caller renders the exact
   // same uncropped image as before.
   round?: boolean;
+  // v1.26.0 (netyvee/app#344, D-140) — the canonical master-brand header: a wordmark image followed by a SMALL
+  // contextual division label (e.g. "Cleaning"), separated by a hairline and set muted. Contextual text only,
+  // never a second logo. Optional/default-off: every existing caller renders exactly what it did before.
+  // The label takes `theme.text` at reduced opacity, so it is right on a dark or a light header.
+  label?: string;
+  // Hide the label below 1100px wide, where it would touch the navigation (Care's header has the least room).
+  labelCollapse?: boolean;
 }) {
   const logoSrc = src;
   if (logoSrc) {
@@ -100,6 +109,29 @@ export function Logo({
         }}
       />
     );
+    if (label) {
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+          {img}
+          <span
+            className={labelCollapse ? 'hidden min-[1100px]:inline' : undefined}
+            style={{
+              borderLeft: '1px solid currentColor',
+              paddingLeft: 12,
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '0.14em',
+              color: theme.text,
+              opacity: 0.62,
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </span>
+        </span>
+      );
+    }
     if (!wordmark) return img;
     return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
@@ -358,6 +390,9 @@ export function NavBar({
   logoInvert,
   logoWordmark,
   logoRound,
+  logoHeight,
+  logoLabel,
+  logoLabelCollapse,
   headerCtaClassName,
   icons,
 }: {
@@ -419,6 +454,13 @@ export function NavBar({
   logoInvert?: boolean;
   logoWordmark?: boolean;
   logoRound?: boolean;
+  // v1.26.0 (netyvee/app#344, D-140) — master-brand header. All optional, default off.
+  //   • logoHeight        — logo image height in px (default 30 on the bar, 28 in the mobile menu).
+  //   • logoLabel         — small contextual division label after the wordmark, behind a hairline (see Logo).
+  //   • logoLabelCollapse — hide that label below 1100px wide, where it would touch the navigation.
+  logoHeight?: number;
+  logoLabel?: string;
+  logoLabelCollapse?: boolean;
   headerCtaClassName?: string;
   icons?: { chevron?: React.ReactNode; menu?: React.ReactNode; close?: React.ReactNode };
 }) {
@@ -497,7 +539,7 @@ export function NavBar({
         <div className="border-b" style={{ borderColor: t.line }}>
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:py-4">
             <Link href="/" aria-label={nav.brandName} className="flex items-center">
-              <Logo nav={nav} src={nav.logo?.src} height={30} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} />
+              <Logo nav={nav} src={nav.logo?.src} height={logoHeight ?? 30} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} label={logoLabel} labelCollapse={logoLabelCollapse} />
             </Link>
             <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
               {nav.primary.map((l) =>
@@ -569,7 +611,7 @@ export function NavBar({
           }}
         >
           <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: t.line }}>
-            <Logo nav={nav} src={nav.logo?.src} height={28} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} />
+            <Logo nav={nav} src={nav.logo?.src} height={logoHeight ? Math.round(logoHeight * 28 / 30) : 28} theme={t} invert={logoInvert} wordmark={logoWordmark} round={logoRound} label={logoLabel} labelCollapse={logoLabelCollapse} />
             <button ref={closeRef} onClick={() => onOpenChange(false)} aria-label="Close menu" style={{ color: brand.text, fontSize: 26, lineHeight: 1 }}>{icons?.close ?? '×'}</button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-4">
