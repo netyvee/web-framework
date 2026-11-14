@@ -16,6 +16,7 @@ import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
 import { NavBar, Logo } from './NavBar';
 import { renderBlock } from '../sections/Prose';
+import { SiteFooter, FOOTER_HEADINGS, type SiteFooterColumn, type SiteFooterLink } from './SiteFooter';
 
 // SM-F2 — typed link metadata must survive all the way to the rendered anchor
 // (footer/legal links here still need it — the nav/header itself now lives in
@@ -39,7 +40,29 @@ export type ShellHeader = {
   logoLabelCollapse?: boolean;
 };
 
-export function Shell({ page, nav, header, children }: { page: PageJson; nav: SiteNav; header?: ShellHeader; children: React.ReactNode }) {
+// v1.28.0 — opt in to the canonical white SiteFooter (see SiteFooter.tsx). Omitted = the previous footer, byte-identical.
+export type ShellFooter = {
+  /** R: rows shown per column. */
+  rows: number;
+  logo: { src: string; alt?: string; height?: number };
+  description?: string;
+  /** Address lines. Default: page.nap.address split at its last comma. */
+  addressLines?: string[];
+  /** Hub link per column heading, used as the last row when a list is cut. */
+  viewAll?: Record<string, SiteFooterLink>;
+  /** Legal entity in the company line. Default 'Vigil Services Ltd'. */
+  legalEntity?: string;
+  tradingNote?: string;
+};
+
+const slotIndex = (heading: string) => {
+  const h = heading.trim().toLowerCase();
+  if (h === 'our businesses') return 0;
+  const i = FOOTER_HEADINGS.findIndex((x) => x.toLowerCase() === h);
+  return i < 0 ? FOOTER_HEADINGS.length : i;
+};
+
+export function Shell({ page, nav, header, footer, children }: { page: PageJson; nav: SiteNav; header?: ShellHeader; footer?: ShellFooter; children: React.ReactNode }) {
   const t = resolveTheme(page.brand);
   // Mobile menu open state lives here (not in NavBar) so the sticky CTA below
   // can hide itself while the menu is open — see NavBar.tsx's own comment on
@@ -113,7 +136,29 @@ export function Shell({ page, nav, header, children }: { page: PageJson; nav: Si
       {/* ── MAIN ───────────────────────────────────────────────── */}
       <main id="main-content" className="flex-1">{children}</main>
 
-      {/* ── FOOTER (complete, registry-driven) ─────────────────── */}
+      {/* ── FOOTER ─────────────────────────────────────────────── */}
+      {footer ? (() => {
+        const addr = footer.addressLines ?? (() => { const a = page.nap.address || ''; const i = a.lastIndexOf(', '); return i > 0 ? [a.slice(0, i), a.slice(i + 2)] : a ? [a] : []; })();
+        const cols: SiteFooterColumn[] = nav.footer.map((c) => ({ heading: c.heading, links: c.links, viewAll: footer.viewAll?.[c.heading] }));
+        if (nav.legalLinks && nav.legalLinks.length > 0) cols.push({ heading: 'Legal', links: nav.legalLinks, kind: 'legal' });
+        cols.sort((a, b) => slotIndex(a.heading) - slotIndex(b.heading));
+        return (
+          <SiteFooter
+            logo={{ src: footer.logo.src, alt: footer.logo.alt ?? nav.brandName, height: footer.logo.height }}
+            description={footer.description}
+            address={addr}
+            phone={hasPhone ? { label: phone, href: tel } : undefined}
+            email={page.nap.email || undefined}
+            social={nav.social}
+            cta={hasCta ? { label: ctaLabel as string, href: ctaHref } : undefined}
+            columns={cols}
+            rows={footer.rows}
+            companyLine={`© ${new Date().getFullYear()} ${footer.legalEntity ?? 'Vigil Services Ltd'} · ${nav.companyReg} · Registered in England and Wales`}
+            tradingNote={footer.tradingNote}
+            note={nav.footerRichText && nav.footerRichText.length > 0 ? <div data-vf-footer-richtext>{nav.footerRichText.map((b, i) => renderBlock(b, i))}</div> : undefined}
+          />
+        );
+      })() : (
       <footer style={{ background: t.footer, color: t.onFooter }} className="border-t px-6 py-12" data-vf-footer>
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-4">
           <div>
@@ -154,6 +199,7 @@ export function Shell({ page, nav, header, children }: { page: PageJson; nav: Si
           </div>
         )}
       </footer>
+      )}
 
       {/* ── STICKY CTA (single, governed) ──────────────────────── */}
       {/* Reserve bottom space so the sticky never obscures the footer/legal, and

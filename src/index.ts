@@ -72,7 +72,9 @@ export { MobileCta } from './shell/MobileCta';
 // shell v2 (v0.3 — coordinated complete shell: logo + accessible mobile nav +
 // complete footer + single governed sticky CTA)
 export { Shell } from './shell/Shell';
-export type { ShellHeader } from './shell/Shell';
+export type { ShellHeader, ShellFooter } from './shell/Shell';
+export { SiteFooter, balanceFooterColumns, FOOTER_HEADINGS } from './shell/SiteFooter';
+export type { SiteFooterProps, SiteFooterColumn, SiteFooterLink, BalancedFooter } from './shell/SiteFooter';
 // v1.2 — F2-B1 (netyvee/app#344): the nav/header primitive Shell renders
 // internally, exported standalone so a consumer can adopt just the nav (flat
 // links, F2-B0 dropdowns/accordions, F2-B1 icon/description/columns/footerLink)
