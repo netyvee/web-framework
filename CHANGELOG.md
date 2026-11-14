@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.28.0 (2026-11-14) - SiteFooter: one canonical white footer, row rule and five headings (netyvee/app#344, D-140/D-142/D-167)
+
+New `SiteFooter` component (also exported: `balanceFooterColumns`, `FOOTER_HEADINGS`) and an opt-in `Shell` `footer` option (`ShellFooter`). The footer is three bands on one
+column grid: identity (logo and description | contact | quote button and social links), navigation (up to five equal columns: Services | Careers | Areas covered | Company | Legal)
+and small print. Founder-approved 2026-11-14.
+Row rule: every column shows the same number of rows (`rows`). A longer list is cut to `rows`, the last row becoming the hub link (`viewAll`, e.g. "All areas →") when one exists;
+legal links are never cut (overflow moves to the small-print row); empty columns are omitted and short ones are never padded.
+The component is server-safe and carries its own scoped CSS (`vf-sf` prefix), so it renders identically on sites whose Tailwind does not scan this package. Small teal text uses #0b7a72 (5.2:1 on white;
+the older #0f8f86 is 3.97:1 and fails WCAG AA for small text). `Shell` without `footer` renders the previous footer, byte-identical to v1.27.0.
+Test: `tests/site-footer.test.tsx` (10).
+Contract impact: none for existing consumers (additive, optional).
+
 ## v1.27.0 (2026-11-13) - Shell: optional header presentation (netyvee/app#344, D-140/D-142)
 
 `Shell` gains an optional `header` prop (`ShellHeader`: `brand`, `logoHeight`, `logoLabel`, `logoLabelCollapse`). `header.brand` colours the header and its
