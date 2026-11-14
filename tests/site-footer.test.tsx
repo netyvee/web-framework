@@ -68,6 +68,11 @@ describe('SiteFooter', () => {
     const { container } = render(<SiteFooter {...base} columns={five} />);
     expect((container.querySelector('a.vf-sf-cta') as HTMLElement).style.padding).toBe('0px 14px');
   });
+  it('uses a tighter column gap with five columns so a 14px link of about 200px stays on one line', () => {
+    const five = Array.from({ length: 5 }, (_, i) => ({ heading: `H${i}`, links: links(1, `k${i}`) }));
+    const { container } = render(<SiteFooter {...base} columns={five} />);
+    expect((container.querySelector('.vf-sf-grid') as HTMLElement).style.getPropertyValue('--gap')).toBe('24px');
+  });
   it('opens external social profiles in a new tab with noopener noreferrer', () => {
     const { container } = render(<SiteFooter {...base} columns={[{ heading: 'Services', links: links(1) }]} social={[{ label: 'Profile', href: 'https://example.test/p', newTab: true }]} />);
     const a = container.querySelector('ul.vf-sf-social a') as HTMLAnchorElement;

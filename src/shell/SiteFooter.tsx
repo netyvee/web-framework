@@ -92,7 +92,7 @@ const CSS = `
 .vf-sf-wrap{max-width:72rem;margin:0 auto;padding:0 24px}
 .vf-sf-band{padding:36px 0}
 .vf-sf-band+.vf-sf-band{border-top:1px solid rgba(10,22,40,.12)}
-.vf-sf-grid{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));column-gap:32px;align-items:start}
+.vf-sf-grid{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));column-gap:var(--gap,32px);align-items:start}
 .vf-sf-brand img{display:block;width:auto}
 .vf-sf-desc{margin:14px 0 0;line-height:21px;color:rgba(10,22,40,.76);max-width:380px}
 .vf-sf h3{margin:0 0 12px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:${TEAL_DEEP}}
@@ -136,7 +136,7 @@ export function SiteFooter(props: SiteFooterProps) {
     <footer className="vf-sf" data-vf-footer data-vf-footer-v="2">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="vf-sf-wrap">
-        <div className="vf-sf-band vf-sf-grid" style={{ ['--n' as string]: n }}>
+        <div className="vf-sf-band vf-sf-grid" style={{ ['--n' as string]: n, ['--gap' as string]: n >= 5 ? '24px' : '32px' }}>
           <div className="vf-sf-brand" style={{ gridColumn: `1 / span ${brandSpan}`, marginTop: 4 }}>
             {/* plain <img>: no per-site remotePatterns needed, identical as a repo-static or CDN asset */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -164,7 +164,7 @@ export function SiteFooter(props: SiteFooterProps) {
             </div>
           )}
         </div>
-        <div className="vf-sf-band vf-sf-grid" style={{ ['--n' as string]: n }}>
+        <div className="vf-sf-band vf-sf-grid" style={{ ['--n' as string]: n, ['--gap' as string]: n >= 5 ? '24px' : '32px' }}>
           {cols.map((col, i) => {
             const id = `vf-sf-h-${i}`;
             return (
