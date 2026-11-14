@@ -16,7 +16,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { NavLinkRel } from '../types';
 
-export type SiteFooterLink = { label: string; href: string; rel?: NavLinkRel };
+export type SiteFooterLink = { label: string; href: string; rel?: NavLinkRel; /** Open in a new tab (external profiles). Adds rel="noopener noreferrer". */ newTab?: boolean };
 
 export type SiteFooterColumn = {
   /** Heading text. The canonical set is FOOTER_HEADINGS; "Our businesses" is Main's Services slot. */
@@ -131,6 +131,7 @@ export function SiteFooter(props: SiteFooterProps) {
   const hasContact = Boolean((address && address.length) || phone || email);
   const hasActions = Boolean(cta || (social && social.length));
   const rel = (l: SiteFooterLink) => (l.rel ? ({ 'data-vf-rel': l.rel } as const) : {});
+  const tab = (l: SiteFooterLink) => (l.newTab ? ({ target: '_blank', rel: 'noopener noreferrer' } as const) : {});
   return (
     <footer className="vf-sf" data-vf-footer data-vf-footer-v="2">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -157,7 +158,7 @@ export function SiteFooter(props: SiteFooterProps) {
               {cta && <a className="vf-sf-cta" href={cta.href} style={n >= 5 ? { padding: '0 14px' } : undefined}>{cta.label}</a>}
               {social && social.length > 0 && (
                 <ul className="vf-sf-social" aria-label="Social media">
-                  {social.map((s) => <li key={s.href}><a href={s.href} {...rel(s)}>{s.label}</a></li>)}
+                  {social.map((s) => <li key={s.href}><a href={s.href} {...rel(s)} {...tab(s)}>{s.label}</a></li>)}
                 </ul>
               )}
             </div>

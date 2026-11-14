@@ -68,6 +68,12 @@ describe('SiteFooter', () => {
     const { container } = render(<SiteFooter {...base} columns={five} />);
     expect((container.querySelector('a.vf-sf-cta') as HTMLElement).style.padding).toBe('0px 14px');
   });
+  it('opens external social profiles in a new tab with noopener noreferrer', () => {
+    const { container } = render(<SiteFooter {...base} columns={[{ heading: 'Services', links: links(1) }]} social={[{ label: 'Profile', href: 'https://example.test/p', newTab: true }]} />);
+    const a = container.querySelector('ul.vf-sf-social a') as HTMLAnchorElement;
+    expect(a.getAttribute('target')).toBe('_blank');
+    expect(a.getAttribute('rel')).toBe('noopener noreferrer');
+  });
   it('marks the hub link and moves legal overflow to the small print', () => {
     const { container } = render(
       <SiteFooter {...base} rows={3}
