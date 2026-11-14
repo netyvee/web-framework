@@ -154,7 +154,7 @@ export function SiteFooter(props: SiteFooterProps) {
           )}
           {hasActions && (
             <div className="vf-sf-actions" style={{ gridColumn: `${n} / span 1` }}>
-              {cta && <a className="vf-sf-cta" href={cta.href}>{cta.label}</a>}
+              {cta && <a className="vf-sf-cta" href={cta.href} style={n >= 5 ? { padding: '0 14px' } : undefined}>{cta.label}</a>}
               {social && social.length > 0 && (
                 <ul className="vf-sf-social" aria-label="Social media">
                   {social.map((s) => <li key={s.href}><a href={s.href} {...rel(s)}>{s.label}</a></li>)}

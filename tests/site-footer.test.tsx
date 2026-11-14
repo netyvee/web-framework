@@ -63,6 +63,11 @@ describe('SiteFooter', () => {
     expect(within(f).getByText('Request support').getAttribute('href')).toBe('/enquire');
     expect(f.querySelectorAll('nav[aria-labelledby]').length).toBe(2);
   });
+  it('tightens the button padding on five-column footers so it stays inside the last column', () => {
+    const five = Array.from({ length: 5 }, (_, i) => ({ heading: ['Services', 'Careers', 'Areas covered', 'Company', 'Legal'][i], links: links(1, `k${i}`) }));
+    const { container } = render(<SiteFooter {...base} columns={five} />);
+    expect((container.querySelector('a.vf-sf-cta') as HTMLElement).style.padding).toBe('0px 14px');
+  });
   it('marks the hub link and moves legal overflow to the small print', () => {
     const { container } = render(
       <SiteFooter {...base} rows={3}
