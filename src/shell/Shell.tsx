@@ -15,6 +15,7 @@ import type { PageJson, SiteNav, NavLink, NavLinkRel } from '../types';
 import { resolveTheme } from '../tokens/theme';
 import { primaryCtaHref, isRecruitmentPage } from '../cta';
 import { NavBar, Logo } from './NavBar';
+import { AttributionLinks } from '../attribution/AttributionLinks';
 import { renderBlock } from '../sections/Prose';
 import { SiteFooter, FOOTER_HEADINGS, type SiteFooterColumn, type SiteFooterLink } from './SiteFooter';
 
@@ -110,6 +111,8 @@ export function Shell({ page, nav, header, footer, children }: { page: PageJson;
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: page.brand.bg, color: page.brand.text, ...(t.cssVars as React.CSSProperties) }}>
+      {/* v1.29.0 — forwards first-touch campaign attribution to the CRM enquiry funnel at click time. Renders nothing (markup byte-identical). */}
+      <AttributionLinks />
       {/* ── SKIP LINK (WCAG 2.4.1 bypass block) ────────────────── */}
       <a
         href="#main-content"
