@@ -28,6 +28,7 @@
 
 | Framework | schema_version | Next.js | Consumers verified | Status |
 |---|---|---|---|---|
+| **v1.29.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — minor: new `AttributionLinks` (mounted by `Shell`, renders nothing) and attribution helpers: first-touch campaign attribution (utm keys, click ids, landing URL) is added to links to the CRM client enquiry funnel at click time; consent-gated persistence; candidate links untouched. Additive; takes effect when a site re-pins. |
 | **v1.28.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — minor: new `SiteFooter` (+ `balanceFooterColumns`, `FOOTER_HEADINGS`) and opt-in `Shell` `footer` option: one canonical white footer, five headings, equal-row rule (`netyvee/app#344`); `Shell` without `footer` is byte-identical to v1.27.0; no consumer change required |
 | **v1.27.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — minor: `Shell` gains an optional `header` prop (`ShellHeader`: `brand`, `logoHeight`, `logoLabel`, `logoLabelCollapse`) so a site can restyle its header without changing `page.brand` (`netyvee/app#344`, D-140/D-142); omitted = byte-identical to v1.26.0; no consumer change required |
 | **v1.26.0** | 1 | 14.2.x, 15.x, 16.4.x | none yet — minor: `NavBar` gains optional `logoHeight`, `logoLabel`, `logoLabelCollapse` (master-brand header, `netyvee/app#344`, D-140); default-off, omitted = byte-identical to v1.25.2; no consumer change required |

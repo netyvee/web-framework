@@ -95,3 +95,11 @@ export {
   type MarkdownBlogLoaderResult,
   type MarkdownBlogLoader,
 } from './blog/markdownLoader';
+
+// v1.29.0 — GROWTH-ATTRIBUTION-FORWARD-01: first-touch campaign attribution forwarded to the CRM enquiry funnel (consent-gated persistence).
+export { AttributionLinks } from './attribution/AttributionLinks';
+export {
+  ATTRIBUTION_KEYS, ATTRIBUTION_STORAGE_KEY, ENQUIRY_LINK_PREFIX,
+  parseAttribution, hasAttribution, mergeFirstTouch, decorateEnquiryHref, resolveAttribution,
+  type Attribution, type AttributionKey, type AttributionEnv,
+} from './attribution/attribution';

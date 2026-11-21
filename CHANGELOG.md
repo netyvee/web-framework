@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.29.0 (2026-11-21) - Growth attribution: first-touch campaign attribution reaches the CRM enquiry funnel (netyvee/app#344, D-192)
+
+New `AttributionLinks` client component (mounted by `Shell`; renders nothing, so page markup is byte-identical) and the pure helpers `parseAttribution`, `mergeFirstTouch`,
+`decorateEnquiryHref`, `resolveAttribution` (also exported with `ATTRIBUTION_KEYS`, `ENQUIRY_LINK_PREFIX`, `ATTRIBUTION_STORAGE_KEY`).
+The CRM enquiry funnel already stored `utm_*`, `gclid`, `fbclid`, `msclkid` and `landing_page` from its own address, but every website CTA was a static link, so a visitor who arrived from an ad
+or campaign reached the CRM with the attribution gone. Now, on a click or middle-click of a link to `https://app.vigilservices.co.uk/enquire/...`, the visitor's first-touch values are added to that link.
+Rules: only the six utm keys, the three click ids and the landing URL (origin and path, never the query) are read; candidate links (`/careers/...`) are never touched; parameters a link already carries win;
+first touch wins; values over 255 characters (2048 for the landing URL) or with control characters are dropped. Persistence across pages uses `sessionStorage` ONLY when cookie consent is
+granted (the same single gate as the analytics loader); without a choice or after a refusal nothing is written to the device, and the values serve the current page view from memory only.
+Test: `tests/attribution.test.tsx` (16). Contract impact: none for existing consumers (additive; a site gets the behaviour on re-pinning). Sites must re-pin and redeploy to receive it.
+
 ## v1.28.0 (2026-11-14) - SiteFooter: one canonical white footer, row rule and five headings (netyvee/app#344, D-140/D-142/D-167)
 
 New `SiteFooter` component (also exported: `balanceFooterColumns`, `FOOTER_HEADINGS`) and an opt-in `Shell` `footer` option (`ShellFooter`). The footer is three bands on one
